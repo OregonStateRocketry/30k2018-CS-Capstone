@@ -1,0 +1,141 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{			Team Name TBD}
+\def \CapstoneTeamNumber{		}
+\def \GroupMemberOne{			Joshua Novak}
+\def \GroupMemberTwo{			Allison Sladek}
+\def \GroupMemberThree{			Levi Willmeth}
+\def \CapstoneProjectName{		30K Rocket Competition 2018}
+\def \CapstoneSponsorCompany{	Oregon State University}
+\def \CapstoneSponsorPerson{	Dr. Nancy Squires}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{		Problem Statement
+					%Requirements Document
+					%Technology Review
+					%Design Document
+					%Progress Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	%\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            %\Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            %Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            %\CapstoneTeamName\par
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract    
+        	This document is written using one sentence per line.
+        	This allows you to have sensible diffs when you use \LaTeX with version control, as well as giving a quick visual test to see if sentences are too short/long.
+        	If you have questions, ``The Not So Short Guide to LaTeX'' is a great resource (\url{https://tobi.oetiker.ch/lshort/lshort.pdf})
+        \end{abstract}     
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. Project abstract summarizing the entire document in 100-150 words.
+\section{Project Abstract}
+We will write software to support the Oregon State University AIAA team's rocket entry during the Spaceport America Cup 30k Challenge in summer 2018.  The competition involves designing, building, and launching a student-made rocket to 30,000 feet.
+\par
+Our primary role on the team will be to write the software necessary to record and display telemetry data from both the rocket and a scientific payload during flight.  The rocket and payload will both include primary and redundant telemetry systems, which means parsing 4 HAM radio signals for pertinent information while plotting that information onto a map, all in near real time.  This is critical because a good score in the competition depends on quickly retrieving our rocket from a launch area that includes several hundred square miles.
+\par
+After retrieving the rocket, we will analyze additional flight characteristics which the rocket will record on removable media.  The data will include several fields from several sensors, and our goal will be to help find the cause of any problems for the benefit of future launches.
+\par
+
+% 9. Definition and description of the problem you are trying to solve.
+\section{Problem Definition}
+This project includes solving two major problems and providing additional support to our teammates developing the avionics and payload electronics.
+
+\subsection{Tracking the rocket and payload}
+The primary problem will be to design, build, and test a ground station capable of receiving and parsing telemetry data sent back from the air using a HAM radio.  At a minimum, the data is expected to include a unique identifier, timestamp, and GPS latitude, longitude, and altitude, but may also include additional fields.  We are expected to parse out this information and display it in a useful way in near real time.  The data will be used to identify problems with the launch in the event the rocket or payload are not recoverable, or to locate the equipment if we have a successful flight and landing.
+\par
+One of the major challenges here will be the fact that we will not have hardware to test with, until mid to late February at the earliest.  That means that we need to write our software using sample inputs and work closely with the ECE subteam who are developing the avionics electronics to transmit this telemetry data, to ensure that both subteams expect the same frequency, formatting, and content of the data.  We may also need to assist the ECE team developing the software used to format, store, and transmit sensor data.
+
+\subsection{Analyze data collected during flight}
+As part of the competition scoring system, We need to read and interpret the additional sensor data generated by the rocket and payload, which will be stored on SD cards during the flight.  The exact details of this data are undetermined at this time, but we expect there will be several sensors measuring physical characteristics of the rocket including several axis of motion, temperature, and pressure.  There will probably be primary and secondary sensors for each important measurement, distributed across one or more onboard computers.  Each computer will probably generate it's own SD card, which means we may need to combine several SD cards into a single set of data.  We will learn more about how to interpret and display the data as our project matures.
+
+\subsection{Support the rest of the AIAA team}
+Another very important task will be to support the team in any way necessary.  We may need to help write software for the avionics or payload subgroups, sand carbon fiber to meet a structural deadline, or help to locate and recruit sponsorships to make the project financially possible.  Each subgroup has the intention of covering their own workload, but at the competition we will all succeed or fail together.
+
+% 10. Proposed solution
+\section{Proposed Solution}
+
+\subsection{Writing a ground station}
+To track the rocket and payload, we propose writing a ground station program capable of receiving an audio source or text file as input, which is then parsed and displayed as a series of GPS points superimposed onto a map of the local area.  This should allow us to receive and parse inputs from a HAM radio source, but we may need to update this if the ECE team decides to use another type of radio.
+
+\par
+The primary purpose of this program will be to track and recover the rocket, and scientific payload, at the competition.  Depending on how the project develops and the limitations of parsing multiple audio sources simultaneously, the program may be designed to track only one or both of the rocket and payload.  The map should be imported from a file, or downloaded if an internet connection is available.  The program should display the launch location, flight path as indicated by a series of received positions, and current location.
+
+\par
+We will simultaneously develop a suite of unit tests to reduce bugs. Depending on the language used, the test suite should include mutation testing or automatically generated test cases to improve the range of test inputs.  Aerospace companies take testing very seriously, and so will we.
+
+\subsection{Interpreting the onboard data}
+The project is still developing and the exact data fields are yet to be determined.  However, we anticipate several fields of acceleration, gyroscope, magnetometer, atmospheric pressure, and GPS latitude, longitude, and altitude.  We expect that the rocket and payload will each record different sets of data and that we will be expected to analyze data from each vehicle independently.
+
+\subsection{Supporting the rest of the AIAA team}
+To support the rest of the team, we will attend regular team meetings and try to understand the problems and challenges faced by the other sub groups.  If we see an opportunity to help another subteam with something, we will do our best to do so.  We will also attend team building and training exercises, as well as all practice rocket launches.
+
+\par
+Sometimes, supporting the rest of the team means asking for help from them.  In the event that we are the subteam that needs support, we will make the problem known and ask for help.  We will stay in communication with our primary sponsor Dr. Nancy Squires, and other team mentors.  We will treat ourselves and other team members with respect, and do our best to create a good working environment in team spaces.
+
+%11 Performance metrics
+\section{Performance metrics}
+Many aspects of this project could change between now and completion. As such, the performance metrics should be based on achieving our overall goals.
+
+\par
+1. Demonstrate the ability to track a rocket and payload, given a set of viable inputs.  These inputs may be in the form of properly formatted radio signals, or as a computer file.  The result should display the launch location, a route or series of way points, and the final location of the vehicle. The program should include a test suite that includes at least 80\% of it's lines of code, and be able to run without crashing.
+
+\par
+2. Demonstrate reading sensor data from an SD card, and graph or otherwise display that data in a useful way.  This could be combined with the above tracking program, or be written as a separate program.  The program should gracefully handle invalid sensor inputs by warning the user, and ignoring those inputs.  The program should be able to combine or relate sensor data between more than one file, if applicable.
+
+\par
+3. The ground station program should be robust and contain no mission-critical bugs.  The test suite should cover at least 80\% of the ground station's lines of code, with a goal of over 90\%.
+
+\end{document}
