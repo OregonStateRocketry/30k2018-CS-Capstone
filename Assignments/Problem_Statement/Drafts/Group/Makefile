@@ -44,7 +44,7 @@ showps: $(PSF)
 all: pdf
 
 clean:
-	rm -f *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg *.pdf
+	rm -f *.toc *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg *.pdf
 
 .PHONY: all show clean ps pdf showps
 
