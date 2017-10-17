@@ -13,7 +13,7 @@
 \def \GroupMemberOne{			Joshua Novak}
 \def \GroupMemberTwo{			Allison Sladek}
 \def \GroupMemberThree{			Levi Willmeth}
-\def \CapstoneProjectName{		30K Rocket Competition 2018}
+\def \CapstoneProjectName{		30K Rocket Spaceport America}
 \def \CapstoneSponsorCompany{	Oregon State University}
 \def \CapstoneSponsorPerson{	Dr. Nancy Squires}
 
@@ -68,7 +68,7 @@
 
         \begin{abstract}
         % 6. Fill in your abstract
-        Problem description and proposed solutions for the computer science aspects of the Spaceport America Cup 30k Challenge.  The competition involves designing, building, and launching a student-made rocket to 30,000 feet, and is scored on several criteria including a software ground station which records and displays near real time telemetry from the rocket, and a separate scientific payload.
+        The Spaceport America Cup is an international engineering competition to design, build, and fly a student-made rocket to 30,000 feet.  The competition is scored on several criteria including the software components outlined by this problem statement.  These software components control the rocket avionics, record and display near real time telemetry, and later display the results from an scientific payload.
 		\end{abstract}
 
     \end{singlespace}
@@ -83,42 +83,41 @@
 
 % 8. Project abstract summarizing the entire document in 100-150 words.
 \section{Project Overview}
-This capstone project will consist of software to support the Oregon State University (OSU) American Institute of Aeronautics and Astronautics (AIAA) team's rocket entry during the Spaceport America Cup 30k Challenge in summer 2018.  The competition involves designing, building, and launching a student-made rocket to 30,000 feet.
-
-Our task will be to write the software necessary to record and display telemetry data from both the rocket and a scientific payload during flight.  The rocket and payload will both include primary and redundant telemetry systems, which means parsing four high frequency radio signals (HAM) for pertinent information while plotting that information onto a map, all in near real time.  This is critical because a good score in the competition depends on quickly retrieving our rocket from a launch area that includes several hundred square miles.
-
-After retrieving the rocket, we will analyze additional flight characteristics which the rocket will record on removable media.  The data will include several fields from several sensors, and our goal will be to help find the cause of any problems for the benefit of future launches.
+This computer science (CS) capstone project will include writing software to support the Oregon State University (OSU) American Institute of Aeronautics and Astronautics (AIAA) team's entry for the Spaceport America Cup 30k competition in the summer of 2018.  The competition involves designing, building, and launching a student-made rocket to 30,000 feet.
 
 % 9. Definition and description of the problem you are trying to solve.
 \section{Problem Definition}
-This project includes solving two major problems and providing additional support to our teammates developing the avionics and payload electronics.
 
-\subsection{Tracking the rocket and payload}
-The primary problem will be to design, build, and test a ground station capable of receiving and parsing telemetry data transmitted during flight, using a HAM radio.  At a minimum, the data is expected to include a unique identifier, timestamp, and GPS latitude, longitude, and altitude, but may also include additional fields.  We are expected to parse out this information and display it in a useful way in near real time.  The data will be used to identify problems with the launch in the event the rocket or payload are not recoverable, or to locate the equipment if we have a successful flight and landing.
+Our goals for entering the Spaceport America Cup are to learn and experience working together as a team to build a rocket, and to also score highly during the competition.  As such, the scoring criteria are very important to forming the needs of our project.  The exact scoring metric has not been released yet, but we expect the software components will include avionics to control the rocket, receiving near real time telemetry on the ground during the flight, and visualizing the results of an onboard scientific payload after the flight.  Our task will be to write the software necessary to accomplish those goals.
 
-One of the major challenges here will be the fact that we will not have hardware to test with, until mid to late February at the earliest.  That means that we need to write our software using sample inputs and work closely with the Electrical and Computer Engineering (ECE) subteam who are developing the avionics electronics to transmit this telemetry data, to ensure that both subteams expect the same frequency, formatting, and content of the data.  We may also need to assist the ECE team developing the software used to format, store, and transmit sensor data.
-
-\subsection{Analyze data collected during flight}
-As part of the competition scoring system, we need to read and interpret the additional sensor data generated by the rocket and payload, which will be stored on SD cards during the flight.  The exact details of this data are undetermined at this time, but we expect there will be several sensors measuring physical characteristics of the rocket including several axis of motion, temperature, and pressure.  There will probably be primary and secondary sensors for each important measurement, distributed across one or more onboard computers.  Each computer will probably generate it's own SD card, which means we may need to combine several SD cards into a single set of data.  We will learn more about how to interpret and display the data as our project matures.
-
-\subsection{Support the rest of the AIAA team}
-Another very important task will be to support the team in any way necessary.  We may need to help write software for the avionics or payload subgroups, sand carbon fiber to meet a structural deadline, or help to locate and recruit sponsorships to make the project financially possible.  Each subgroup has the intention of covering their own workload, but at the competition we will all succeed or fail together.
+The AIAA team includes several sub teams that will all need to work together.  In particular, we will need to work with the electrical and computer engineering (ECE) students who are responsible for developing the avionics hardware and telemetry radio systems.  The ECE subteam is ultimately responsible for those systems, but we will provide support to write the necessary software.  It is important to support the overall team because at the competition we will all succeed or fail together.
 
 % 10. Proposed solution
 \section{Proposed Solution}
 
-\subsection{Writing a ground station}
-To track the rocket and payload, we propose writing a ground station program capable of receiving an audio source or text file as input, which will be parsed and displayed as a series of GPS points superimposed onto a map of the local area.  This should allow us to receive and parse inputs from a HAM radio source, but we may need to update this if the ECE team decides to use another type of radio.
+\subsection{Develop a ground station to receive telemetry}
+To track the rocket and payload, we propose writing a ground station program to parse and display telemetry data sent to the program as an audio source or computer file.
 
-The primary purpose of this program will be to track and recover the rocket, and scientific payload, at the competition.  Depending on how the project develops and the limitations of parsing multiple audio sources simultaneously, the program may be designed to track only one or both of the rocket and payload.  The map might be imported from a file, or possibly downloaded if an internet connection is available.  The program should display the launch location, flight path as indicated by a series of received positions, and current location.
+At a minimum, the telemetry data is expected to include a unique identifier for the rocket or payload, timestamp, and GPS latitude, longitude, and altitude, but it may also include additional fields.  We are only responsible for receiving, not transmitting this telemetry data.
 
-We will simultaneously develop a suite of unit tests, which may include mutation testing or automatically generated test cases.  Aerospace companies take testing very seriously, and so will we.
+We will display the telemetry data in near real time in such a way that it can be used to locate the equipment if we have a successful flight, or help identify problems with the launch in the event the rocket or payload are not recoverable.  We may display the data as a series of way points on a map of the local area, with accompanying graphs or figures to show useful information such as maximum altitude or calculated velocity.
 
-\subsection{Interpreting the onboard data}
-The project is still developing and the exact data fields are yet to be determined.  However, we anticipate the data fields may include a timestamp, acceleration, gyroscope, magnetometer, temperature, atmospheric pressure, and GPS latitude, longitude, and altitude.  We expect that the rocket and payload will each record different sets of data and that we will be expected to analyze data from each vehicle independently.
+The rocket and payload may both use primary and secondary telemetry signals, in which case the program may need to select a single source and run on more than one computer.  This may be necessary if, for example, the audio signals are on different frequencies or overlap in timing.
 
-\subsection{Supporting the rest of the AIAA team}
-To support the rest of the team, we will attend regular team meetings and try to understand the problems and challenges faced by the other sub groups.  If we see an opportunity to help another subteam with something, we will do our best to do so.  We will also attend the majority of team building and training exercises, as well as all practice rocket launches.
+\subsection{Interpret the scientific payload data}
+The project is still developing and we are not yet certain what type of data the scientific payload will collect.  However, we expect that it will include a GPS transmitter similar to the rocket, as well as some number of additional scientific measurements which will probably include several fields of acceleration.   The rocket and payload may each record different sets of data and if so, we will be expected to analyze data from each vehicle independently.
+
+This data will be stored on a micro SD card that we can copy after the flight.  We will write a program to graph or otherwise display the recorded data based on the details of the experiment and Spaceport America competition scoring rubric.
+
+\subsection{Support development of avionics software}
+We will work closely with the ECE subteam to develop the software necessary for avionics.  This system is responsible for triggering the separation of the rocket at apogee, deployment of the scientific payload and drogue parachute, and the later deployment of the main parachute.  These are all mission-critical and time-sensitive tasks that MUST occur for a successful flight.
+
+A suite of unit tests will be generated for this program, including the ability to read in a complete set of sample data to simulate a launch.  We will use these tests to ensure that our program ONLY triggers the separation and deployment stages at the proper times.
+
+This avionics software is mission-critical.  Aerospace companies take testing very seriously, and so will we.
+
+\subsection{Support the AIAA team as a whole}
+We will attend regular team meetings and try to understand the problems and challenges faced by the other subteams.  If we see an opportunity to help another subteam with something, we will do our best to do so.  We will also attend the majority of team building and training exercises, as well as all practice rocket launches.
 
 Sometimes, supporting the rest of the team means asking for help from them.  In the event that we are the ones who need support, we will talk with our team members and ask for help.  We will stay in communication with our primary sponsor Dr. Nancy Squires, and other team mentors.  We will treat ourselves and other team members with respect, and do our best to create a good working environment both online and in person.
 
@@ -129,12 +128,12 @@ Many aspects of this project could change between now and completion. As such, t
 \subsection{Tracking the rocket and payload}
 Demonstrate the ability to track a rocket and payload, given a set of viable inputs.  These inputs may be in the form of properly formatted radio signals, or as a computer file of sensor values.  The program should record and display the launch location, a series of way points, and the final location of the vehicle.  We will not be expected to generate radio signals.
 
-If there are multiple radio signals available, for example primary and secondary signals, the program may be applied selectively to only one or more of the signals with the expectation that a second copy of the program may be used to record the other signals.  This may be necessary if, for example, we have 4 simultaneous radio signals on different frequencies.  In that situation we may need to run the program on 2 or more computers to successfully process the multiple audio sources.
+If there are multiple radio signals available, for example primary and secondary signals, the program may be applied selectively to only one or more of the signals with the expectation that a second copy of the program may be used to record the other signals.  This may be necessary if, for example, we have four simultaneous radio signals on different frequencies.  In that situation we may need to run the program on two or more computers to successfully process the multiple audio sources.
 
 \subsection{Displaying data recorded during flight}
 Demonstrate reading sensor data from an SD card, and display that data as a set of graphs.  This could be combined with the above tracking program, or be written as a separate program.  The program should handle invalid sensor inputs by warning the user and ignoring those inputs.  The program should be able to display all fields of data generated by the avionics hardware during a normal flight.
 
 \subsection{Hardware simulation and suite of unit tests}
-Our team will produce a test suite that will cover at least 80\% of the ground station's lines of code.  Depending on the language used, test cases may be either written manually or using automated or mutation-based test generation software.
+Our team will produce a test suite that will cover at least 80\% of the lines of code written for the ground station and avionics software.  Depending on the language used, test cases may be a combination of manually written tests or tests generated using automated or mutation-based software.
 
 \end{document}
