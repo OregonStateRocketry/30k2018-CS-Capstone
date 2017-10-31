@@ -2,8 +2,8 @@
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{setspace}
-
 \usepackage{geometry}
+
 \geometry{textheight=9.5in, textwidth=7in}
 
 % 1. Fill in these details
@@ -142,24 +142,46 @@ CS capstone group final Problem Statement\\
 https://github.com/OregonStateRocketry/30k2018-CS-Capstone
 
 \subsection{Overview}
-This document contains the complete software requirements and specifications for the computer science portion of the Spaceport America Cup 30k rocket competition.  It is organized into groups of user stories and characteristics, specific product functions, constraints, and assumptions about program inputs and outputs.
+This document contains the complete software requirements and specifications for the computer science portion of the Spaceport America Cup 30k rocket competition.  The software can be organized into four parts:
+
+\begin{enumerate}
+\item Ground station - \textbf{Parser program}, takes an audio source from a radio and stores APRS fields in a database.
+\item Ground Station - \textbf{Display program}, reads from the database and displays information to multiple users.
+\item \textbf{Rocket Avionics}, reads and logs onboard sensors, triggers flight events on the rocket.
+\item \textbf{Payload Avionics}, reads and logs onboard sensors, triggers flight events on the payload.
+\end{enumerate}
+
+This document outlines the requirements for each of these programs organized as sets of user stories, characteristics, specific product functions, constraints, and early assumptions about program inputs and outputs. This document may be updated as the requirements change throughout the project.
 
 \section{Overall description}
 \subsection{Product perspective}
-The tracking and ground station program is designed to receive data from a file, or an external source (telemetry from the rocket) in the form of a radio signal. The tracking program will parse the radio signal into a well-formatted string that includes several pre determined and delimited fields of data, as agreed on by both the CS and ECE teams. The program will graph or otherwise display the telemetry data within 5 seconds of receiving the radio signal.
+The Parser program will receive data from a file, or an external source (telemetry from the rocket) in the form of a radio signal. The specific data format will be agreed on by both the CS and ECE teams.  The Parser program will run on a ground station and parse out the individual fields, then store them in a database. The database may be hosted on the same computer, or another computer on the same network.
 
-The payload data analysis program will accept an input file from an SD card, in a format agreed on by both the CS and ECE teams.  This data will be used to graph or otherwise display the data collected during the flight. This data may include sensors or other results from the zero gravity experiment.
+The Display program will run on a client computer and graph or otherwise display telemetry or payload data from the database.
 
-The CS team will support the development of avionics software that will be dependant on the hardware selected or designed by the ECE team. This software will need to read various sensors to determine when to separate the rocket, eject the payload, and trigger the drogue and main parachutes.  This software may also record data from the sensors to an SD card for later analysis.
+The Rocket Avionics program will use onboard sensors to detect and trigger the separation of the rocket near the apogee of flight, as well as deploy the main parachute closer to the ground.  The optimal conditions for separation and deployment will be determined by team discussion and involving our experienced mentors.
+
+The Payload Avionics program will use onboard sensors to signal a propeller to push the payload down in order to create a low gravity environment on the payload. It will also trigger deployment of a parachute before impacting the ground.  The optimal conditions to deploy the parachute will be determined by team discussion.
 
 \subsubsection{System interfaces}
-The avionics software will interact with the rocket through the PCB designed by the ECE team.
+The Rocket Avionics software will interact with the rocket through the PCB designed by the ECE team.\\
+The Payload Avionics software will interact with the payload through the PCB designed by the ECE team.\\
+The Parser program will interact with an input source and database.\\
+The Display program will interact with the same network and database as the Parser program.
 
 \subsubsection{User interfaces}
+The Rocket and Payload Avionics software will allow for the use of an LED to indicate status.
+
+The Parser program will provide a text interface that can be used for general debugging purposes.
+
 The user interfaces for our software will be limited. Users will be able to use the GUI to view recent telemetry data. They will also be able to read the graphs generated from the payload data to draw conclusions about its flight and experimental results.
 
 \subsubsection{Hardware interfaces}
-The parsing software will interact with a radio device to collect telemetry data.  The avionics software will interact with the rocket through a PCB designed by the ECE team, which will provide sensors that will probably include at least one accelerometer, gyroscope, and barometer, as well as multiple explosive charges to separate the rocket, and deploy drogue and main parachutes.
+The Parser program will interact with a radio device to collect telemetry data.
+
+The Rocket Avionics software will interact with the rocket through a PCB designed by the ECE team, which will provide sensors that will probably include at least one accelerometer, gyroscope, and barometer, as well as multiple explosive charges to separate the rocket, and deploy drogue and main parachutes.
+
+The Payload Avionics software
 
 \subsubsection{Software interfaces}
 We may use external libraries or software to create graphs, especially from the data recorded on the scientific payload.  The parsing program will read and write to a local database.
@@ -201,47 +223,50 @@ Toggle a GPIO pin to deploy main parachute (if needed)
 The intended users of this software will consist primarily of other team members and mentors. They will have technical knowledge related to operation and construction of the rocket and its sensors. These users are all seniors in college or beyond. The nature of the graphical data will be technical. The software team will also be present at launch to assist in the use of the software.
 
 \subsection{Constraints}
-a)Regulatory policies;\\
+\subsubsection{Regulatory policies}
 The project may be subject to competition restrictions.\\
 The radio transmissions must comply with federal communications commission regulations.
 
-b)Hardware limitations (e.g., signal timing requirements);\\
-The computer hardware will be determined by the electrical engineering subteam of the 30k ESRA rocketry team.\\
-The program requires an external radio to receive radio signals.
+\subsubsection{Hardware limitations (e.g., signal timing requirements)}
+The software must comply with the requirements of the computer hardware selected by the ECE team.\\
+The parsing program requires an external radio to receive radio signals.\\
+The parsing program may require a network connection to any connected clients.
 
-c)Interfaces to other applications;\\
+\subsubsection{Interfaces to other applications}
 The telemetry and analysis programs require an external data source.
 
-d)Parallel operation\\
+\subsubsection{Parallel operation}
 Multiple copies of the telemetry program can run simultaneously on different machines, without interfering with each other.
 
-e)Audit functions\\
+\subsubsection{Audit functions}
 The telemetry and avionics programs will include a test suite covering at least 80\% of the CS team’s lines of code.
 
-f)Control functions\\
+\subsubsection{Control functions}
 Control functions are limited by the ECE and rocket hardware.
 
-g)Higher-order language requirements\\
+\subsubsection{Higher-order language requirements}
 The telemetry software may be written in a high level language.\\
 The avionics software will probably be written in C.
 
-h)Signal handshake protocols (e.g., XON-XOFF, ACK-NACK)
+\subsubsection{Signal handshake protocols (e.g., XON-XOFF, ACK-NACK)}
 
-i)Reliability requirements;\\
+\subsubsection{Reliability requirements}
 GPS tracking must be reliable to ensure recovery of the rocket. Computations for display and parsing of data must be accurate.\\
 Separation must be triggered at the right time consistently.
 
-j)Criticality of the application;\\
+\subsubsection{Criticality of the application}
 Displaying recent GPS data will be mission critical for recovery of the rocket. Interpretation and display of other data, including telemetry and payload is less critical, but still very important to the success of the launch. Separation at the right time is critical for recovery of the rocket.
 
-k)Safety and security considerations.\\
+\subsubsection{Safety and security considerations}
 Successfully tracking the rocket and payload are mission-critical.\\
-Successfully timing the separation of the rocket, and deplying the payload and both parachutes are mission-critical.
+Successfully timing the separation of the rocket, and deploying the payload and both parachutes are mission-critical.
 
 \subsection{Assumptions and dependencies}
 Rocket will launch far enough away from spectators not to pose a safety threat.
+
 The ECE team will provide the computer hardware necessary to run the avionics software and record data for use in the analysis program.
-The ECE team will create a radio signal containing accurate and well-formatted telemetry data.
+
+The ECE team will create a radio signal containing accurate and well-formatted telemetry data for both the rocket and payload components.
 
 \section{Specific requirements}
 \subsection{External interface requirements}
