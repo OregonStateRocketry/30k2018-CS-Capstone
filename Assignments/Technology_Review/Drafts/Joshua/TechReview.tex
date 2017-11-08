@@ -1,0 +1,126 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \CapstoneTeamName{30k CS Avionics}
+\def \CapstoneTeamNumber{41}
+\def \GroupMemberOne{Joshua Novak}
+\def \GroupMemberTwo{Allison Sladek}
+\def \GroupMemberThree{Levi Willmeth}
+\def \CapstoneProjectName{30k Rocket Spaceport America}
+\def \CapstoneSponsorCompany{Mechanical Engineering, Oregon State University}
+\def \CapstoneSponsorPerson{Nancy Squires}
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{  %Problem Statement
+				%Requirements Document
+				Technology Review
+				%Design Document
+				%Progress Report
+				}
+
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill		\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill
+        % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge CS Capstone \DocType \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\CapstoneProjectName}\par
+            \vfill
+            {\large Prepared for}\par
+            \Huge \CapstoneSponsorCompany\par
+            \vspace{5pt}
+            {\Large\NameSigPair{\CapstoneSponsorPerson}\par}
+            {\large Prepared by }\par
+            Group\CapstoneTeamNumber\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \CapstoneTeamName\par
+            \vspace{5pt}
+            {\Large
+                \NameSigPair{\GroupMemberOne}\par
+                \NameSigPair{\GroupMemberTwo}\par
+                \NameSigPair{\GroupMemberThree}\par
+            }
+            \vspace{20pt}
+        }
+        \begin{abstract}
+        % 6. Fill in your abstract
+        	The document will explain the goal of our project.
+					This includes and explanation of what the client has requested, our proposed solution, and a detailed description of what constitutes success on our part.
+				\end{abstract}
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. now you write!
+\section{Graphical User Interface Language}
+\subsection{Overview}
+The GUI will be in the form of either a web-hosted or local app that connects to an intranet database. It will display graphs of telemetry data, either live or recorded. 
+\subsection{Criteria}
+The criteria for evaluation is based on whether there are pre-existing libraries that can accomplish the task, the ease with which it can be implemented alongside a database and in a web-hosted app, and how flexible it will be for adjusting the visual design of the application. Pre-existing libraries and ease of implementation are given a priority because any of the three should be able to be used to accomplish the task and efficiency of the code is not of significant importance since it will all be run on client computers such as laptops that should be more than well-equipped to handle the task.
+\subsection{Potential Choices}
+\subsubsection{Python}
+
+\subsubsection{JavaScript}
+
+\subsubsection{Choice Three}
+
+\subsection{Compare}
+\subsection{Conclusion}
+
+\section{Avionics Code - Language}
+\subsection{Overview}
+A portion of the Avionics code for the rocket and payload will be written by the CS team, with some of the code also being written by the ECE team in order to satisfy the requirements of their Senior Capstone. This code will need to run on a Blackberry Pi.
+\subsection{Criteria}
+The criteria for selecting the language of the Avionics code is based on three major factors, the efficiency of the language, the compatibility of the language with the sensors that are likely to be used, and the suitability of the language to accomplishing the required tasks. As a minimum requirement to be used at all, the code must be compatible with the Blackberry Pi, narrowing the range for selection.
+\subsection{Potential Choices}
+\subsubsection{C}
+\subsubsection{Shell Scripts}
+\subsubsection{Python}
+\subsection{Compare}
+\subsection{Conclusion}
+
+\section{Avionics Code - Testing Methods}
+\subsection{Overview}
+The client has requested that the CS team create a thorough suite of tests for the Avionics code. This is due to the many failed recoveries of rockets in the past, which may have been due to poorly written/tested code.
+\subsection{Criteria}
+The criteria for evaluation is whether the testing method will allow us to test against likely errors that we may encounter from the sensors. This will vary based on the sensor in question, but of particular importance is a sensor throwing a value that is outside of expectations, not an acceptable value, or failing to send a value at all. Of lesser but still significant importance is creating tests that ensure that the return values for a flight without sensor errors are accurate.
+\subsection{Potential Choices}
+\subsubsection{Real Data}
+Testing against real data includes test launches/flights, testing against the sensors at rest, and testing against data recorded from previous flights, such as those carried out by earlier years or data found online. There are several limiting factors on these tests. Firstly, test launches/flights will not occur often, making their utility extremely limited. Also, we will most likely want our avionics code to be completely before any test launch. Second, previous flights and flights found online may have their data fixed to remove outliers or not contain errors. This makes this method less useful for satisfying our core criteria. However, they remain very useful for testing against the secondary criteria, as we should be able to test against flights/launches that reflect our own. Finally, tests against the sensors at rest will only be able to allow us to test within an extremely narrow range of possibilities that do not reflect the likely outcomes during a launch.
+\subsubsection{Simulated Launch w/ Robustness}
+Testing against a simulation tool or a collection of simulated data has a variety of advantages. It satisfies the second criteria very well, by testing against what should be the outputs of a typical launch or a launch within certain parameters. Robustness testing can be inserted in manner similar to how robustness testing is added to model-based testing, as outlined in this paper http://www.sciencedirect.com/science/article/pii/S1000936113001179. This robustness testing would include randomly having the sensor throw a value outside of the expected bound, a value that does not fit it's standard form, or having it shut down and turn on at random intervals. By setting this to occur randomly at some varying rate, the robustness of the suite can be dramatically increased, satisfying the second criteria.
+\subsubsection{Unit Testing}
+Unit Testing will ensure that the basic functionality of the code is there. It can be used to ensure that for very specific inputs the correct outputs are reached, and that every line of code and logic is checked. This helps satisfy the first and second criteria, and ensures the code is functional. It is also fairly straightforward to implement.
+\subsection{Compare}
+All three have particular advantages and disadvantages. Testing against real data is perhaps the best way to satisfy the second criteria, as it is definitely a test against a likely launch. However, it does not satisfy the first criteria to any significant degree, if at all. Unit Testing will assist in satisfying both criteria, but not as well as Simulated Launch with Robustness. However, it is much easier to implement than either other method.
+\subsection{Conclusion}
+Simulated Launch with Robustness is the best was to ensure that both criteria are satisfied, and therefore will be given the highest priority to complete. Unit Testing, due to the ease of implementing it as well as its significant returns, will be used alongside it. Testing against real data will be given the lowest priority, as it only satisfies the second criteria, and not significantly better than a Simulated Launch.
+\end{document}
