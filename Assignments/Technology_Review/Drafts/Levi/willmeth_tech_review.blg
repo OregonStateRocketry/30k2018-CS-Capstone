@@ -1,12 +1,15 @@
 This is BibTeX, Version 0.99d (TeX Live 2013)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: willmeth_tech_review.aux
-I found no \citation commands---while reading file willmeth_tech_review.aux
-I found no \bibdata command---while reading file willmeth_tech_review.aux
-I found no \bibstyle command---while reading file willmeth_tech_review.aux
-You've used 0 entries,
+I couldn't open style file IEEEtran.bst
+---line 30 of file willmeth_tech_review.aux
+ : \bibstyle{IEEEtran
+ :                   }
+I'm skipping whatever remains of this command
+I found no style file---while reading file willmeth_tech_review.aux
+You've used 7 entries,
             0 wiz_defined-function locations,
-            83 strings with 514 characters,
+            92 strings with 539 characters,
 and the built_in function-call counts, 0 in all, are:
 = -- 0
 > -- 0
@@ -45,4 +48,4 @@ warning$ -- 0
 while$ -- 0
 width$ -- 0
 write$ -- 0
-(There were 3 error messages)
+(There were 2 error messages)

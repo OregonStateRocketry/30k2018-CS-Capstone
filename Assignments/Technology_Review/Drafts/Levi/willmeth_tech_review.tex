@@ -100,6 +100,9 @@
 % 7. uncomment this (if applicable). Consider adding a page break.
 %\listoffigures
 %\listoftables
+
+% ===================================================================================
+
 \section{Project Overview}
 \subsection{Introduction}
 Our project is to design, build, and test software that will fly on board the Oregon State University's entry to the Spaceport America Cup's 30k Challenge.  The Spaceport America Cup is an international engineering competition to design, build, and fly a student-made rocket to 30,000 feet.  The competition is scored on several criteria including software components like flight avionics, recording and displaying telemetry, and using a scientific research payload.
@@ -116,7 +119,8 @@ These four goals provide a way of dividing the project into individual portions 
 
 I would like to manage one of the avionics programs, and possibly the parser program.  For the rocket avionics, I would be excited to write a kalman filter to exclude errant sensor data and prevent accidental early parachute deployment.  For the payload avionics, I would like to write a closed loop pid controller to adjust the motor speed to provide optimum thrust to achieve micro gravity.  The parser will also be interesting to work on because it may require parsing a wide variety of sensor data from csv files.
 
-% =============================================================================================
+% ===================================================================================
+
 \section{Transmitting telemetry data}
 
 \subsection{Overview of telemetry}
@@ -148,7 +152,7 @@ TeleMega data packets are formatted in 32 bit packets to reduce errors, and are 
 The TeleMega costs around \$280 and offers a 10\% student discount.  The TeleDongle is another ~\$100, bringing the total to around \$342 per signal.
 
 \subsection{RFD900}
-The RFD900 is a 900 MHz radio designed to work as a pair of serial modems.  We could generate a signal on the flight computer, send that signal to a TX RFD900 on the rocket, pick up the signal on a RX RFD900 on the ground, and get whatever telemetry fields we want on the ground.  The advantage is that the system would be very customizable.  We could send any size packets at any rate we want.  The disadvantage is reliability.  The RFD900 transmits at a much higher frequency, which reduces rates and has more trouble with interference from atmospheric conditions such as humidity.[1]
+The RFD900 is a 900 MHz radio designed to work as a pair of serial modems.  We could generate a signal on the flight computer, send that signal to a TX RFD900 on the rocket, pick up the signal on a RX RFD900 on the ground, and get whatever telemetry fields we want on the ground.  The advantage is that the system would be very customizable.  We could send any size packets at any rate we want.  The disadvantage is reliability.  The RFD900 transmits at a much higher frequency, which reduces rates and has more trouble with interference from atmospheric conditions such as humidity.\cite{1}
 
 The RFD900 costs about \$300 for a transmitter/receiver pair, and requires additional processing on the ground, for a total of around \$350 per signal.  One significant downside to the RFD900 is that it is designed to work as a transmitter/receiver pair, which means we could not easily use redundant receivers.  There is an open broadcast mode available that would offer that feature, but there are reasons to believe the RFD900 is not the most reliable choice.
 
@@ -205,7 +209,8 @@ The RFD900 costs about \$300 for a transmitter/receiver pair, and requires addit
 \subsection{Conclusions}
 Based on all factors, I believe the TeleMega is the best choice for the telemetry module.  It provides far more fields of telemetry, offers similar range and reliability, could act as a redundant flight computer if needed, is competitively priced, and is designed and supported by one of our project mentors.
 
-% =============================================================================================
+% ===================================================================================
+
 \section{Receiving and parsing the telemetry packets}
 
 \subsection{Overview of telemetry signal formatting}
@@ -219,7 +224,7 @@ For a long time, this problem was solved by electronics hardware.  Several HAM r
 
 There is an argument to be made that hardware TNC's are not all made using the same algorithm, and that modern software TNC's may be able to decode a greater proportion of 'messy' signals with some amount of noise or interference.  (Will address this in the software TNC portion.)
 
-Another downside to a hardware TNC is that it is essentially a black box to us.  We will not be able to understand the circuit well enough to make any changes, fixes, or improvements.[2]
+Another downside to a hardware TNC is that it is essentially a black box to us.  We will not be able to understand the circuit well enough to make any changes, fixes, or improvements.\cite{2}
 
 There are several hardware TNC's available for sale, listed from most to lease common.
 \begin{itemize}
@@ -238,9 +243,9 @@ Software TNC's convert audio tones to text, which allow them to perform the same
 The downside to using a software TNC is that it requires one sound card per audio signal.  Even if an audio splitter were used, multiple simultaneous audio sources would likely increase the number of errors even if additional software were used to attempt to separate the sources.  Therefor it seems likely that one computer would be needed per audio source.  Using several Raspberry Pi computers may be a good choice because they are small, cheap, and can run headless without the need for a keyboard or monitor.
 
 \subsubsection{Direwolf}
-The most popular software TNC is an open source project called Direwolf.  Direwolf is a software "soundcard" AX.25 packet modem/TNC and APRS encoder/decoder.  Because Direwolf is open source, it does not need to be a black box to us.  We can look inside to understand how it works, make changes as needed, and use only the pieces we need for our project.[3]
+The most popular software TNC is an open source project called Direwolf.  Direwolf is a software "soundcard" AX.25 packet modem/TNC and APRS encoder/decoder.  Because Direwolf is open source, it does not need to be a black box to us.  We can look inside to understand how it works, make changes as needed, and use only the pieces we need for our project.\cite{3}
 
-Additionally, the developer of Direwolf proposed an experiment to compare it's new algorithm against a hardware TNC, using a pre-recorded 2 hour sample of APRS traffic from the city of Los Angeles.  This allows others to run the same experiment and compare their results against other hardware TNC's, or their specific computer hardware including sound card and processor.  The results of his experiments showed that the Kantronics KPC-3 Plus successfully decoded 30\% fewer packets, and the Kenwood TM-D710A decoded 33\% fewer packets than the software TNC.[4]
+Additionally, the developer of Direwolf proposed an experiment to compare it's new algorithm against a hardware TNC, using a pre-recorded 2 hour sample of APRS traffic from the city of Los Angeles.  This allows others to run the same experiment and compare their results against other hardware TNC's, or their specific computer hardware including sound card and processor.  The results of his experiments showed that the Kantronics KPC-3 Plus successfully decoded 30\% fewer packets, and the Kenwood TM-D710A decoded 33\% fewer packets than the software TNC.\cite{4}
 
 \subsubsection{AGWPE}
 AGWPE is another software TNC solution.  Although it is free, AGWPE is not open source.  Instead, it is distributed as an exe file and operates as a black box.  It is not clear if it can run in Linux under wine or a virtual machine running Windows, but it is very likely that the additional complexity would present problems for using cheap, distributed redundant receivers using raspberry pi computers.  There are no easily available statistics comparing the performance of AGWPE to similar technologies.
@@ -267,7 +272,7 @@ All of these options also require purchasing a portable HAM radio unit and appro
 \subsection{Conclusions}
 Using this information, I believe that using the Direwolf software TNC is the right choice for our project. Furthermore, I believe that using one Raspberry Pi per audio source is a good way to distribute the signal processing.  If using a Pi Zero and USB soundcard, the cost would be around \$20 per audio signal.  Each Pi would process one telemetry signal and be networked to a central computer, which would collect and store data from each Pi.
 
-% =============================================================================================
+% ===================================================================================
 \section{Storing telemetry and flight data}
 
 \subsection{Overview of the data to be stored}
@@ -278,7 +283,7 @@ Additionally, the data will need to be used by another program.  We intend to vi
 With these conditions, we believe a database is a good solution for storing all of this data.
 
 \subsection{Comparisons}
-After researching several of the popular relational databases, the following comparison table was made[5][6][7]:
+After researching several of the popular relational databases, the following comparison table was made\cite{5}\cite{6}\cite{7}:
 
 \begin{center}
 \resizebox{\linewidth}{!}{%
@@ -334,15 +339,8 @@ SQL lite lacks the server functionality we need for this project.  PostgreSQL ma
 
 After comparing several types of databases, I believe MariaDB fits our needs the best.  I like that it's open source and has modern, easy to use guides and support forums.  It is SQL compliant so the skills we learn can also be applied to other, similar databases on future projects.  MariaDB also supports precise queries for TIME or TIMEDATE fields, which may prove very useful for our type of data.
 
-\section{Citations}
-\begin{enumerate}
-	\item RFD 900+ Modem, http://store.rfdesign.com.au/rfd-900p-modem/
-	\item http://www.aprs.net/vm/picktnc/picktnc.htm\#kpc3
-    \item https://github.com/wb2osz/direwolf
-    \item https://github.com/wb2osz/direwolf/blob/master/doc/A-Better-APRS-Packet-Demodulator-Part-1-1200-baud.pdf
-	\item https://db-engines.com/en/system/MariaDB;PostgreSQL;MySQL;SQLite
-    \item https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems
-    \item http://blog.panoply.io/a-comparative-vmariadb-vs-mysql
-\end{enumerate}
+% ===================================================================================
 
+\bibliography{references}
+\bibliographystyle{IEEEtran}
 \end{document}
