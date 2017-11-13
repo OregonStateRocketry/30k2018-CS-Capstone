@@ -74,27 +74,25 @@
         }
     \end{singlespace}
     
+%    \section*{Revision History}
+%    \begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}|c|c|c|c|}
+%      \hline
+%      Name & Date & Reason For Changes & Version\\
+%      \hline
+%      Levi Willmeth&11/5/17&Initial document draft&0.1\\
+%      \hline
+%      & & &\\
+%      \hline
+%    \end{tabular*}
+%	\\
+    
     \begin{abstract}
-    	% 6. Fill in your abstract
-        This technology review document compares the technical features of several models of telemetry transmitter, methods of decoding APRS packets, and database solutions to organize and store flight data.
+    A comparison of the technical features for several models of telemetry transmitter, methods of decoding APRS packets, and database solutions to organize and store flight data, as they relate to the Oregon State University entry into the 2017-18 Spaceport America Cup 30k challenge.
 	\end{abstract}
 \end{titlepage}
 \newpage
 
 \pagenumbering{arabic}
-
-\section*{Revision History}
-\begin{center}
-	\begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}|c|c|c|c|}
-        \hline
-	    Name & Date & Reason For Changes & Version\\
-        \hline
-        Levi Willmeth&11/3/17&Initial document draft&0.1\\
-        \hline
-        & & &\\
-        \hline
-    \end{tabular*}
-\end{center}
 
 \tableofcontents
 % 7. uncomment this (if applicable). Consider adding a page break.
@@ -135,7 +133,9 @@ This project will use a commercial, off the shelf telemetry module to transmit d
     \item Physical characteristics and costs
 \end{itemize}
 
-\subsection{Bigredbee BeeLine GPS}
+\subsection{Considered Technologies}
+
+\subsubsection{Bigredbee BeeLine GPS}
 The BeeLine GPS unit is a self contained GPS and telemetry transmitter that operates on the 70cm radio band.  It is 1.25" x 3", weighs about 2 ounces, and commonly uses a 35cm long antenna.  The BeeLine GPS can also record up to 2 hours of GPS data internally.  The BeeLine GPS can log and transmit limited positional telemetry fields at 1Hz intervals at 100mW of power, with an advertised range of 40 miles.
 
 The BeeLine GPS transmits an audio signal that needs to be decoded on the ground, using a terminal node controller (TNC).  There are several devices that can accomplish this, including using the sound card on a computer.  The price varies by vendor, but most hardware TNC's cost over \$80.  Software TNC's are limited to one signal per sound card, which makes exact pricing difficult to determine.  Using a dedicated raspberry pi zero with USB sound card, the cost to process APRS packets with a software TNC should be around \$20 per signal.
@@ -144,14 +144,14 @@ It is unknown how many signals can be processed by a single computer, but it see
 
 The Bigredbee Beeline GPS costs \$259 and requires a handheld radio, which costs around \$40.  It will also likely require a dedicated computer per signal, which could be a raspberry pi zero with usb sound card for an additional \$25 per signal.  This brings the total cost to around \$324 per signal.
 
-\subsection{Altus Metrum TeleMega}
+\subsubsection{Altus Metrum TeleMega}
 The TeleMega is a self contained GPS and telemetry transmitter on the 70cm radio band, that can also function as a flight computer.  It measures 1.25" x 3.25" and often uses a 35cm long antenna. The data is sent as an audio packet that is decoded by the receiver.  The TeleMega can store several hours of data on board, and transmits many types of telemetry at custom intervals, using 40mW of power and an advertised range of 40 miles.
 
 TeleMega data packets are formatted in 32 bit packets to reduce errors, and are designed to be received and decoded by a TeleDongle ground station.  The TeleDongle is an additional cost but also provides a convenient serial output over USB.  This is important because it means a single computer can simultaneously receive multiple signals from different transmitters.
 
 The TeleMega costs around \$280 and offers a 10\% student discount.  The TeleDongle is another ~\$100, bringing the total to around \$342 per signal.
 
-\subsection{RFD900}
+\subsubsection{RFD900}
 The RFD900 is a 900 MHz radio designed to work as a pair of serial modems.  We could generate a signal on the flight computer, send that signal to a TX RFD900 on the rocket, pick up the signal on a RX RFD900 on the ground, and get whatever telemetry fields we want on the ground.  The advantage is that the system would be very customizable.  We could send any size packets at any rate we want.  The disadvantage is reliability.  The RFD900 transmits at a much higher frequency, which reduces rates and has more trouble with interference from atmospheric conditions such as humidity.\cite{1}
 
 The RFD900 costs about \$300 for a transmitter/receiver pair, and requires additional processing on the ground, for a total of around \$350 per signal.  One significant downside to the RFD900 is that it is designed to work as a transmitter/receiver pair, which means we could not easily use redundant receivers.  There is an open broadcast mode available that would offer that feature, but there are reasons to believe the RFD900 is not the most reliable choice.
@@ -281,6 +281,20 @@ This project will generate telemetry data from the rocket, telemetry data from t
 Additionally, the data will need to be used by another program.  We intend to view telemetry data and generate dynamic graphs while the rocket is still in the air, and after recovering the rocket we will import sensors and generate a more complete set of graphs using that data.
 
 With these conditions, we believe a database is a good solution for storing all of this data.
+
+\subsection{Considered Technologies}
+
+\subsubsection{SQLite}
+SQLite is an embedded, server-less, transactional SQL database engine.  Records are stored in a single file, which can easily be copied across platforms.  These features make it very lightweight and ideal for single-user applications.
+
+\subsubsection{MySQL}
+MySQL is one of the most popular databases worldwide, especially for web based applications.  It's freeware, receives regular updates, and is very reliable.  MySQL could be considered the 'standard' for other databases to be compared against.
+
+\subsubsection{PostgreSQL}
+PostgreSQL is another free database commonly used for web applications.  It offers more features than MySQL, but at the cost of additional complexity and arguably worse documentation.  One interesting perk for PostgreSQL is that it supports JSON.
+
+\subsubsection{MariaDB}
+MariaDB is the newest database being considered.  It offers some additional features such as server and application-level encryption, progress bars during especially large instructions, and claims improved stability and performance over MySQL.
 
 \subsection{Comparisons}
 After researching several of the popular relational databases, the following comparison table was made\cite{5}\cite{6}\cite{7}:
