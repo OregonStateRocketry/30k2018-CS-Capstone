@@ -80,32 +80,44 @@
 \clearpage
 
 % 8. now you write!
-\section{Graphical User Interface Language}
-\subsection{Overview}
-The GUI will be in the form of either a web-hosted or local app that connects to an intranet database. It will display graphs of telemetry data, either live or recorded. 
-\subsection{Criteria}
-The criteria for evaluation is based on whether there are pre-existing libraries that can accomplish the task, the ease with which it can be implemented alongside a database and in a web-hosted app, and how flexible it will be for adjusting the visual design of the application. Pre-existing libraries and ease of implementation are given a priority because any of the three should be able to be used to accomplish the task and efficiency of the code is not of significant importance since it will all be run on client computers such as laptops that should be more than well-equipped to handle the task.
 \subsection{Potential Choices}
 \subsubsection{Python}
+Members of the team have used Python to create GUIs before, so the team is already aware of several libraries to use with this. Several are options are described in a blog on python libraries here (https://blog.modeanalytics.com/python-interactive-plot-libraries/) which also has links to the relvant libraries. They appear to be fairly easy to use and like they will fit our purposes, with some example plots being visually quite similar to our own end goal. Several of the libraries mentioned in the source have functions for outputting to HTML, so we should be able to use them to create our graphs. However, it is questionable whether this can be done live, though this should be possible by overwriting HTML files when a library does not have the functionality to dynamically update the graphs, which would accomplish the same goal. Most of these libraries will run on the server computer rather than the client, which is not the goal and may cause performance problems.
 
 \subsubsection{JavaScript}
+There are many libraries for JavaScript that the team should be able to use to generate or manipulate graphical content, including the CanvasJS library described here (https://canvasjs.com/docs/charts/how-to/live-updating-javascript-charts-json-api-ajax/). This library accomplishes most of our goals for graphing data, explicitly describes methods for live updates to graphs, and has methods for generating graphs from csv files. This library is extremely suitable to our tasks. JavaScript generally runs primarily on the client side, which is true of this library, so performance should not be an issue. The only potential issue will be the map, for which either another library can be used, or the map image can simply be edited using standard JavaScript methods to place red dots or other markers over the map at the correct locations.
 
-\subsubsection{Choice Three}
+\subsubsection{R}
+R is specialized for mathematical programming, which suits our needs. There are libraries for R which generate graphs that fit the desired output, such as Plotly (https://plot.ly/r/). These libraries will either be able to perform live updates, or overwrite the currently existing html file to mimic this, though not optimally. Visually, the plots are very functional, and they include graphs that resemble the GPS map that needs to be created. However, it will need to run on the server rather than on the client computer, which may cause performance issues.
 
 \subsection{Compare}
+R (and the related libraries) has all of the graphs we will need and is specialized for much of this task, while also being very easy to use and code in. However, it will need to run on the server, and therefore may introduce performance issues. Python is not as specialized for this task or as easy to use, but is more flexible, and has a larger number of related libraries. It will also likely perform better. However, it also will run server side, and therefore may introduce performance issues. JavaScript has libraries that explicitly describe how to create live updates to dynamic graphs. It also runs client side, giving it the best performance. 
+
 \subsection{Conclusion}
+JavaScript is likely the best candidate. It will be able dynamically generate our graphs, and runs client side to deal with performance issues. As it is the only option that accomplishes all of these goals, it is what will be used to generate the GUI.
 
 \section{Avionics Code - Language}
 \subsection{Overview}
 A portion of the Avionics code for the rocket and payload will be written by the CS team, with some of the code also being written by the ECE team in order to satisfy the requirements of their Senior Capstone. This code will need to run on a Blackberry Pi.
 \subsection{Criteria}
-The criteria for selecting the language of the Avionics code is based on three major factors, the efficiency of the language, the compatibility of the language with the sensors that are likely to be used, and the suitability of the language to accomplishing the required tasks. As a minimum requirement to be used at all, the code must be compatible with the Blackberry Pi, narrowing the range for selection.
+The criteria for selecting the language of the Avionics code is based on three major factors, the efficiency of the language, the compatibility of the language with the devices that are likely to be used, and the suitability/usability of the language for accomplishing the required tasks. As a minimum requirement to be used at all, the code must be compatible with the Blackberry Pi, narrowing the range for selection. So far, the only device that is known to be used in the rocket is BigRedBee's BeeLine GPS, which will not heavily interact with the avionics code and does not appear to have a related library. Looking to previous years, most sensors have C libraries for interacting with them, so languages that are compatible with C functions or can call C programs are more valuable. Therefore the secondary criteria breaks down to the language's compatibility with C.
+
 \subsection{Potential Choices}
 \subsubsection{C}
-\subsubsection{Shell Scripts}
+C easily satisfies all three criteria. As a low-level language, C is highly efficient. This makes it excellent for criteria one. It is obviously compatible with itself, satisfying the second criteria. As for suitability/usability for the task, C is the standard language for embedded code such as avionics code. Issues may be encountered due to the difficulty of coding in C compared to higher level languages but these should be able to be addressed. When creating the test suite, a higher level language would normally be preferred due to the ease of use and the compatible libraries, but the test should still be able to be written in C.
+
+\subsubsection{C++}
+C++ is a high-level object-oriented language, making it inefficient in many cases. While C functions and avoiding the use of objects can address this problem, additional inefficiencies will be introduced by using C++. C functions can be used in C++, so there is unlikely to be any compatibility issues. All of the necessary code should be able to be written in C++ without significant issue, and it's status as a high-level language will make it easier to use. Test suites will be easier to create and organize with the option to use objects.
+
 \subsubsection{Python}
+Python is a high-level object-oriented language with particularly issues with efficiency. For this reason, it largely fails criteria one, and may cause performance issues. Python can call C programs and collect their outputs, so it should be able to satisfy criteria two with minimal effort. Finally, it should be very easy to write code and tests in Python, and there are a wealth of libraries that exist to bridge any gaps we may encounter. However, such libraries are likely to be unnecessary. Test cases will be relatively easy to write in python.
+
 \subsection{Compare}
+None of the three languages will have significant compatibility issues, though Python may encounter minor ones. Python is by far the most inefficient of the three languages, and only brings minor benefits in usability and suitability. C++ is significantly more efficient and has similar benefits to Python in usability and suitability, as we are unlikely to need to use third-party libraries that may exist for Python. Finally, C is vastly more efficient than either of the other options, and while it may be somewhat more difficult to use, it is not a significant downgrade in this case. 
+
 \subsection{Conclusion}
+C will be used for the avionics code due to the greater efficiency of the language with only minimal losses in usability and suitability. Tests may be written using C++, as the two languages are compatible with one another, but the avionics code itself will be written solely in C.
+
 
 \section{Avionics Code - Testing Methods}
 \subsection{Overview}
