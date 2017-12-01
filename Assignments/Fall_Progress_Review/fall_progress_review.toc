@@ -1,0 +1,15 @@
+\contentsline {section}{\numberline {1}Project Overview}{2}
+\contentsline {section}{\numberline {2}Problem Definition}{2}
+\contentsline {section}{\numberline {3}Proposed Designs and Solutions}{2}
+\contentsline {subsection}{\numberline {3.1}Ground Station}{2}
+\contentsline {subsection}{\numberline {3.2}Networking}{3}
+\contentsline {subsection}{\numberline {3.3}Displaying the Data}{3}
+\contentsline {subsection}{\numberline {3.4}Data Parser}{3}
+\contentsline {subsection}{\numberline {3.5}Database}{4}
+\contentsline {subsection}{\numberline {3.6}Avionics Software}{4}
+\contentsline {subsubsection}{\numberline {3.6.1}Rocket Avionics}{4}
+\contentsline {subsubsection}{\numberline {3.6.2}Payload Avionics}{4}
+\contentsline {section}{\numberline {4}Support the AIAA team as a whole}{5}
+\contentsline {section}{\numberline {5}Moving Forward}{5}
+\contentsline {section}{\numberline {6}Weekly Overview}{6}
+\contentsline {section}{\numberline {7}Retrospective}{8}
