@@ -1,4 +1,4 @@
-CREATE TABLE `Flights` (
+CREATE TABLE IF NOT EXISTS `Flights` (
     `flight_id` INT NOT NULL AUTO_INCREMENT,
     `start_timestamp` TIMESTAMP NOT NULL,
     `last_timestamp` TIMESTAMP,
@@ -10,7 +10,7 @@ CREATE TABLE `Flights` (
     PRIMARY KEY (`flight_id`)
 );
 
-CREATE TABLE `BeelineGPS` (
+CREATE TABLE IF NOT EXISTS `BeelineGPS` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `f_id` INT NOT NULL,
     `time` TIMESTAMP NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE `BeelineGPS` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Rocket_Avionics` (
+CREATE TABLE IF NOT EXISTS `Rocket_Avionics` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `f_id` INT NOT NULL,
     `time` TIMESTAMP NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `Rocket_Avionics` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `TeleMega` (
+CREATE TABLE IF NOT EXISTS `TeleMega` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `f_id` INT NOT NULL,
     `time` TIMESTAMP NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `TeleMega` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Payload_Avionics` (
+CREATE TABLE IF NOT EXISTS `Payload_Avionics` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `f_id` INT NOT NULL,
     `time` TIMESTAMP NOT NULL,
@@ -52,16 +52,16 @@ CREATE TABLE `Payload_Avionics` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Event_Logs` (
+CREATE TABLE IF NOT EXISTS `Event_Logs` (
     `id` INT NOT NULL AUTO_INCREMENT,
-    `f_id` INT NOT NULL AUTO_INCREMENT,
+    `f_id` INT NOT NULL,
     `event_type` VARCHAR(255) NOT NULL,
     `data` VARCHAR(255),
     `status` VARCHAR(255),
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `raw_aprs` (
+CREATE TABLE IF NOT EXISTS `raw_aprs` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `time` TIMESTAMP NOT NULL,
     `callsign` VARCHAR(255) NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE `raw_aprs` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `Parser_Status` (
+CREATE TABLE IF NOT EXISTS `Parser_Status` (
     `parser_id` INT NOT NULL AUTO_INCREMENT,
     `using_f_id` INT,
     `last_activity` TIMESTAMP NOT NULL,
