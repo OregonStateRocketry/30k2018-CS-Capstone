@@ -57,17 +57,16 @@ class mariadb:
         with self.connection.cursor() as c:
             return c.execute("""
                 REPLACE INTO Parser_Status (parser_id, using_f_id, last_activity, status)
-                VALUES('{}', '{}', '{}', '{}')
-                """.format(self.parser_serial, self.f_id, self.last_connected, self.status)
+                VALUES('{}', '{}', NOW(), '{}')
+                """.format(self.parser_serial, self.f_id, self.status)
             )
 
 if __name__ == "__main__":
     db = mariadb()
-    print("Parser Serial: {}.".format(db.parser_serial))
+    print("ESRA 30k Rocket Parser program running...")
+    print("Parser Serial #: {}.".format(db.parser_serial))
     print("The current flight is: {}.".format(db.f_id))
-
     while True:
-        if (datetime.datetime.now() - db.last_connected).total_seconds() > 5:
-            print("Updating parser table..."),
+        if (datetime.datetime.now() - db.last_connected).total_seconds() > 3:
             db.updateParserTable()
-            print("done.")
+        # Try to parse an incoming string here
