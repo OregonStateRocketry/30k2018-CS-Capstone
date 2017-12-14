@@ -26,20 +26,21 @@ class mariadb:
         except:
             return '0000'
 
-    def doSelect(self, table, fields):
-        ''' SELECT some fields from some table '''
-        with self.connection.cursor() as c:
-            sql = "SELECT {} FROM {}".format(fields, table)
-            c.execute(sql)
-            return c.fetchall()
-
-    def getActiveFlights(self):
-        '''Returns the currently active flight, if available '''
+    def getCurrentPosition(self):
+        ''' Returns info about the current location of the flight '''
         with self.connection.cursor() as c:
             sql = """
-                SELECT * from Flights
-                where status = 'Active'
-                ORDER BY start_timestamp desc
+                SELECT B.*
+                    FROM Flights AS F
+                INNER JOIN BeelineGPS AS B
+                    ON B.f_id = F.flight_id
+                INNER JOIN (
+                    SELECT callsign, MAX(time) AS latest
+                    FROM BeelineGPS
+                    GROUP BY callsign
+                ) AS M
+                ON M.callsign = B.callsign AND M.latest = B.time
+                WHERE F.status = 'Active'
             """
             c.execute(sql)
             return c.fetchall()
@@ -67,60 +68,72 @@ def main(stdscr):
     curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
     curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
     global screen
-    screen = stdscr.subwin(23,99,0,0)
+    screen = stdscr.subwin(20,40,0,0)
     screen.box()
-    stdscr.addstr(1,1,"ESRA 30k Rocket Database Maintenance")
-    stdscr.addstr(2,1,"Connecting to database . . ["),
-    db = mariadb()
-    stdscr.addstr(2,30,"OK",curses.color_pair(2))
-    stdscr.addstr(2,33,"]")
+    stdscr.addstr(0,1,"ESRA 30k Rocket Summary")
+    stdscr.addstr(1,1,". . . . . . . . . . . . . . . . .")
+    stdscr.addstr(1,1,"Database status"),
+    try:
+        db = mariadb()
+        stdscr.addstr(1,33,"[")
+        stdscr.addstr(1,35,"OK",curses.color_pair(2))
+        stdscr.addstr(1,38,"]")
+    except:
+        stdscr.addstr(1,33,"[")
+        stdscr.addstr(1,35,"ERR",curses.color_pair(4))
+        stdscr.addstr(1,38,"]")
     screen.refresh()
 
-    stdscr.addstr(5,1,"Current parser table:")
-    stdscr.addstr(6,1,"{:10}|{:10}|{:10}|{:20}".format(
-        "Parser ID","Flight ID","Status","Last Activity"
+    # stdscr.addstr(3,1,"Parser status table:")
+    stdscr.addstr(4,1,"{:6}{:3}{:7}{:6}{:10}".format(
+        "PID", "F", "Status", "Delay", "Callsign"
     ))
 
-    stdscr.addstr(15,1,"Currently active flights:")
-    stdscr.addstr(16,1,"{:10}|{:20}|{:20}|{:15}|{:15}|{:10}".format(
-        "Flight ID","Start Time","Last Activity",
-        "Launch Lat", "Launch Lon", "Max Alt",
+    # stdscr.addstr(10,1,"Currently active flights:")
+    stdscr.addstr(11,1,"{:3}{:6}{:7}{:8}{:7}{:6}".format(
+        "F", "Delay", "Lat", "Lon", "Alt", "CS",
     ))
     while True:
         # No need to hammer the database, just check once per second
         if (datetime.datetime.now() - db.last_connected).total_seconds() >= 1:
-            
+
             # Show the status of the various parsers
             rows = db.getParserTable()
+            dbtime = db.getDBTime()
             for i,r in enumerate(rows):
-                stdscr.addstr(7+i,1,"{:10}|{:10}|{:10}|{:20}".format(
-                    str(r['parser_id']),
+                # Find out when the parsers last connected (in seconds)
+                parser_last_connected = int(
+                    (dbtime - r['last_activity']).total_seconds()
+                )
+
+                stdscr.addstr(5+i,1,"{:6}{:3}{:7}{:6}{:10}".format(
+                    str(r['parser_id'])[-5:],
                     str(r['using_f_id']),
                     '',
-                    str(r['last_activity'])
+                    str(parser_last_connected),
+                    str(r['callsign'])
                 ))
-                # Find out when the parsers last connected and colorize status
-                parser_last_connected = (
-                    db.getDBTime() - r['last_activity']
-                ).total_seconds()
-                if parser_last_connected < 5:
-                    stdscr.addstr(7+i,24,r['status'],curses.color_pair(2))
+                if parser_last_connected < 10:
+                    stdscr.addstr(5+i,10,'OK',curses.color_pair(2))
                 elif parser_last_connected < 30:
-                    stdscr.addstr(7+i,24,r['status'],curses.color_pair(3))
+                    stdscr.addstr(5+i,10,'SLOW',curses.color_pair(3))
                 else:
-                    stdscr.addstr(7+i,24,'DISC',curses.color_pair(4))
+                    stdscr.addstr(5+i,10,'DISC',curses.color_pair(4))
 
             # Show any currently active flights
-            rows = db.getActiveFlights()
+            rows = db.getCurrentPosition()
             for i,r in enumerate(rows):
-                stdscr.addstr(17+i,1,
-                    "{:10}|{:20}|{:20}|{:15}|{:15}|{:10}".format(
-                    str(r['flight_id']),
-                    str(r['start_timestamp']),
-                    str(r['last_timestamp']),
-                    r['launch_lat'],
-                    r['launch_lon'],
-                    str(r['max_alt'])
+                delay = int(
+                    (dbtime - r['time']).total_seconds()
+                )
+                stdscr.addstr(12+i,1,
+                    "{:3}{:6}{:7}{:8}{:7}{:6}".format(
+                    str(r['f_id']),
+                    str(delay),
+                    str(r['lat']),
+                    str(r['lon']),
+                    str(r['alt']),
+                    r['callsign']
                 ))
             db.getDBTime();
             screen.refresh()
