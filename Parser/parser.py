@@ -6,8 +6,9 @@ class mariadb:
 
     def __init__(self):
         with open('config.yml', 'r') as cf:
-            user=cf['database']['user'],
-            password=cf['database']['user'],
+            cf = yaml.load(cf)
+            user=cf['database']['user']
+            password=cf['database']['pass']
         self.connection = pymysql.connect(
             host='esra.local',
             user=user,

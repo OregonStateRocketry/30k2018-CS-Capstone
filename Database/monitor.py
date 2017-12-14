@@ -10,12 +10,12 @@ class mariadb:
     def __init__(self):
         with open('config.yml', 'r') as cf:
             cf = yaml.load(cf)
-            u=cf['database']['user']
-            pw=cf['database']['pass']
+            user=cf['database']['user']
+            password=cf['database']['pass']
         self.connection = pymysql.connect(
             host='esra.local',
-            user=u,
-            password=pw,
+            user=user,
+            password=password,
             db='esra',
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor,
