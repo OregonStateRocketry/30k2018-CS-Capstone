@@ -1,16 +1,21 @@
 import pymysql.cursors
 import datetime
 import curses
+import yaml
 from curses import wrapper
 
 class mariadb:
     '''A class to interact with the ESRA mariadb database '''
 
     def __init__(self):
+        with open('config.yml', 'r') as cf:
+            cf = yaml.load(cf)
+            u=cf['database']['user']
+            pw=cf['database']['pass']
         self.connection = pymysql.connect(
             host='esra.local',
-            user='levi',
-            password='esra18',
+            user=u,
+            password=pw,
             db='esra',
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor,
@@ -72,17 +77,7 @@ def main(stdscr):
     screen.box()
     stdscr.addstr(0,1,"ESRA 30k Rocket Summary")
     stdscr.addstr(1,1,". . . . . . . . . . . . . . . . .")
-    stdscr.addstr(1,1,"Database status"),
-    try:
-        db = mariadb()
-        stdscr.addstr(1,33,"[")
-        stdscr.addstr(1,35,"OK",curses.color_pair(2))
-        stdscr.addstr(1,38,"]")
-    except:
-        stdscr.addstr(1,33,"[")
-        stdscr.addstr(1,35,"ERR",curses.color_pair(4))
-        stdscr.addstr(1,38,"]")
-    screen.refresh()
+    stdscr.addstr(1,1,"Database status")
 
     # stdscr.addstr(3,1,"Parser status table:")
     stdscr.addstr(4,1,"{:6}{:3}{:7}{:6}{:10}".format(
@@ -93,6 +88,20 @@ def main(stdscr):
     stdscr.addstr(11,1,"{:3}{:6}{:7}{:8}{:7}{:6}".format(
         "F", "Delay", "Lat", "Lon", "Alt", "CS",
     ))
+
+    db = None
+    while not db:
+        try:
+            db = mariadb()
+            stdscr.addstr(1,33,"[")
+            stdscr.addstr(1,35,"OK",curses.color_pair(2))
+            stdscr.addstr(1,38,"]")
+        except:
+            stdscr.addstr(1,33,"[")
+            stdscr.addstr(1,35,"ERR",curses.color_pair(4))
+            stdscr.addstr(1,38,"]")
+        screen.refresh()
+
     while True:
         # No need to hammer the database, just check once per second
         if (datetime.datetime.now() - db.last_connected).total_seconds() >= 1:
@@ -139,4 +148,5 @@ def main(stdscr):
             screen.refresh()
 
 if __name__ == "__main__":
+    mariadb()
     wrapper(main)

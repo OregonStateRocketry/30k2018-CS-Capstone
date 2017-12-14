@@ -5,10 +5,13 @@ class mariadb:
     '''A class to interact with the ESRA mariadb database'''
 
     def __init__(self):
+        with open('config.yml', 'r') as cf:
+            user=cf['database']['user'],
+            password=cf['database']['user'],
         self.connection = pymysql.connect(
             host='esra.local',
-            user='levi',
-            password='esra18',
+            user=user,
+            password=password,
             db='esra',
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor,
