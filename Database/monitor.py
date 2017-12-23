@@ -8,7 +8,7 @@ class mariadb:
     '''A class to interact with the ESRA mariadb database '''
 
     def __init__(self):
-        with open('config.yml', 'r') as cf:
+        with open('/home/levi/git/30k2018-CS-Capstone/Database/config.yml', 'r') as cf:
             cf = yaml.load(cf)
             user=cf['database']['user']
             password=cf['database']['pass']

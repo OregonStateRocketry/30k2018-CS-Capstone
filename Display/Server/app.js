@@ -19,7 +19,7 @@ app.get('/q', function(req, res){
     var get = req.query.get;
     var f_id = req.query.f_id;
     var limit = (req.query.limit) ? ' LIMIT '+req.query.limit : '';
-    var time = (req.query.time) ? ' AND time >= '+req.query.time : '';
+    var time = (req.query.time) ? " AND time >= '"+req.query.time+"'" : '';
     var sql = null;
 
     switch(get){
@@ -31,21 +31,24 @@ app.get('/q', function(req, res){
                    UNION
                    SELECT 'Rocket', time, alt
                    FROM Rocket_Avionics WHERE f_id=${f_id}`+time+`
-                   ORDER BY time`+limit;
+                   UNION
+                   SELECT 'Payload', time, alt
+                   FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
+                   ORDER BY time ASC`+limit;
             break;
         case 'receptionVtime':
             // Plots reception vs time
             console.log('Hit receptionVtime');
             sql = `SELECT time
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
-                   ORDER BY time`+limit;
+                   ORDER BY time ASC`+limit;
            break;
         case 'map':
             // Plots location v time as 2d or 3d map
             console.log('Hit map');
             sql = `SELECT time, lat, lon, alt
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
-                   ORDER BY time`+limit;
+                   ORDER BY time ASC`+limit;
             break;
         default:
             // Invalid or missing get field
