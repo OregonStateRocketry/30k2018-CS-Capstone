@@ -121,7 +121,7 @@ def main(stdscr):
             dbtime = db.getDBTime()
             for i,r in enumerate(rows):
                 # Find out when the parsers last connected (in seconds)
-                parser_last_connected = int(
+                delay = int(
                     (dbtime - r['last_activity']).total_seconds()
                 )
 
@@ -129,12 +129,12 @@ def main(stdscr):
                     str(r['parser_id'])[-5:],
                     str(r['using_f_id']),
                     '',
-                    str(parser_last_connected),
+                    str(delay) if delay < 600 else '>600',
                     str(r['callsign'])
                 ))
-                if parser_last_connected < 10:
+                if delay < 10:
                     stdscr.addstr(5+i,10,'OK',curses.color_pair(2))
-                elif parser_last_connected < 30:
+                elif delay < 30:
                     stdscr.addstr(5+i,10,'SLOW',curses.color_pair(3))
                 else:
                     stdscr.addstr(5+i,10,'DISC',curses.color_pair(4))
@@ -145,13 +145,14 @@ def main(stdscr):
                 delay = int(
                     (dbtime - r['time']).total_seconds()
                 )
+
                 stdscr.addstr(12+i,1,
                     "{:3}{:6}{:7}{:8}{:7}{:6}".format(
                     str(r['f_id']),
-                    str(delay),
-                    str(r['lat']),
-                    str(r['lon']),
-                    str(r['alt']),
+                    str(delay) if delay < 600 else '>600',
+                    str(r['lat'])[:6],
+                    str(r['lon'])[:7],
+                    str(r['alt'])[:6],
                     r['callsign']
                 ))
             db.getDBTime();
