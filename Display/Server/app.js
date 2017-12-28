@@ -2,7 +2,8 @@ var mysql = require('mysql');
 var getJSON = require('get-json')
 var express = require('express')
 var config = require('./config')
-const app = express()
+var exphbs = require('express-handlebars');
+const app = express();
 
 var db = mysql.createConnection(config.database);
 
@@ -10,6 +11,7 @@ db.connect(function(err) {
   if (err) throw err
   console.log('Connected to the database...')
 });
+app.use(express.static('public'));
 
 app.get('/', function (req, res) {
   res.send('Page that will display flight data from the ESRA 30k Rocket')
@@ -23,10 +25,22 @@ app.get('/q', function(req, res){
     var sql = null;
 
     switch(get){
+        case 'altVTimeSources':
+            // Returns a list of the unique callsigns for a flight id
+            sql = `SELECT DISTINCT
+                   callsign FROM BeelineGPS WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT 'Rocket'
+                   FROM Rocket_Avionics WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT 'Payload'
+                   FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
+                   ORDER BY source DESC`+limit;
+            break;
         case 'altVtime':
             // Plots altitude vs time
             console.log('Hit altVtime');
-            sql = `SELECT 'BeelineGPS' AS Source, time, alt
+            sql = `SELECT callsign AS Source, time, alt
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    UNION
                    SELECT 'Rocket', time, alt
@@ -46,7 +60,7 @@ app.get('/q', function(req, res){
         case 'map':
             // Plots location v time as 2d or 3d map
             console.log('Hit map');
-            sql = `SELECT time, lat, lon, alt
+            sql = `SELECT callsign as Source, time, lat, lon, alt
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
@@ -56,7 +70,7 @@ app.get('/q', function(req, res){
     }
 
     if(sql){
-        console.log('SQL = '+sql)
+        // console.log('SQL = '+sql)
         db.query(sql,function(err, results) {
             // console.log('Results: '+results);
             res.send(JSON.stringify(results));
