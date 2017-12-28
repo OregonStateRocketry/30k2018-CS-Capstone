@@ -1,0 +1,42 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<script type="text/javascript">
+  window.onload = function () {
+		var dps = [{x: 1, y: 450}, {x: 2, y: 414}, {x: 3, y: 520}, {x: 4, y: 460}];
+		var xVal = dps.length + 1;
+		var yVal = 400;
+    var chart = new CanvasJS.Chart("chartContainer",
+    {
+
+      title:{
+      text: "Altitude"
+      },
+       data: [
+      {
+        type: "line",
+        dataPoints: dps
+      }
+      ]
+    });
+
+    chart.render();
+		updateChart();
+		function updateChart() {
+			yVal = yVal + Math.round(Math.random() * 5)
+			dps.push({x: xVal, y: yVal});
+			xVal++;
+			chart.render();
+			setTimeout(function(){updateChart()}, 1000);
+		}
+
+  }
+	</script>
+	<script src="../../canvasjs.min.js"></script>
+	<title>CanvasJS Example</title>
+</head>
+<body>
+	<div id="chartContainer" style="height: 400px; width: 100%;">
+	</div>
+</body>
+</html>
