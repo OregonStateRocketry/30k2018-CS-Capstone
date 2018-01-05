@@ -31,6 +31,13 @@ class Mariadb:
             return c.fetchone()['flight_id']
 
 
+    def getFlightTable(self):
+        ''' Returns the Flight table '''
+        with self.connection.cursor() as c:
+            c.execute("SELECT * from Flights")
+            return c.fetchall()
+
+
     def getCurrentPosition(self):
         ''' Returns info about the current location of the flight '''
         with self.connection.cursor() as c:
@@ -57,6 +64,19 @@ class Mariadb:
             sql = "SELECT NOW()"
             c.execute(sql)
             return c.fetchone()['NOW()']
+
+
+    def insertRow(self, table, cols, vals):
+        ''' Inserts a single row into the database '''
+        with self.connection.cursor() as c:
+            sql = """
+                INSERT INTO {table}( {cols} ) VALUES
+                """.format(table=table, cols=cols)
+            for v in vals:
+                sql += '({}),'.format(v)
+            # Erase the trailing comma
+            sql = sql[:-1]
+            return c.execute(sql)
 
 
     def getParserTable(self):

@@ -7,18 +7,15 @@ from curses import wrapper
 
 def connectToDatabase(stdscr):
     db = None
+    stdscr.addstr(1,33,"[    ]")
     while not db:
         try:
             db = Mariadb()
-            stdscr.addstr(1,33,"[")
             stdscr.addstr(1,35,"OK",curses.color_pair(2))
-            stdscr.addstr(1,38,"]")
             screen.refresh()
         except Exception as e:
             stdscr.addstr(2,1,str(e))
-            stdscr.addstr(1,33,"[")
             stdscr.addstr(1,35,"ERR",curses.color_pair(4))
-            stdscr.addstr(1,38,"]")
             screen.refresh()
             time.sleep(5)
     return db

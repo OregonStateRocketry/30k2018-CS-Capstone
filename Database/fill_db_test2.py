@@ -1,11 +1,16 @@
 import datetime
 
-def insertParabola(fname, o_type, a, b, c, cs):
-    print("Inserting {}x^2+{}x+c".format(a,b,c))
+def BeelineGPS_Parabola(fname, o_type, a, b, c, cs):
+    print("Creating BeelineGPS_Parabola using: {}x^2+{}x+c".format(a,b,c))
     lat = 44.5677
     lon = -123.2763
     time = datetime.datetime(2017, 12, 25, 6, 0)
     with open(fname, o_type) as f:
+        # Only generate a header for new files
+        if o_type == 'w':
+            f.write('Source: BeelineGPS\n')
+            f.write('time, lat, lon, alt, callsign\n')
+        # Fill out 100 values of this formula
         for x in range(100):
             y = int(a*x**2+b*x+c)
             if y < 0: y = 0
@@ -19,5 +24,5 @@ def insertParabola(fname, o_type, a, b, c, cs):
             )
 
 if __name__ == "__main__":
-    insertParabola('sample_data.txt', 'w', -22, 1400, 5, "Beeline1")
-    insertParabola('sample_data.txt', 'a', -0.18, 10, 5, "Beeline2")
+    BeelineGPS_Parabola('sample_data.txt', 'w', -22, 1400, 5, 'Beeline1')
+    BeelineGPS_Parabola('sample_data.txt', 'a', -0.18, 10, 5, 'Beeline2')
