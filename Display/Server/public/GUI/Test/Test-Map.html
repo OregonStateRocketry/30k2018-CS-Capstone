@@ -1,0 +1,54 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<script src="..\..\jquery-3.2.1.min.js"></script>
+	<script type="text/javascript">
+	function addPoints() {
+		$.getJSON("/q?get=map&f_id=2", function(data){
+			$.each(data, function(key, value) {
+//					console.log(value['Source']);
+				console.log("got value" + JSON.stringify(value['lat']) + JSON.stringify(value['lon']))
+				addPoint(parseFloat(value['lat']),parseFloat(value['lon']));
+				// console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
+			});
+		});
+	};
+	function addPoint(lat, lon) {
+		var newPoint = document.createElement("div");
+		newPoint.className = "point";
+		newPointTxt = document.createTextNode("+");
+		newPoint.appendChild(newPointTxt);
+		botlat = 44.550845;
+		botlon = -123.312016;
+		toplat = 44.684565;
+		toplon = -123.159664;
+		x = 100 * (lon - botlon)/(toplon - botlon);
+		y = 100 * (1 - (lat - botlat)/(toplat - botlat));
+		xstr = x.toString();
+		ystr = y.toString();
+		newPoint.style.position = "absolute";
+		newPoint.style.left = xstr + "%";
+		newPoint.style.top = ystr + "%";
+		var main = document.getElementsByTagName('main')[0];
+		console.log(main.class);
+		main.appendChild(newPoint);
+	};
+  window.onload = function () {
+  }
+	</script>
+	<script src="../../canvasjs.min.js"></script>
+	<title>CanvasJS Example</title>
+</head>
+<body onload="addPoints()">
+	<style type="text/css">
+		.Map {
+			position: relative;
+			background-image: url('Map.PNG');
+			height: 775px;
+			width: 630px;
+		}
+	</style>
+	<main Class="Map">
+	</main>
+</body>
+</html>

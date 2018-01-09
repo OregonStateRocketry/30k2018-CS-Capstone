@@ -1,0 +1,6 @@
+[submodule "Avionics/mpu6050"]
+	path = Avionics/mpu6050
+	url = https://github.com/Tijndagamer/mpu6050.git
+[submodule "Avionics/Adafruit_Python_BMP"]
+	path = Avionics/Adafruit_Python_BMP
+	url = https://github.com/adafruit/Adafruit_Python_BMP.git
