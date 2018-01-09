@@ -1,0 +1,62 @@
+body {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+header {
+  background-color: #d12e0a;
+  padding: 5px 20px 0 5px;
+}
+
+header h1 {
+  display: inline-block;
+  /*font-family: 'Niconne', cursive;*/
+  font-size: 72px;
+  font-weight: 200;
+  margin: 5px 20px;
+  color: #000000; /*Test color for title*/
+  text-shadow: 1px 1px 2px #ffffff; /*Shadow for title*/
+}
+
+header h1 a {
+  color: inherit;
+}
+
+header h1 a:hover {
+  text-decoration: none;
+}
+
+nav {
+  background-color: #333;
+  color: white;
+  margin: 0 -20px;  /* negative margin here makes up for header padding */
+  font-size: 28px;
+  font-weight: 200;
+}
+
+.navbar-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 20px;
+}
+
+.navbar-item {
+  display: inline;
+}
+
+.navbar-item a{
+  display: inline-block;
+  padding: 10px 20px;
+  color: white;
+}
+
+.navbar-item a:hover{
+  background-color: #444;
+}
+
+.hide {
+  display:none;
+}

@@ -1,0 +1,62 @@
+{{>header show_add = 1}}
+
+<main>
+
+<h1 id="Welcome">Welcome to the flight data viewer.</h1>
+
+<!-- DISPLAY SELECTIONS-------------------------------------------------------->
+<!-- Area to display selections for user-->
+<div id = "displaySelect">
+  <h2 id = "displayTitle"></h2>
+  <ul id ="displayList" ></ul>
+</div>
+
+<!-- SELECT FLIGHT------------------------------------------------------------->
+<!-- Flight selection div should populate dropdown from database -->
+<div id = "flightSelect">
+  <h2>Please select a flight:</h2>
+  <select name="flightField" id="flightField">
+    <!--Options are currently hard coded, but will need to be updated to
+        Select from flights in the database -->
+    <option value="" selected disabled hidden>*SELECT*</option>
+    <option value="flight 1">flight 1</option>
+    <option value="flight 2">flight 2</option>
+    <option value="test">test</option>
+    <option value="multi">multiple flights</option>
+  </select>
+  <!--FlightSubmit button should hide this div and save user selections to query later-->
+  <button type="button" id = "flightSubmit">Next</button>
+</div>
+
+<!-- Flight selection for multiple flights -->
+<div id = "multiSelect" class = "hide">
+  <h2>Please select a flight:</h2>
+  <select name="multiField" id="multiField">
+    <!--Options are currently hard coded, but will need to be updated to
+        Select from flights in the database -->
+    <option value="" selected disabled hidden>*SELECT*</option>
+    <option value="flight 1">flight 1</option>
+    <option value="flight 2">flight 2</option>
+    <option value="test">test</option>
+  </select>
+  <!--FlightSubmit button should hide this div and save user selections to query later-->
+  <button type="button" id = "multiAdd">Add Next</button>
+  <button type="button" id = "multiSubmit">Done</button>
+</div>
+
+<!-- SELECT DATA--------------------------------------------------------------->
+<!-- data selection div should be hard coded according to implemented graphs-->
+<div id = "dataSelect" class = "hide">
+  <h2>Please select a data set:</h2>
+  <select name="dataField" id="dataField">
+    <!--Options are hard coded and should match implemented features-->
+    <option value="" selected disabled hidden>*SELECT*</option>
+    <option value="altVtime">Altitude vs Time</option>
+    <option value="receptionVtime">Reception vs Time</option>
+    <option value="map">Map</option>
+  </select>
+  <!-- dataSubmit button should hide this div and save user selections to query later-->
+  <button type="button" id = "dataSubmit">Next</button>
+</div>
+
+</main>
