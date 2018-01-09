@@ -5,6 +5,10 @@ var config = require('./config')
 var exphbs = require('express-handlebars');
 const app = express();
 
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
+
 var db = mysql.createConnection(config.database);
 
 db.connect(function(err) {
@@ -14,7 +18,11 @@ db.connect(function(err) {
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
-  res.send('Page that will display flight data from the ESRA 30k Rocket')
+  res.render('index-page');
+});
+
+app.get('/graph', function (req, res){
+  res.render('graph');
 });
 
 app.get('/q', function(req, res){
