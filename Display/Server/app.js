@@ -73,7 +73,7 @@ app.get('/graph', function (req, res){
     }
     //Render graph page with correct info
     res.render('graph', {title: titleText, 
-        partialVars: {'query': queryText, 'fid': fid},
+        partialVars: {'query': queryText, 'fid': fid, 'get': get, 'show_nav': 1},
         whichPartial: function() {
             return partial;}
         });

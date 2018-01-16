@@ -17,7 +17,7 @@
 				setTimeout(function(){update()}, 100)
 			} else {
 				waiting = true;
-				$.getJSON("/q?get=map&f_id=2&time=" + lasttime, function(data){
+				$.getJSON("/q?get=map&f_id={{fid}}&time=" + lasttime, function(data){
 					$.each(data, function(key, value) {
 						lasttime = value['time'];
 						console.log("hitmap");

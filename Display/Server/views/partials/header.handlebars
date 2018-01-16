@@ -78,9 +78,8 @@
         <i class="fa fa-caret-down"></i>
       </button>
       <div class="dropdown-content">
-        <a href="#">Altitude vs Time</a>
-        <a href="#">Reception vs Time</a>
-        <a href="#">Map</a>
+        <a href="/graph?get=altVtime&fid={{fid}}">Altitude vs Time</a>
+        <a href="/graph?get=map&fid={{fid}}">Map</a>
       </div>
     </div>
     <a href="#Summary">Flight Summary</a>
@@ -94,7 +93,7 @@
             $.each(data,function(key, value){
                 console.log(value["flight_id"]);
                 var option = document.createElement('a');
-                option.href = "#";
+                option.href = "/graph?get={{get}}&fid="+value["flight_id"];
                  option.text = value["flight_id"];
                  var element = document.getElementById("headerFlight");
                 element.appendChild(option);

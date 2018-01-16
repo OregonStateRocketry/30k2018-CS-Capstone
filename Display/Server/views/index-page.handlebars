@@ -17,8 +17,9 @@
   <h2>Please select a flight:</h2>
   <select name="flightField" id="flightField">
    <!--Options will be updated to select from flights in the database -->
- <option value="" selected disabled hidden>*SELECT*</option>
-    <option value="multi">multiple flights</option>
+     <option value="" selected disabled hidden>*SELECT*</option>
+    <!-- Commenting out multi-flight selection while waiting for implementation
+     <option value="multi">multiple flights</option> -->
   </select>
  <!--FlightSubmit button should hide this div and save user selections to query later-->
  <button type="button" id = "flightSubmit">Next</button>
@@ -47,7 +48,6 @@
     <!--Options are hard coded and should match implemented features-->
     <option value="" selected disabled hidden>*SELECT*</option>
     <option value="altVtime">Altitude vs Time</option>
-    <option value="receptionVtime">Reception vs Time</option>
     <option value="map">Map</option>
   </select>
   <!-- dataSubmit button should hide this div and save user selections to query later-->
