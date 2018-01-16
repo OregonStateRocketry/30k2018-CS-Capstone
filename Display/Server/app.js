@@ -21,8 +21,62 @@ app.get('/', function (req, res) {
   res.render('index-page');
 });
 
+//Renders graph pages with queries from index page
 app.get('/graph', function (req, res){
-  res.render('graph');
+    var get = req.query.get;
+    var fid = req.query.fid;
+    //Special case for multiple flight ids selected
+    if (fid == "multi"){
+        // Define array of flight IDs and form multi query
+        var fid_mult = [];
+        var num = req.query.num;
+        switch(num){ //Switch should add all selected flights to an array
+            default: //Currently supports up to four flights
+                fid_mult.push(req.query.fid_3);
+            case 3:
+                fid_mult.push(req.query.fid_2);
+            case 2:
+                fid_mult.push(req.query.fid_1);
+            case 1:
+                fid_mult.push(req.query.fid_0);
+        }
+                
+        //TODO: Form multi-query             
+        //Will need to change q? case to allow multiple f_ids
+        
+        //In the meantime, the first flight will be used instead
+        fid = req.query.fid_0;       
+ 
+    }
+    //Remake query to send to page
+    var queryText = "q?get=" + get + "&f_id=" + fid +"&";    
+    console.log(queryText);
+    switch(get){
+        case 'altVtime':
+            //render alt graph
+            var titleText = "Flight " + fid + " Altitude vs Time";
+            var partial =  "altitude";
+            break;
+        case 'receptionVtime':
+	        //render recep graph
+            var titleText = "Flight " + fid + " Reception vs Time";
+            var partial =  "reception";
+	        break;
+	    case 'map':
+	        //render map
+            var titleText = "Flight " + fid + " Map"; 
+            var partial = "map";
+            break;	
+	default:
+	    //Bad query
+	    res.end( 'Bad Query');	    
+    }
+    //Render graph page with correct info
+    res.render('graph', {title: titleText, 
+        partialVars: {'query': queryText, 'fid': fid},
+        whichPartial: function() {
+            return partial;}
+        });
 });
 
 app.get('/q', function(req, res){
@@ -72,6 +126,10 @@ app.get('/q', function(req, res){
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
+	case 'fid':
+		//return list of flight IDs
+		sql = `SELECT DISTINCT flight_id FROM Flights`;
+		break;
         default:
             // Invalid or missing get field
             console.log('DEFAULT.  get='+get);

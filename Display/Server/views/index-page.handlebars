@@ -16,17 +16,15 @@
 <div id = "flightSelect">
   <h2>Please select a flight:</h2>
   <select name="flightField" id="flightField">
-    <!--Options are currently hard coded, but will need to be updated to
-        Select from flights in the database -->
-    <option value="" selected disabled hidden>*SELECT*</option>
-    <option value="flight 1">flight 1</option>
-    <option value="flight 2">flight 2</option>
-    <option value="test">test</option>
+   <!--Options will be updated to select from flights in the database -->
+ <option value="" selected disabled hidden>*SELECT*</option>
     <option value="multi">multiple flights</option>
   </select>
-  <!--FlightSubmit button should hide this div and save user selections to query later-->
-  <button type="button" id = "flightSubmit">Next</button>
+ <!--FlightSubmit button should hide this div and save user selections to query later-->
+ <button type="button" id = "flightSubmit">Next</button>
 </div>
+
+
 
 <!-- Flight selection for multiple flights -->
 <div id = "multiSelect" class = "hide">
@@ -35,9 +33,6 @@
     <!--Options are currently hard coded, but will need to be updated to
         Select from flights in the database -->
     <option value="" selected disabled hidden>*SELECT*</option>
-    <option value="flight 1">flight 1</option>
-    <option value="flight 2">flight 2</option>
-    <option value="test">test</option>
   </select>
   <!--FlightSubmit button should hide this div and save user selections to query later-->
   <button type="button" id = "multiAdd">Add Next</button>
@@ -59,5 +54,5 @@
   <button type="button" id = "dataSubmit">Next</button>
 </div>
 
-
+<script src="/index.js"></script>
 </main>

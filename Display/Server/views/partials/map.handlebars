@@ -1,15 +1,33 @@
 
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="jquery-3.2.1.min.js"></script>
 	<script type="text/javascript">
 	function addPoints() {
-		$.getJSON("/q?get=map&f_id=2", function(data){
+		var waiting = true;
+		var lasttime = "";
+		$.getJSON("q?get=map&f_id={{fid}}", function(data){
 			$.each(data, function(key, value) {
-//					console.log(value['Source']);
-				console.log("got value" + JSON.stringify(value['lat']) + JSON.stringify(value['lon']))
+				lasttime = value['time'];
 				addPoint(parseFloat(value['lat']),parseFloat(value['lon']));
-				// console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
 			});
+			waiting = false;
 		});
+		update();
+		function update() {
+			if(waiting) {
+				setTimeout(function(){update()}, 100)
+			} else {
+				waiting = true;
+				$.getJSON("/q?get=map&f_id=2&time=" + lasttime, function(data){
+					$.each(data, function(key, value) {
+						lasttime = value['time'];
+						console.log("hitmap");
+						addPoint(parseFloat(value['lat']),parseFloat(value['lon']));
+					});
+					waiting = false;
+				});
+				update();
+			}
+		};
 	};
 	function addPoint(lat, lon) {
 		var newPoint = document.createElement("div");
@@ -34,7 +52,7 @@
   window.onload = addPoints();
 	</script>
 	<script src="../../canvasjs.min.js"></script>
-	
+
 <div onload="addPoints()">
 	<style type="text/css">
 		.Map {
@@ -47,6 +65,3 @@
 	<div Id="MapDiv" Class="Map">
 	</div>
 </div>
-
-
-

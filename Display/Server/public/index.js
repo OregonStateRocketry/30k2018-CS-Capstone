@@ -10,10 +10,10 @@ document.body.addEventListener('click',function(event){
       document.getElementById('dataSelect').classList.toggle('hide');
       document.getElementById('flightSelect').classList.toggle('hide');
       /*Save flight data and display above data select*/
-      flightList.push(document.getElementById('flightField').value);
+      flight=document.getElementById('flightField').value;
       var showFlight= document.createElement('h2');
       var flightText1= document.createTextNode('Flight: ');
-      var flightText2= document.createTextNode(flightList[0]);
+      var flightText2= document.createTextNode(flight);
       showFlight.appendChild(flightText1);
       showFlight.appendChild(flightText2);
       var element = document.getElementById("displaySelect");
@@ -29,7 +29,7 @@ document.body.addEventListener('click',function(event){
   }
 
   /*Event listener for multi flight selection button*/
-  if (event.target.id=="multiAdd"||event.target.id=="multiSubmit"
+  if ((event.target.id=="multiAdd"||event.target.id=="multiSubmit")
   && document.getElementById('multiField').value!=""){
       /*Save flight data and display above data select*/
       flightList.push(document.getElementById('multiField').value);
@@ -44,7 +44,8 @@ document.body.addEventListener('click',function(event){
       var element = document.getElementById("displayList");
       flightText.appendChild(flightVal);
       element.appendChild(flightText);
-
+	
+      flight = "multi";	
       if (event.target.id=="multiSubmit"){
         document.getElementById('dataSelect').classList.toggle('hide');
         document.getElementById('multiSelect').classList.toggle('hide');
@@ -76,6 +77,51 @@ document.body.addEventListener('click',function(event){
     var element = document.getElementById("displaySelect");
     element.appendChild(showData);
 
-    /*TODO Call query function/ page change*/
+    /* Call query function/ page change*/
+	var query = "graph?get="+data+"&fid="+flight+"&";	
+    	console.log("Query:",query);	
+     	if(flightList.length == 0){
+		console.log("One flight");
+	}
+	else{
+		console.log("Multiple flights");
+		var numFlights= flightList.length;
+		console.log("NUM:",numFlights);
+		query += "num="+numFlights+"&";
+		var i;
+		for (i = 0; i < flightList.length; i++) {
+    			query += "fid_" + i + "=" + flightList[i]+"&";
+		}		
+		console.log("Multi Query:",query);
+	}
+	window.location.href = "/"+query; 
     }
 });
+
+/* Add Dynamic Flight ID Selection: Dropdowns should pull from the database  */
+function UpdateDropdown() {
+    $.getJSON("/q?get=fid", function(data){
+        $.each(data,function(key, value){
+            /*For each flight ID, create two option elements and append them to both the 
+            flight selection and multiple flight selection dropdown menus. 
+            This has been done twice because two elements must be created in order to append them to each of the dropdowns. */
+            
+            //Add option to flight dropdown
+            var option = document.createElement('option');
+            option.value = value["flight_id"];
+            option.text = value["flight_id"];
+            var element = document.getElementById("flightField");
+            element.appendChild(option); 
+            
+            //Add option to multi-flight dropdown
+            var option = document.createElement('option');
+            option.value = value["flight_id"];
+            option.text = value["flight_id"];
+            var element = document.getElementById("multiField");
+            element.appendChild(option);    
+
+        });    
+    });
+};
+UpdateDropdown();
+

@@ -70,10 +70,7 @@
       <button class="dropbtn">Flight Select
         <i class="fa fa-caret-down"></i>
       </button>
-      <div class="dropdown-content">
-        <a href="#">Flight 1</a>
-        <a href="#">Flight 2</a>
-        <a href="#">Test</a>
+      <div id = "headerFlight" class="dropdown-content">
       </div>
     </div>
     <div class="dropdown">
@@ -89,16 +86,23 @@
     <a href="#Summary">Flight Summary</a>
   </div>
 
-  <!--
-  <nav>
-    <ul class="navbar-list">
-      <li class="navbar-item"><a href="/fSelect">Flight Select</a></li>
-      <li class="navbar-item"><a href="/gSelect">Graph Select</a></li>
-      <li class="navbar-item"><a href="/fSummary">Flight Summary</a></li>
-    </ul>
-  </nav>
 
--->
+<!-- Add Dynamic Flight ID Selection: Dropdowns should pull from the database  -->
+<script type="text/javascript">
+    function UpdateDropdown() {
+        $.getJSON("/q?get=fid", function(data){
+            $.each(data,function(key, value){
+                console.log(value["flight_id"]);
+                var option = document.createElement('a');
+                option.href = "#";
+                 option.text = value["flight_id"];
+                 var element = document.getElementById("headerFlight");
+                element.appendChild(option);
+            });
+        });
+    };
+    UpdateDropdown();
+</script>
 
 {{/if}}
 
