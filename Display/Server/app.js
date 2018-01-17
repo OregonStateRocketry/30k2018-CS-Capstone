@@ -40,16 +40,16 @@ app.get('/graph', function (req, res){
             case 1:
                 fid_mult.push(req.query.fid_0);
         }
-                
-        //TODO: Form multi-query             
+
+        //TODO: Form multi-query
         //Will need to change q? case to allow multiple f_ids
-        
+
         //In the meantime, the first flight will be used instead
-        fid = req.query.fid_0;       
- 
+        fid = req.query.fid_0;
+
     }
     //Remake query to send to page
-    var queryText = "q?get=" + get + "&f_id=" + fid +"&";    
+    var queryText = "q?get=" + get + "&f_id=" + fid +"&";
     console.log(queryText);
     switch(get){
         case 'altVtime':
@@ -64,15 +64,15 @@ app.get('/graph', function (req, res){
 	        break;
 	    case 'map':
 	        //render map
-            var titleText = "Flight " + fid + " Map"; 
+            var titleText = "Flight " + fid + " Map";
             var partial = "map";
-            break;	
+            break;
 	default:
 	    //Bad query
-	    res.end( 'Bad Query');	    
+	    res.end( 'Bad Query');
     }
     //Render graph page with correct info
-    res.render('graph', {title: titleText, 
+    res.render('graph', {title: titleText,
         partialVars: {'query': queryText, 'fid': fid, 'get': get, 'show_nav': 1},
         whichPartial: function() {
             return partial;}
@@ -111,6 +111,15 @@ app.get('/q', function(req, res){
                    SELECT 'Payload', time, alt
                    FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
+            // sql = `SELECT callsign AS Source, CONVERT_TZ(time, "+00:00", "+08:00"), alt
+            //        FROM BeelineGPS WHERE f_id=${f_id}`+time+`
+            //        UNION
+            //        SELECT 'Rocket', time, alt
+            //        FROM Rocket_Avionics WHERE f_id=${f_id}`+time+`
+            //        UNION
+            //        SELECT 'Payload', time, alt
+            //        FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
+            //        ORDER BY time ASC`+limit;
             break;
         case 'receptionVtime':
             // Plots reception vs time
@@ -118,7 +127,22 @@ app.get('/q', function(req, res){
             sql = `SELECT time
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
-           break;
+            break;
+        case 'flightSummary':
+            // Returns flight summary info
+            sql = `SELECT B.*
+                   FROM Flights AS F
+                   INNER JOIN BeelineGPS AS B
+                   ON B.f_id = F.flight_id
+                   INNER JOIN (
+                     SELECT callsign, MAX(time) AS latest
+                     FROM BeelineGPS
+                     GROUP BY callsign
+                   ) AS M
+                   ON M.callsign = B.callsign AND M.latest = B.time
+                   WHERE F.status = 'Active'
+                  `;
+            break;
         case 'map':
             // Plots location v time as 2d or 3d map
             console.log('Hit map');
@@ -138,7 +162,7 @@ app.get('/q', function(req, res){
     if(sql){
         // console.log('SQL = '+sql)
         db.query(sql,function(err, results) {
-            // console.log('Results: '+results);
+            // console.log('Results: '+results['time']);
             res.send(JSON.stringify(results));
         });
     } else {

@@ -24,14 +24,15 @@ def displayImportMenu(flights):
 def insertBeelineGPS(db, f_id, line):
     t, lat, lon, alt, cs = line.split(',')
     db.insertRow(
-        table='BeelineGPS',
-        cols='f_id, time, lat, lon, alt, callsign',
-        vals=["""{f_id}, STR_TO_DATE('{timestamp}', '%Y-%m-%d %H:%i:%s'),
+        table = 'BeelineGPS',
+        cols  = 'f_id, time, lat, lon, alt, callsign',
+        vals  = ["""{f_id}, STR_TO_DATE('{timestamp}', '%Y-%m-%d %H:%i:%s'),
             {lat}, {lon}, {alt}, '{cs}'""".format(
                 f_id=f_id, timestamp=t, lat=lat, lon=lon, alt=alt, cs=cs
             )
         ]
     )
+
 
 def insertRocketAvionics(db, line):
     print('insertRocketAvionics not implemented yet.')
@@ -70,7 +71,7 @@ def importFile(filename, availFlights, db):
 
         for line in f:
             try:
-                insertType(db, f_id, line)
+                insertType(db, f_id, line[:-1])
             except Exception as e:
                 print(e)
                 sys.exit(0)

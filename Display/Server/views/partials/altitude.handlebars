@@ -54,6 +54,7 @@
         };
 
         function updateChart() {
+          console.log("Last time: "+lasttime);
             $.getJSON("/q?get=altVtime&f_id={{fid}}&time=" + lasttime, function(data){
                 console.log("in, last time is " + lasttime);
                     $.each(data, function(key, value) {
