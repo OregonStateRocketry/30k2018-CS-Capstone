@@ -1,0 +1,2 @@
+PyYAML==3.12
+pymysql==0.8.0

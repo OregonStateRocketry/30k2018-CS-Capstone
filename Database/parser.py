@@ -44,6 +44,7 @@ def insertBeelineGPS(db, f_id, data):
         ]
     )
 
+
 def insertRocketAvionics(db, line):
     print('insertRocketAvionics not implemented yet.')
 
