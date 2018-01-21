@@ -1,6 +1,6 @@
 import sys, os.path
-# sys.path.append('../Database')
 from Mariadb import Mariadb
+from DWParser import DWParser
 import datetime
 import fileinput
 
@@ -20,16 +20,27 @@ def displayImportMenu(flights):
         ))
     return validFlightIDs
 
+# def insertBeelineGPS(data)
+#     t, lat, lon, alt, cs = line.split(',')
+#     db.insertRow(
+#         table='BeelineGPS',
+#         cols='f_id, time, lat, lon, alt, callsign',
+#         vals=["""{f_id}, STR_TO_DATE('{timestamp}', '%Y-%m-%d %H:%i:%s'),
+#             {lat}, {lon}, {alt}, '{cs}'""".format(
+#                 f_id=f_id, timestamp=t, lat=lat, lon=lon, alt=alt, cs=cs
+#             )
+#         ]
+#     )
 
-def insertBeelineGPS(db, f_id, line):
-    t, lat, lon, alt, cs = line.split(',')
+def insertBeelineGPS(db, f_id, data):
+    data['f_id'] = f_id
+    data['timestamp'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%s.%f')[:-4]
+    print('Inserting ', data)
     db.insertRow(
         table='BeelineGPS',
         cols='f_id, time, lat, lon, alt, callsign',
         vals=["""{f_id}, STR_TO_DATE('{timestamp}', '%Y-%m-%d %H:%i:%s'),
-            {lat}, {lon}, {alt}, '{cs}'""".format(
-                f_id=f_id, timestamp=t, lat=lat, lon=lon, alt=alt, cs=cs
-            )
+            {lat}, {lon}, {alt}, '{callsign}'""".format(**data)
         ]
     )
 
@@ -70,7 +81,10 @@ def importFile(filename, availFlights, db):
 
         for line in f:
             try:
-                insertType(db, f_id, line)
+                # ugly way to process csv files and dw audio using same fn
+                data = {}
+                data['time'],data['lat'],data['lon'],data['alt'],data['callsign'] = line.split(',')
+                insertType(db, f_id, data)
             except Exception as e:
                 print(e)
                 sys.exit(0)
@@ -87,19 +101,28 @@ def getParserSerial():
             return '0000'
 
 
+def addNewFlight(db):
+    ''' Attempt to create a new flight without duplicates '''
+    new_fid = db.getMaxFlightID()+1
+    return db.createNewActiveFlight(new_fid)
+
+
 if __name__ == "__main__":
     print("ESRA 30k Rocket Parser.")
+
+    # Connect to the ESRA database
     print("Connecting to database...", end='', flush=True)
     db = None
     try:
         db = Mariadb()
     except Exception as e:
-        print("FAILED.")
+        print(" FAILED")
         print("Start the ESRA database before running this program.")
         print("Debugging info: ",e)
         sys.exit(0)
-
     print(" OK")
+
+    # Check if reading from a csv file or using audio input
     if len(sys.argv) > 1:
         # Parse input file, then quit.
         availFlights = db.getFlightTable()
@@ -107,14 +130,35 @@ if __name__ == "__main__":
             importFile(eachFile, availFlights, db)
         sys.exit(1)
 
-    f_id = db.checkActiveFlight()
-    parser_serial = getParserSerial()
-    registerParser(parser_serial)
-    callsign = 'UNKNOWN'
+    # Begin Direwolf monitor
+    print("Connecting to direwolf audio parser...", end='', flush=True)
+    wolf = None
+    try:
+        wolf = DWParser()
+    except Exception as e:
+        print(" FAILED")
+        print("Direwolf failed to start, often solved by rebooting.")
+        print("Debugging info: ",e)
+        sys.exit(0)
+    print(" OK")
 
+    # Check status and display parser info
+    f_id = db.checkActiveFlight()
+    print("f_id = ", f_id)
+    while not f_id:
+        # f_id == None means no active flights, let's try to fix that:
+        addNewFlight(db)
+        f_id = db.checkActiveFlight()
+    print("f_id = ", f_id)
+    parser_serial = getParserSerial()
+    db.registerParser(parser_serial)
+    callsign = 'UNKNOWN'
     print("Parser Serial #: {}.".format(parser_serial))
     print("The current flight ID is: {}.".format(f_id))
+
+    # Do work
     while True:
         if (datetime.datetime.now() - db.last_connected).total_seconds() > 3:
             db.updateParserTable(f_id, parser_serial, callsign)
-        # Try to parse an incoming string here
+        # Needs to be improved so this doesn't hang..
+        insertBeelineGPS(db, f_id, wolf.checkAudio())

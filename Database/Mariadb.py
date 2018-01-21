@@ -17,24 +17,44 @@ class Mariadb:
             cursorclass =   pymysql.cursors.DictCursor,
             autocommit  =   True
         )
+        self.last_connected = None
 
 
     def checkActiveFlight(self):
-        '''Returns the currently active flight number, if available'''
+        ''' Returns the currently active flight number, if available '''
         with self.connection.cursor() as c:
             sql = """
-                SELECT flight_id from Flights
-                where status = 'Active'
-                ORDER BY start_timestamp asc
+                SELECT flight_id FROM Flights
+                WHERE status = 'Active'
+                ORDER BY start_timestamp DESC
+                LIMIT 1
             """
             c.execute(sql)
-            return c.fetchone()['flight_id']
+            res = c.fetchone()
+            return res['flight_id'] if res else None;
+
+    def getMaxFlightID(self):
+        ''' Returns the largest flight_id number '''
+        with self.connection.cursor() as c:
+            sql = 'SELECT MAX(flight_id) FROM Flights'
+            c.execute(sql)
+            return c.fetchone()['MAX(flight_id)']
+
+
+    def createNewActiveFlight(self, fid):
+        ''' Create a new flight ID while limiting duplicates '''
+        with self.connection.cursor() as c:
+            sql = """
+                INSERT INTO Flights(flight_id, start_timestamp, status)
+                VALUES({}, NOW(), 'Active')
+            """.format(fid)
+            return c.execute(sql)
 
 
     def getFlightTable(self):
         ''' Returns the Flight table '''
         with self.connection.cursor() as c:
-            c.execute("SELECT * from Flights")
+            c.execute("SELECT * FROM Flights")
             return c.fetchall()
 
 
@@ -83,14 +103,14 @@ class Mariadb:
         ''' Returns the Parser_Status table from the database '''
         # self.last_connected = datetime.datetime.now()
         with self.connection.cursor() as c:
-            sql = "SELECT * from Parser_Status"
+            sql = "SELECT * FROM Parser_Status"
             c.execute(sql)
             return c.fetchall()
 
 
     def registerParser(self, parser_serial):
         ''' Ensure this serial number is in Parser_Status '''
-        # self.parser_serial = parser_serial
+        self.last_connected = datetime.datetime.now()
         with self.connection.cursor() as c:
             return c.execute(
                 """
@@ -103,7 +123,7 @@ class Mariadb:
 
     def updateParserTable(self, f_id, parser_serial, callsign):
         '''Updates the Parser_Status table with diagnostic info'''
-        # self.last_connected = datetime.datetime.now()
+        self.last_connected = datetime.datetime.now()
         with self.connection.cursor() as c:
             return c.execute("""
                 UPDATE Parser_Status SET
