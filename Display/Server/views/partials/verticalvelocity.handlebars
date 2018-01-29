@@ -11,19 +11,37 @@
     var lastalt2 = 0;
     var velocity1 = 0;
     var velocity2 = 0;
+    var lastseconds1 = 0;
+    var lastseconds2 = 0;
     $.getJSON("/q?get=altVtime&f_id={{fid}}", function(data){
             $.each(data, function(key, value) {
 //                  console.log(value['Source']);
                     velocity = parseInt(value['alt'])
                     if(value['Source'] == "Beeline1"){
-                      velocity1 = parseInt(value['alt']) - lastalt1;
-                      lastalt1 = parseInt(value['alt']);
+                      if(lastseconds1 == 0){
+                        lastseconds1 = new Date(value['time']).getTime()/1000;
+                        velocity1 = parseInt(value['alt']) - lastalt1;
+                        lastalt1 = parseInt(value['alt']);
                         dps1.push({x : new Date(value['time']), y : velocity1.toString()});
+                      }else {
+                        velocity1 = (parseInt(value['alt']) - lastalt1)/(Date(value['time']).getTime()/1000 - lastseconds1);
+                        lastseconds1 = new Date(value['time']).getTime()/1000;
+                        lastalt1 = parseInt(value['alt']);
+                        dps1.push({x : new Date(value['time']), y : velocity1.toString()});
+                      }
                     }
                     if(value['Source'] == "Beeline2"){
-                      velocity2 = parseInt(value['alt']) - lastalt2;
-                      lastalt2 = parseInt(value['alt']);
-                        dps1.push({x : new Date(value['time']), y : velocity2.toString()});
+                      if(lastseconds2 == 0){
+                        lastseconds2 = new Date(value['time']).getTime()/1000;
+                        velocity2 = parseInt(value['alt']) - lastalt2;
+                        lastalt2 = parseInt(value['alt']);
+                        dps2.push({x : new Date(value['time']), y : velocity2.toString()});
+                      }else {
+                        velocity2 = (parseInt(value['alt']) - lastalt2)/(Date(value['time']).getTime()/1000 - lastseconds2);
+                        lastseconds2 = new Date(value['time']).getTime()/1000;
+                        lastalt2 = parseInt(value['alt']);
+                        dps2.push({x : new Date(value['time']), y : velocity2.toString()});
+                      }
                     }
                     lasttime = value['time'];
                     // console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
