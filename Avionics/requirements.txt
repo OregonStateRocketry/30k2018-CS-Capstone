@@ -1,0 +1,7 @@
+i2c-tools
+python3-smbus
+python3-pigpio
+pigpio
+rpi.gpio
+
+# May need to use `sudo pigpiod` or set to run as daemon on start

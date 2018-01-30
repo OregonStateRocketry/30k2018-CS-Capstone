@@ -1,37 +1,43 @@
-import pigpio, time
+# import pigpio, time
+import time, sys
 
-PIN = 18
+class Motor(object):
+    '''Tools to control and interface with the ESC and brushless motor'''
+    def __init__(self, pi, pin):
+        self.PIN = 18
+        self.curSpeed = 1000
 
-pi = pigpio.pi()
-pi.set_mode(PIN, pigpio.OUTPUT)
+        if not pi:
+            self.pi = pigpio.pi()
 
-# print("Initializing ESC.")
-# print(2000)
-# pi.set_servo_pulsewidth(PIN, 2000)
-# time.sleep(10)
-# print(1000)
-# pi.set_servo_pulsewidth(PIN, 1000)
-# time.sleep(3)
-# print(1200)
-# pi.set_servo_pulsewidth(PIN, 1200)
-# time.sleep(3)
-# print(0)
-# pi.set_servo_pulsewidth(PIN, 0)
-# print("Running loop.")
+        self.pi.set_mode(PIN, pigpio.OUTPUT)
 
-pi.set_servo_pulsewidth(PIN, 1000)
-time.sleep(10)
+    def configure(self, min=1000, max=2000):
+        '''Configure input range on ESC, needs to run while ESC is starting'''
+        print("Configuring ESC range - Plug in ESC now!")
+        pi.set_servo_pulsewidth(PIN, 2000)
+        time.sleep(10)
+        pi.set_servo_pulsewidth(PIN, 1000)
+        print("ESC range has been set.")
 
-speed = 1000
-dSpeed = 50
+if __name__ == "__main__":
 
-while True:
-    print(speed)
-    pi.set_servo_pulsewidth(PIN, speed)
-    time.sleep(0.2)
-    speed += dSpeed
-    if speed > 2000 or speed < 1000:
-        dSpeed *= -1
-        speed  += 2*dSpeed
+    print("Running ESC/motor demo..")
+    curSpeed = 1000
+    dSpeed = 50
 
-pi.stop()
+    print("Running motor demo")
+    while True:
+        for n in range(50):
+            print("."*n)
+            sys.stdout.write("\033[F") # Cursor up one line
+            # sys.stdout.write("\033[K") # Clear to the end of line
+            # pi.set_servo_pulsewidth(PIN, 1010+20*n)
+            time.sleep(0.05)
+
+        for n in range(50, 0, -1):
+            print("."*n)
+            sys.stdout.write("\033[F") # Cursor up one line
+            sys.stdout.write("\033[K") # Clear to the end of line
+            # pi.set_servo_pulsewidth(PIN, 1010+20*n)
+            time.sleep(0.05)
