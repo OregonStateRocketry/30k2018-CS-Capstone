@@ -14,7 +14,7 @@
             $.each(data, function(key, value) {
 //                  console.log(value['Source']);
                     var n = 0;
-                    while(lines(n).source != ""){
+                    while(lines(n).source != "" && n<6){
                           if(value['Source'] == lines(n).source){
                                 lines(n).dps.push({x : new Date(value['time']), y : value['alt']});
                                 break;
@@ -40,13 +40,33 @@
              data: [
             {
                 type: "line",
-                name: "Beeline1",
-                dataPoints: dps1
+                name: lines(0).source,
+                dataPoints: lines(0).dps
             },
             {
                 type: "line",
-                name: "Beeline2",
-                dataPoints: dps2
+                name: lines(1).source,
+                dataPoints: lines(1).dps
+            },
+            {
+                type: "line",
+                name: lines(2).source,
+                dataPoints: lines(2).dps
+            },
+            {
+                type: "line",
+                name: lines(3).source,
+                dataPoints: lines(3).dps
+            },
+            {
+                type: "line",
+                name: lines(4).source,
+                dataPoints: lines(4).dps
+            },
+            {
+                type: "line",
+                name: lines(5).source,
+                dataPoints: lines(5).dps
             }
             ]
         });
