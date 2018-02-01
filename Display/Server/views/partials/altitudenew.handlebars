@@ -2,46 +2,28 @@
 <script src="jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
     window.onload = function () {
-    var dps1 = [];
-    var dps2 = [];
+    function line() {
+      this.source = "";
+      this.dps = [];
+    };
+    var lines = [new line(),new line(),new line(),new line(),new line(),new line()];
     var pause = true;
     var counter = 0;
     var lasttime = "";
-    var lastalt1 = 0;
-    var lastalt2 = 0;
-    var velocity1 = 0;
-    var velocity2 = 0;
-    var lastseconds1 = 0;
-    var lastseconds2 = 0;
     $.getJSON("/q?get=altVtime&f_id={{fid}}", function(data){
             $.each(data, function(key, value) {
 //                  console.log(value['Source']);
-                    velocity = parseInt(value['alt'])
-                    if(value['Source'] == "Beeline1"){
-                      if(lastseconds1 == 0){
-                        lastseconds1 = new Date(value['time']).getTime()/1000;
-                        velocity1 = parseInt(value['alt']) - lastalt1;
-                        lastalt1 = parseInt(value['alt']);
-                        dps1.push({x : new Date(value['time']), y : velocity1.toString()});
-                      }else {
-                        velocity1 = (parseInt(value['alt']) - lastalt1)/(Date(value['time']).getTime()/1000 - lastseconds1);
-                        lastseconds1 = new Date(value['time']).getTime()/1000;
-                        lastalt1 = parseInt(value['alt']);
-                        dps1.push({x : new Date(value['time']), y : velocity1.toString()});
-                      }
+                    var n = 0;
+                    while(lines(n).source != "" && n<6){
+                          if(value['Source'] == lines(n).source){
+                                lines(n).dps.push({x : new Date(value['time']), y : value['alt']});
+                                break;
+                          }
+                          n++;
                     }
-                    if(value['Source'] == "Beeline2"){
-                      if(lastseconds2 == 0){
-                        lastseconds2 = new Date(value['time']).getTime()/1000;
-                        velocity2 = parseInt(value['alt']) - lastalt2;
-                        lastalt2 = parseInt(value['alt']);
-                        dps2.push({x : new Date(value['time']), y : velocity2.toString()});
-                      }else {
-                        velocity2 = (parseInt(value['alt']) - lastalt2)/(Date(value['time']).getTime()/1000 - lastseconds2);
-                        lastseconds2 = new Date(value['time']).getTime()/1000;
-                        lastalt2 = parseInt(value['alt']);
-                        dps2.push({x : new Date(value['time']), y : velocity2.toString()});
-                      }
+                    if(lines(n).source ==""){
+                          lines(n).source = value['Source'];
+                          lines(n).dps.push({x : new Date(value['time']), y : value['alt']});
                     }
                     lasttime = value['time'];
                     // console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
@@ -58,13 +40,33 @@
              data: [
             {
                 type: "line",
-                name: "Beeline1",
-                dataPoints: dps1
+                name: lines(0).source,
+                dataPoints: lines(0).dps
             },
             {
                 type: "line",
-                name: "Beeline2",
-                dataPoints: dps2
+                name: lines(1).source,
+                dataPoints: lines(1).dps
+            },
+            {
+                type: "line",
+                name: lines(2).source,
+                dataPoints: lines(2).dps
+            },
+            {
+                type: "line",
+                name: lines(3).source,
+                dataPoints: lines(3).dps
+            },
+            {
+                type: "line",
+                name: lines(4).source,
+                dataPoints: lines(4).dps
+            },
+            {
+                type: "line",
+                name: lines(5).source,
+                dataPoints: lines(5).dps
             }
             ]
         });
