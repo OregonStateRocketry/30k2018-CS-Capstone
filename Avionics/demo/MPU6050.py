@@ -2,7 +2,6 @@
 
 import math, smbus
 import RPi.GPIO as GPIO
-
 import Util as I2CUtils
 
 class MPU6050(object):

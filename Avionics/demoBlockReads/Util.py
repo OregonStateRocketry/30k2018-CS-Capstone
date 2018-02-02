@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-''' Based on https://raw.githubusercontent.com/thebdcoder/balancebot/master/6050/Util.py '''
+''' Based on https://github.com/thebdcoder/balancebot '''
 
 def i2c_raspberry_pi_bus_number():
     """Returns Raspberry Pi I2C bus number (integer, 0 or 1).
