@@ -28,7 +28,7 @@ def pid_to_pwm(p):
     if p>pid_max: p = pid_max
     pid_range = (pid_max - pid_min)
     pwm_range = (pwm_max - pwm_min)
-    return (((p - pid_min) * pwm_range) / pid_range) + pwm_min
+    return int((((p - pid_min) * pwm_range) / pid_range) + pwm_min)
 
 while True:
     avg_z = get_avg_z()
@@ -37,4 +37,4 @@ while True:
     print("acc_z = {:.3f},\tpid = {:.3f},\tpwm = {}".format(
         avg_z, pid_out, pid_to_pwm(pid_out))
     )
-    time.sleep(1)
+    # time.sleep(1)
