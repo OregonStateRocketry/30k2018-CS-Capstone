@@ -31,7 +31,12 @@ class MPU6050(object):
     ACCEL_ZOUT_H = 4
     ACCEL_ZOUT_L = 5
 
-    ACCEL_SCALE = { AFS_2g  : [ 2, 16384.0], AFS_4g  : [ 4, 8192.0], AFS_8g  : [ 8, 4096.0], AFS_16g : [16, 2048.0] }
+    ACCEL_SCALE = {
+        AFS_2g  : [ 2, 16384.0],
+        AFS_4g  : [ 4, 8192.0],
+        AFS_8g  : [ 8, 4096.0],
+        AFS_16g : [16, 2048.0]
+        }
 
     TEMP_START_BLOCK = 0x41
     TEMP_OUT_H = 0
@@ -45,7 +50,12 @@ class MPU6050(object):
     GYRO_ZOUT_H = 4
     GYRO_ZOUT_L = 5
 
-    GYRO_SCALE = { FS_250  : [ 250, 131.0], FS_500  : [ 500, 65.5], FS_1000 : [1000, 32.8], FS_2000 : [2000, 16.4] }
+    GYRO_SCALE = {
+        FS_250  : [ 250, 131.0],
+        FS_500  : [ 500, 65.5],
+        FS_1000 : [1000, 32.8],
+        FS_2000 : [2000, 16.4]
+        }
 
     K = 0.98
     K1 = 1 - K
@@ -100,9 +110,19 @@ class MPU6050(object):
         # We need to wake up the module as it start in sleep mode
         I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.PWR_MGMT_1, 0)
         # Set the gryo resolution
-        I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.FS_SEL, self.fs_scale << 3)
+        I2CUtils.i2c_write_byte(
+            self.bus,
+            self.address,
+            MPU6050.FS_SEL,
+            self.fs_scale << 3
+            )
         # Set the accelerometer resolution
-        I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.AFS_SEL, self.afs_scale << 3)
+        I2CUtils.i2c_write_byte(
+            self.bus,
+            self.address,
+            MPU6050.AFS_SEL,
+            self.afs_scale << 3
+            )
         self.disable_sensor()
 
     def enable_sensor(self):
@@ -136,13 +156,13 @@ class MPU6050(object):
         # self.raw_temp = I2CUtils.twos_compliment(self.raw_temp_data[MPU6050.TEMP_OUT_H], self.raw_temp_data[MPU6050.TEMP_OUT_L])
 
         # We convert these to radians for consistency and so we can easily combine later in the filter
-        #self.gyro_scaled_x = math.radians(self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1])
-        #self.gyro_scaled_y = math.radians(self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1])
-        #self.gyro_scaled_z = math.radians(self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1])
+        self.gyro_scaled_x = math.radians(self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1])
+        self.gyro_scaled_y = math.radians(self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1])
+        self.gyro_scaled_z = math.radians(self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1])
 
-        self.gyro_scaled_x = self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1]
-        self.gyro_scaled_y = self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1]
-        self.gyro_scaled_z = self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1]
+        # self.gyro_scaled_x = self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1]
+        # self.gyro_scaled_y = self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1]
+        # self.gyro_scaled_z = self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1]
 
         # self.scaled_temp = self.raw_temp / 340 + 36.53
 
@@ -228,12 +248,23 @@ class MPU6050(object):
     def read_all(self):
         '''Return pitch and roll in radians and the scaled x, y & z values from the gyroscope and accelerometer'''
         self.read_raw_data()
-        return (self.pitch, self.roll, self.gyro_scaled_x, self.gyro_scaled_y, self.gyro_scaled_z, self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z)
+        return (self.pitch,
+                self.roll,
+                self.gyro_scaled_x,
+                self.gyro_scaled_y,
+                self.gyro_scaled_z,
+                self.accel_scaled_x,
+                self.accel_scaled_y,
+                self.accel_scaled_z
+                )
 
     def read_most(self):
         '''Return pitch and roll in radians, and the scaled accelerometer values'''
         self.read_raw_data()
         return dict(zip(MPU6050.DICT_HEADER, (
-            self.pitch, self.roll, self.accel_scaled_x,
-            self.accel_scaled_y, self.accel_scaled_z
+            self.pitch,
+            self.roll,
+            self.accel_scaled_x,
+            self.accel_scaled_y,
+            self.accel_scaled_z
         )))
