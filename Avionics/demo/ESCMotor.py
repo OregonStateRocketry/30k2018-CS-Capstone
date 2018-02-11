@@ -36,11 +36,11 @@ class Motor:
     def set_ESC_range(self, low=1000, high=2000):
         '''Configure input range on ESC, MUST run while ESC is starting!'''
         'Times are arbitrary, but these take a few seconds.'
-        pi.set_servo_pulsewidth(PIN, low)
+        self.pi.set_servo_pulsewidth(self.PIN, low)
         time.sleep(10)
-        pi.set_servo_pulsewidth(PIN, high)
+        self.pi.set_servo_pulsewidth(self.PIN, high)
         time.sleep(3)
-        pi.set_servo_pulsewidth(PIN, 0)     # off
+        self.pi.set_servo_pulsewidth(self.PIN, 0)     # off
         time.sleep(2)
         return True
 
@@ -58,9 +58,10 @@ class Motor:
 
     def set_motor(self, speed):
         '''Set the motor speed to a PWM value'''
-        if self.ESC_MIN < speed < self.ESC_MAX:
+        if self.ESC_MIN <= speed <= self.ESC_MAX:
             self.pi.set_servo_pulsewidth(self.PIN, speed)
             return True
+        print("Bad value")
         return False
 
     def update_motor(self, current_value):

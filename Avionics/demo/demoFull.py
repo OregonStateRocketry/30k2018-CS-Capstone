@@ -1,6 +1,6 @@
 import time, pigpio
 # import RPi.GPIO as GPIO
-import MPU6050, BMP180, ESCMotor, PID
+import MPU6050, BMP180, ESCMotor
 
 # Both motors share a pigpio object
 piggy = pigpio.pi()
@@ -15,14 +15,20 @@ bmp180 = BMP180.BMP180(address=0x77)
 # Configure propeller ESC
 motor_propeller = ESCMotor.Motor(
     pi=piggy, pin=18,
-    P=2.2, I=1, D=0.5, Z=0.0)     # semi-reasonable defaults
+    P=2.2, I=1, D=0.5, Z=1
+    )     # semi-reasonable defaults?
+
+motor_counter = ESCMotor.Motor(
+    pi=piggy, pin=13,
+    P=2.2, I=1, D=0.5, Z=0
+    )     # semi-reasonable defaults?
 
 # Use pin 7 on breadboard for debugging
 DEBUG_PIN = 7
 piggy.set_mode(DEBUG_PIN, pigpio.OUTPUT)
 # GPIO.setup(7, GPIO.OUT)         # breadboard LED used for debugging
 
-def avg_acc(z1, z2, z3):
+def avg_three(z1, z2, z3):
     return ((z1+z2+z3) / 3.0)
 
 def runLoop():
@@ -47,22 +53,39 @@ def runLoop():
         m1 = mpuA.read_most()
         m2 = mpuB.read_most()
         m3 = mpuC.read_most()
+
         # Run the PID loop
-        avg_acc_z = avg_acc(m1['acc_z'],m2['acc_z'],m3['acc_z'])
-        # Recalculate motor speed using latest acceleration
-        pid, pwm = motor_propeller.update_motor(-avg_acc_z)
-        # temp, pressure = [5, 5]
-        temp, pressure = bmp180.readBmp180()
-        # print("{:.3f},{:.3f},{}".format(avg_acc_z, pwm[0], pwm[1]))
-        print("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},"\
-              "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},"\
-              "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},"\
-              "{:.3f},{:.3f},\t{:.3f},{:.2f},{}".format(
-              m1['roll'], m1['pitch'], m1['acc_x'], m1['acc_y'], m1['acc_z'],
-              m2['roll'], m2['pitch'], m2['acc_x'], m2['acc_y'], m2['acc_z'],
-              m3['roll'], m3['pitch'], m3['acc_x'], m3['acc_y'], m3['acc_z'],
-              temp, pressure, avg_acc_z, pid, pwm)
+        # Recalculate propeller motor speed using latest acceleration
+        avg_acc_z = avg_three(m1['acc_z'], m2['acc_z'], m3['acc_z'])
+        acc_pid, acc_pwm = motor_propeller.update_motor(avg_acc_z)
+
+        # Recalculate counterweight motor speed using latest gyro
+        avg_gyro = avg_three(m1['pitch'], m2['pitch'], m3['pitch'])
+        gyro_pid, gyro_pwm = motor_counter.update_motor(avg_gyro)
+
+        # Get latest temp and pressure
+        # temp, pressure = bmp180.readBmp180()
+
+        print("{:8.3f},{:8.2f},{:8}\t|\t{:8.3f},{:8.2f},{:8}".format(
+              avg_acc_z, acc_pid, acc_pwm,
+              avg_gyro, gyro_pid, gyro_pwm,
               )
+        )
+
+        # print("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},"\
+        #       "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},"\
+        #       "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},"\
+        #       "{:.3f},{:.3f},"\
+        #       "\t{:.3f},{:.2f},{}"\
+        #       "\t{:.3f},{:.2f},{}".format(
+        #       m1['roll'], m1['pitch'], m1['acc_x'], m1['acc_y'], m1['acc_z'],
+        #       m2['roll'], m2['pitch'], m2['acc_x'], m2['acc_y'], m2['acc_z'],
+        #       m3['roll'], m3['pitch'], m3['acc_x'], m3['acc_y'], m3['acc_z'],
+        #       temp, pressure,
+        #       avg_acc_z, acc_pid, acc_pwm,
+        #       avg_gyro, gyro_pid, gyro_pwm,
+        #       )
+        # )
 
 if __name__ == "__main__":
     runLoop()
