@@ -1,35 +1,21 @@
-''' Based on https://github.com/thebdcoder/balancebot/blob/master/6050/MPU6050.py '''
+import pigpio
+import smbus
 
-import math, smbus
-import RPi.GPIO as GPIO
-import Util as I2CUtils
 
 class MPU6050(object):
-    '''
-    Simple MPU-6050 implementation
-    '''
-
     PWR_MGMT_1 = 0x6b
 
-    FS_SEL = 0x1b
+    GYRO_CONFIG = 0x1B
     FS_250 = 0
     FS_500 = 1
     FS_1000 = 2
     FS_2000 = 3
 
-    AFS_SEL = 0x1c
+    ACCEL_CONFIG = 0x1C
     AFS_2g = 0
     AFS_4g = 1
     AFS_8g = 2
     AFS_16g = 3
-
-    ACCEL_START_BLOCK = 0x3b
-    ACCEL_XOUT_H = 0
-    ACCEL_XOUT_L = 1
-    ACCEL_YOUT_H = 2
-    ACCEL_YOUT_L = 3
-    ACCEL_ZOUT_H = 4
-    ACCEL_ZOUT_L = 5
 
     ACCEL_SCALE = {
         AFS_2g  : [ 2, 16384.0],
@@ -39,16 +25,8 @@ class MPU6050(object):
         }
 
     TEMP_START_BLOCK = 0x41
-    TEMP_OUT_H = 0
-    TEMP_OUT_L = 1
-
     GYRO_START_BLOCK = 0x43
-    GYRO_XOUT_H = 0
-    GYRO_XOUT_L = 1
-    GYRO_YOUT_H = 2
-    GYRO_YOUT_L = 3
-    GYRO_ZOUT_H = 4
-    GYRO_ZOUT_L = 5
+    ACCEL_START_BLOCK = 0x3B
 
     GYRO_SCALE = {
         FS_250  : [ 250, 131.0],
@@ -57,214 +35,134 @@ class MPU6050(object):
         FS_2000 : [2000, 16.4]
         }
 
-    K = 0.98
-    K1 = 1 - K
+    DICT_HEADER = 'gyro_x gyro_y gyro_z acc_x acc_y acc_z'.split()
 
-    DICT_HEADER = 'pitch roll acc_x acc_y acc_z'.split()
-
-    def __init__(self, address, enable_pin, fs_scale=FS_250, afs_scale=AFS_2g):
-        '''
-        Constructor
-        '''
-
-        # self.pi = pi
+    def __init__(self, pi, pin, address=0x69,
+                 fs_scale=FS_250, afs_scale=AFS_2g,
+                 bus=1
+                 ):
+        self.pi = pi
         self.bus = smbus.SMBus(1)
+
         self.address = address
-        self.enable_pin = enable_pin
+        self.pin = pin
         self.fs_scale = fs_scale
         self.afs_scale = afs_scale
 
-        self.raw_gyro_data = [0, 0, 0, 0, 0, 0]
-        self.raw_accel_data = [0, 0, 0, 0, 0, 0]
-        self.raw_temp_data = [0, 0]
+        # Enable output pin via pigpio
+        self.pi.set_mode(self.pin, pigpio.OUTPUT)
 
-        self.gyro_raw_x = 0
-        self.gyro_raw_y = 0
-        self.gyro_raw_z = 0
-
-        self.gyro_scaled_x = 0
-        self.gyro_scaled_y = 0
-        self.gyro_scaled_z = 0
-
-        self.raw_temp = 0
-        self.scaled_temp = 0
-
-        self.accel_raw_x = 0
-        self.accel_raw_y = 0
-        self.accel_raw_z = 0
-
-        self.accel_scaled_x = 0
-        self.accel_scaled_y = 0
-        self.accel_scaled_z = 0
-
-        self.pitch = 0.0
-        self.roll = 0.0
-
-        # Enable output pins via pigpio
-        # self.pi.set_mode(self.enable_pin, pigpio.OUTPUT)
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setwarnings(False)
-        GPIO.setup(self.enable_pin, GPIO.OUT)
-
+        # Set this sensor's address to 0x69 to distinguish it
         self.enable_sensor()
         # We need to wake up the module as it start in sleep mode
-        I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.PWR_MGMT_1, 0)
+        self.bus.write_byte_data(self.address, MPU6050.PWR_MGMT_1, 0x00)
         # Set the gryo resolution
-        I2CUtils.i2c_write_byte(
-            self.bus,
-            self.address,
-            MPU6050.FS_SEL,
-            self.fs_scale << 3
+        self.bus.write_byte_data(
+            self.address, MPU6050.GYRO_CONFIG, self.fs_scale << 3
             )
         # Set the accelerometer resolution
-        I2CUtils.i2c_write_byte(
-            self.bus,
-            self.address,
-            MPU6050.AFS_SEL,
-            self.afs_scale << 3
+        self.bus.write_byte_data(
+            self.address, MPU6050.ACCEL_CONFIG, self.afs_scale << 3
             )
+        # Set this sensor's address back to 0x68 with the others
         self.disable_sensor()
 
     def enable_sensor(self):
         ''' Pull this sensor's enable pin HIGH '''
-        # self.pi.write(self.enable_pin, 1)
-        GPIO.output(self.enable_pin, 1)
+        self.pi.write(self.pin, 1)
 
     def disable_sensor(self):
         ''' Pull this sensor's enable pin LOW '''
-        # self.pi.write(self.enable_pin, 0)
-        GPIO.output(self.enable_pin, 0)
+        self.pi.write(self.pin, 0)
 
-    def read_raw_data(self):
-        '''
-        Read the raw data from the sensor, scale it appropriately and store for later use
-        '''
+    def read_acc_gyro(self):
+        ''' Read block containing both gyro and accelerometer values '''
         self.enable_sensor()
-        self.raw_gyro_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.GYRO_START_BLOCK, 6)
-        self.raw_accel_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.ACCEL_START_BLOCK, 6)
+
+        # Raw reads 14 bytes = 6 bytes accel + 2 bytes temp + 6 bytes gyro
+        raw = self.bus.read_i2c_block_data(
+            self.address, self.ACCEL_START_BLOCK, 14
+            )
+
         self.disable_sensor()
-        # self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
 
-        self.gyro_raw_x = I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_XOUT_H], self.raw_gyro_data[MPU6050.GYRO_XOUT_L])
-        self.gyro_raw_y = I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_YOUT_H], self.raw_gyro_data[MPU6050.GYRO_YOUT_L])
-        self.gyro_raw_z = I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_ZOUT_H], self.raw_gyro_data[MPU6050.GYRO_ZOUT_L])
+        # Accel contains 6 bytes total beginning at 0x3b
+        self.accel_scaled_x = self.scale_accel(
+            self.twos_compliment(raw[0], raw[1])
+            )
+        self.accel_scaled_y = self.scale_accel(
+            self.twos_compliment(raw[2], raw[3])
+            )
+        self.accel_scaled_z = self.scale_accel(
+            self.twos_compliment(raw[4], raw[5])
+            )
 
-        self.accel_raw_x = I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_XOUT_H], self.raw_accel_data[MPU6050.ACCEL_XOUT_L])
-        self.accel_raw_y = I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_YOUT_H], self.raw_accel_data[MPU6050.ACCEL_YOUT_L])
-        self.accel_raw_z = I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_ZOUT_H], self.raw_accel_data[MPU6050.ACCEL_ZOUT_L])
+        # If you want temperature, grab bytes 6 and 7
 
-        # self.raw_temp = I2CUtils.twos_compliment(self.raw_temp_data[MPU6050.TEMP_OUT_H], self.raw_temp_data[MPU6050.TEMP_OUT_L])
+        # Gyro contains 6 bytes total beginning at 0x43
+        self.gyro_scaled_x = self.scale_gyro(
+            self.twos_compliment(raw[8],  raw[9])
+            )
+        self.gyro_scaled_y = self.scale_gyro(
+            self.twos_compliment(raw[10], raw[11])
+            )
+        self.gyro_scaled_z = self.scale_gyro(
+            self.twos_compliment(raw[12], raw[13])
+            )
 
-        # We convert these to radians for consistency and so we can easily combine later in the filter
-        self.gyro_scaled_x = math.radians(self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1])
-        self.gyro_scaled_y = math.radians(self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1])
-        self.gyro_scaled_z = math.radians(self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1])
+    def scale_accel(self, raw_acc):
+        ''' Convert raw acceleration value to m/s^2 '''
+        return raw_acc / MPU6050.ACCEL_SCALE[self.afs_scale][1]
 
-        # self.gyro_scaled_x = self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1]
-        # self.gyro_scaled_y = self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1]
-        # self.gyro_scaled_z = self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1]
+    def scale_gyro(self, raw_gyro):
+        ''' Convert raw gyro value to rad/s '''
+        return raw_gyro / MPU6050.GYRO_SCALE[self.fs_scale][1]
 
-        # self.scaled_temp = self.raw_temp / 340 + 36.53
+    def twos_compliment(self, high_byte, low_byte):
+        ''' Combine two bytes using twos complement '''
+        value = (high_byte << 8) + low_byte
+        if (value >= 0x8000):
+            return -((0xffff - value) + 1)
+        return value
 
-        self.accel_scaled_x = self.accel_raw_x / MPU6050.ACCEL_SCALE[self.afs_scale][1]
-        self.accel_scaled_y = self.accel_raw_y / MPU6050.ACCEL_SCALE[self.afs_scale][1]
-        self.accel_scaled_z = self.accel_raw_z / MPU6050.ACCEL_SCALE[self.afs_scale][1]
-
-        self.pitch = self.read_x_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
-        self.roll =  self.read_y_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
-
-    def distance(self, x, y):
-        '''Returns the distance between two point in 2d space'''
-        return math.sqrt((x * x) + (y * y))
-
-    def read_x_rotation(self, x, y, z):
-        '''Returns the rotation around the X axis in radians'''
-        return math.atan2(y, self.distance(x, z))
-
-    def read_y_rotation(self, x, y, z):
-        '''Returns the rotation around the Y axis in radians'''
-        return -math.atan2(x, self.distance(y, z))
-
-    def read_raw_accel_x(self):
-        '''Return the RAW X accelerometer value'''
-        return self.accel_raw_x
-
-    def read_raw_accel_y(self):
-        '''Return the RAW Y accelerometer value'''
-        return self.accel_raw_y
-
-    def read_raw_accel_z(self):
-        '''Return the RAW Z accelerometer value'''
-        return self.accel_raw_z
-
-    def read_scaled_accel_x(self):
-        '''Return the SCALED X accelerometer value'''
-        return self.accel_scaled_x
-
-    def read_scaled_accel_y(self):
-        '''Return the SCALED Y accelerometer value'''
-        return self.accel_scaled_y
-
-    def read_scaled_accel_z(self):
-        '''Return the SCALED Z accelerometer value'''
-        return self.accel_scaled_z
-
-    def read_raw_gyro_x(self):
-        '''Return the RAW X gyro value'''
-        return self.gyro_raw_x
-
-    def read_raw_gyro_y(self):
-        '''Return the RAW Y gyro value'''
-        return self.gyro_raw_y
-
-    def read_raw_gyro_z(self):
-        '''Return the RAW Z gyro value'''
-        return self.gyro_raw_z
-
-    def read_scaled_gyro_x(self):
-        '''Return the SCALED X gyro value in radians/second'''
-        return self.gyro_scaled_x
-
-    def read_scaled_gyro_y(self):
-        '''Return the SCALED Y gyro value in radians/second'''
-        return self.gyro_scaled_y
-
-    def read_scaled_gyro_z(self):
-        '''Return the SCALED Z gyro value in radians/second'''
-        return self.gyro_scaled_z
-
-    def read_temp(self):
-        '''Return the temperature'''
-        return self.scaled_temp
-
-    def read_pitch(self):
-        '''Return the current pitch value in radians'''
-        return self.pitch
-
-    def read_roll(self):
-        '''Return the current roll value in radians'''
-        return self.roll
+    def refresh_data(self):
+        ''' Read the raw data from the sensor and convert units '''
+        self.enable_sensor()
+        self.read_acc_gyro()    # Also does unit conversions
+        self.disable_sensor()
 
     def read_all(self):
-        '''Return pitch and roll in radians and the scaled x, y & z values from the gyroscope and accelerometer'''
-        self.read_raw_data()
-        return (self.pitch,
-                self.roll,
-                self.gyro_scaled_x,
-                self.gyro_scaled_y,
-                self.gyro_scaled_z,
-                self.accel_scaled_x,
-                self.accel_scaled_y,
-                self.accel_scaled_z
-                )
-
-    def read_most(self):
-        '''Return pitch and roll in radians, and the scaled accelerometer values'''
-        self.read_raw_data()
+        ''' Return dictionary of acceleration (m/s^2) and gyro (rad/s) '''
+        self.refresh_data()
         return dict(zip(MPU6050.DICT_HEADER, (
-            self.pitch,
-            self.roll,
+            self.gyro_scaled_x,
+            self.gyro_scaled_y,
+            self.gyro_scaled_z,
             self.accel_scaled_x,
             self.accel_scaled_y,
             self.accel_scaled_z
         )))
+
+
+if __name__ == "__main__":
+    piggy = pigpio.pi()
+
+    mpuA = MPU6050(pi=piggy, pin=17)
+    mpuB = MPU6050(pi=piggy, pin=27)
+    mpuC = MPU6050(pi=piggy, pin=22)
+
+    for x in range(1000):
+        m1 = mpuA.read_all()
+        m2 = mpuB.read_all()
+        m3 = mpuC.read_all()
+
+        print("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}\t"
+              "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}\t"
+              "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}".format(
+                  m1['gyro_x'], m1['gyro_y'], m1['gyro_z'],
+                  m1['acc_x'], m1['acc_y'], m1['acc_z'],
+                  m2['gyro_x'], m2['gyro_y'], m2['gyro_z'],
+                  m2['acc_x'], m2['acc_y'], m2['acc_z'],
+                  m3['gyro_x'], m3['gyro_y'], m3['gyro_z'],
+                  m3['acc_x'], m3['acc_y'], m3['acc_z'])
+              )
