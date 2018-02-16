@@ -1,0 +1,38 @@
+\contentsline {section}{\numberline {1}Project Overview}{2}
+\contentsline {section}{\numberline {2}Designs and Solutions}{2}
+\contentsline {subsection}{\numberline {2.1}Ground Station}{2}
+\contentsline {subsubsection}{\numberline {2.1.1}Overview}{2}
+\contentsline {subsubsection}{\numberline {2.1.2}Current Progress}{3}
+\contentsline {subsubsection}{\numberline {2.1.3}Remaining Tasks}{3}
+\contentsline {subsection}{\numberline {2.2}Networking}{4}
+\contentsline {subsubsection}{\numberline {2.2.1}Overview}{4}
+\contentsline {subsubsection}{\numberline {2.2.2}Current Progress}{4}
+\contentsline {subsubsection}{\numberline {2.2.3}Remaining Tasks}{4}
+\contentsline {subsection}{\numberline {2.3}Graphs}{4}
+\contentsline {subsubsection}{\numberline {2.3.1}Overview}{4}
+\contentsline {subsubsection}{\numberline {2.3.2}Current Progress}{5}
+\contentsline {subsubsection}{\numberline {2.3.3}Remaining Tasks}{5}
+\contentsline {subsection}{\numberline {2.4}Data Parser}{5}
+\contentsline {subsubsection}{\numberline {2.4.1}Overview}{5}
+\contentsline {subsubsection}{\numberline {2.4.2}Current Progress}{5}
+\contentsline {subsubsection}{\numberline {2.4.3}Remaining Tasks}{6}
+\contentsline {subsection}{\numberline {2.5}Database}{6}
+\contentsline {subsubsection}{\numberline {2.5.1}Overview}{6}
+\contentsline {subsubsection}{\numberline {2.5.2}Current Progress}{6}
+\contentsline {subsubsection}{\numberline {2.5.3}Remaining Tasks}{6}
+\contentsline {subsection}{\numberline {2.6}Sensor Avionics}{7}
+\contentsline {subsubsection}{\numberline {2.6.1}Overview}{7}
+\contentsline {subsubsection}{\numberline {2.6.2}Current Progress}{7}
+\contentsline {subsubsection}{\numberline {2.6.3}Remaining Tasks}{7}
+\contentsline {subsection}{\numberline {2.7}Rocket Avionics}{7}
+\contentsline {subsubsection}{\numberline {2.7.1}Overview}{8}
+\contentsline {subsubsection}{\numberline {2.7.2}Current Progress}{8}
+\contentsline {subsubsection}{\numberline {2.7.3}Remaining Tasks}{8}
+\contentsline {subsection}{\numberline {2.8}Payload Avionics}{9}
+\contentsline {subsubsection}{\numberline {2.8.1}Overview}{9}
+\contentsline {subsubsection}{\numberline {2.8.2}Current Progress}{9}
+\contentsline {subsubsection}{\numberline {2.8.3}Remaining Tasks}{10}
+\contentsline {section}{\numberline {3}Support the AIAA team as a whole}{10}
+\contentsline {subsubsection}{\numberline {3.0.1}Overview}{10}
+\contentsline {subsubsection}{\numberline {3.0.2}Current Progress}{10}
+\contentsline {subsubsection}{\numberline {3.0.3}Remaining Tasks}{10}
