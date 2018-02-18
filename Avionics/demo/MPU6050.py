@@ -37,7 +37,7 @@ class MPU6050(object):
 
     DICT_HEADER = 'gyro_x gyro_y gyro_z acc_x acc_y acc_z'.split()
 
-    def __init__(self, pi, pin, address=0x69,
+    def __init__(self, pi, gpio, address=0x69,
                  fs_scale=FS_250, afs_scale=AFS_2g,
                  bus=1
                  ):
@@ -45,12 +45,12 @@ class MPU6050(object):
         self.bus = smbus.SMBus(1)
 
         self.address = address
-        self.pin = pin
+        self.gpio = gpio
         self.fs_scale = fs_scale
         self.afs_scale = afs_scale
 
         # Enable output pin via pigpio
-        self.pi.set_mode(self.pin, pigpio.OUTPUT)
+        self.pi.set_mode(self.gpio, pigpio.OUTPUT)
 
         # Set this sensor's address to 0x69 to distinguish it
         self.enable_sensor()
@@ -69,11 +69,11 @@ class MPU6050(object):
 
     def enable_sensor(self):
         ''' Pull this sensor's enable pin HIGH '''
-        self.pi.write(self.pin, 1)
+        self.pi.write(self.gpio, 1)
 
     def disable_sensor(self):
         ''' Pull this sensor's enable pin LOW '''
-        self.pi.write(self.pin, 0)
+        self.pi.write(self.gpio, 0)
 
     def read_acc_gyro(self):
         ''' Read block containing both gyro and accelerometer values '''
@@ -147,9 +147,9 @@ class MPU6050(object):
 if __name__ == "__main__":
     piggy = pigpio.pi()
 
-    mpuA = MPU6050(pi=piggy, pin=17)
-    mpuB = MPU6050(pi=piggy, pin=27)
-    mpuC = MPU6050(pi=piggy, pin=22)
+    mpuA = MPU6050(pi=piggy, gpio=17)
+    mpuB = MPU6050(pi=piggy, gpio=27)
+    mpuC = MPU6050(pi=piggy, gpio=22)
 
     for x in range(1000):
         m1 = mpuA.read_all()
