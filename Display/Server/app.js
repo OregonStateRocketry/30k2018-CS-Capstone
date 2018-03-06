@@ -18,7 +18,35 @@ db.connect(function(err) {
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
-  res.render('index-page');
+  // Display a summary of all recorded flights
+  sql = `
+    SELECT
+        P.f_id, P.id, P.callsign, F.status,
+        MIN_T.min_time, MIN_T.start_lat, MIN_T.start_lon,
+        MAX_T.max_time, MAX_T.end_lat, MAX_T.end_lon,
+        MAX_ALT.max_alt, MIN_ALT.min_alt
+    FROM BeelineGPS P
+    JOIN (SELECT flight_id AS f_id, status FROM Flights) F ON F.f_id = P.f_id
+    JOIN (
+        SELECT id, lat AS end_lat, lon AS end_lon, MAX(time) AS max_time
+        FROM BeelineGPS GROUP BY f_id, callsign
+        ) MAX_T ON MAX_T.id = P.id
+    JOIN (
+        SELECT id, lat AS start_lat, lon AS start_lon, MIN(time) AS min_time
+        FROM BeelineGPS GROUP BY f_id, callsign
+        ) MIN_T ON MIN_T.id = P.id
+    JOIN (
+        SELECT id, MAX(alt) AS max_alt FROM BeelineGPS GROUP BY f_id, callsign
+        ) MAX_ALT ON MAX_ALT.id = P.id
+    JOIN (
+        SELECT id, MIN(alt) AS min_alt FROM BeelineGPS GROUP BY f_id, callsign
+        ) MIN_ALT ON MIN_ALT.id = P.id
+  `
+  db.query(sql,function(err, results) {
+      // console.log('Results: '+results['time']);
+      res.render('index-page', summary : result);
+  });
+
 });
 
 //Renders graph pages with queries from index page
@@ -111,15 +139,6 @@ app.get('/q', function(req, res){
                    SELECT 'Payload', time, alt
                    FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
-            // sql = `SELECT callsign AS Source, CONVERT_TZ(time, "+00:00", "+08:00"), alt
-            //        FROM BeelineGPS WHERE f_id=${f_id}`+time+`
-            //        UNION
-            //        SELECT 'Rocket', time, alt
-            //        FROM Rocket_Avionics WHERE f_id=${f_id}`+time+`
-            //        UNION
-            //        SELECT 'Payload', time, alt
-            //        FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
-            //        ORDER BY time ASC`+limit;
             break;
         case 'receptionVtime':
             // Plots reception vs time
@@ -150,10 +169,10 @@ app.get('/q', function(req, res){
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
-	case 'fid':
-		//return list of flight IDs
-		sql = `SELECT DISTINCT flight_id FROM Flights`;
-		break;
+      	case 'fid':
+        		//return list of flight IDs
+        		sql = `SELECT DISTINCT flight_id FROM Flights`;
+        		break;
         default:
             // Invalid or missing get field
             console.log('DEFAULT.  get='+get);
