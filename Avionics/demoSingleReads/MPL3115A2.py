@@ -1,61 +1,113 @@
 from smbus import SMBus
-import time
 
-# Special Chars
-deg = u'\N{DEGREE SIGN}'
+#I2C ADDRESS/BITS
 
-# I2C Constants
-ADDR = 0x60
-CTRL_REG1 = 0x26
-PT_DATA_CFG = 0x13
-bus = SMBus(1)
+MPL3115A2_ADDRESS = (0x60)
 
-who_am_i = bus.read_byte_data(ADDR, 0x0C)
-print(hex(who_am_i))
-if who_am_i != 0xc4:
-    print("Device not active.")
-    exit(1)
+#REGISTERS
 
-# Set oversample rate to 128
-setting = bus.read_byte_data(ADDR, CTRL_REG1)
-newSetting = setting | 0x38
-bus.write_byte_data(ADDR, CTRL_REG1, newSetting)
+MPL3115A2_REGISTER_STATUS = (0x00)
+MPL3115A2_REGISTER_STATUS_TDR = 0x02
+MPL3115A2_REGISTER_STATUS_PDR = 0x04
+MPL3115A2_REGISTER_STATUS_PTDR = 0x08
 
-# Enable event flags
-bus.write_byte_data(ADDR, PT_DATA_CFG, 0x07)
+MPL3115A2_REGISTER_PRESSURE_MSB = (0x01)
+MPL3115A2_REGISTER_PRESSURE_CSB = (0x02)
+MPL3115A2_REGISTER_PRESSURE_LSB = (0x03)
 
-# Toggel One Shot
-setting = bus.read_byte_data(ADDR, CTRL_REG1)
-if (setting & 0x02) == 0:
-    bus.write_byte_data(ADDR, CTRL_REG1, (setting | 0x02))
+MPL3115A2_REGISTER_TEMP_MSB = (0x04)
+MPL3115A2_REGISTER_TEMP_LSB = (0x05)
 
-# Read sensor data
-print("Waiting for data...")
-status = bus.read_byte_data(ADDR,0x00)
-while (status & 0x08) == 0:
-    #print bin(status)
-    status = bus.read_byte_data(ADDR,0x00)
-    time.sleep(0.5)
+MPL3115A2_REGISTER_DR_STATUS = (0x06)
 
-print("Reading sensor data...")
-p_data = bus.read_i2c_block_data(ADDR,0x01,3)
-t_data = bus.read_i2c_block_data(ADDR,0x04,2)
-status = bus.read_byte_data(ADDR,0x00)
-print("status: "+bin(status))
+MPL3115A2_OUT_P_DELTA_MSB = (0x07)
+MPL3115A2_OUT_P_DELTA_CSB = (0x08)
+MPL3115A2_OUT_P_DELTA_LSB = (0x09)
 
-p_msb = p_data[0]
-p_csb = p_data[1]
-p_lsb = p_data[2]
-t_msb = t_data[0]
-t_lsb = t_data[1]
+MPL3115A2_OUT_T_DELTA_MSB = (0x0A)
+MPL3115A2_OUT_T_DELTA_LSB = (0x0B)
 
-pressure = (p_msb << 10) | (p_csb << 2) | (p_lsb >> 6)
-p_decimal = ((p_lsb & 0x30) >> 4)/4.0
+MPL3115A2_BAR_IN_MSB = (0x14)
 
-celsius = t_msb + (t_lsb >> 4)/16.0
-fahrenheit = (celsius * 9)/5 + 32
+MPL3115A2_WHOAMI = (0x0C)
 
-print("Pressure and Temperature at "+time.strftime('%m/%d/%Y %H:%M:%S%z'))
-print(str(pressure+p_decimal)+" Pa")
-print(str(celsius)+deg+"C")
-print(str(fahrenheit)+deg+"F")
+#BITS
+
+MPL3115A2_PT_DATA_CFG = 0x13
+MPL3115A2_PT_DATA_CFG_TDEFE = 0x01
+MPL3115A2_PT_DATA_CFG_PDEFE = 0x02
+MPL3115A2_PT_DATA_CFG_DREM = 0x04
+
+MPL3115A2_CTRL_REG1 = (0x26)
+MPL3115A2_CTRL_REG1_SBYB = 0x01
+MPL3115A2_CTRL_REG1_OST = 0x02
+MPL3115A2_CTRL_REG1_RST = 0x04
+MPL3115A2_CTRL_REG1_OS1 = 0x00
+MPL3115A2_CTRL_REG1_OS2 = 0x08
+MPL3115A2_CTRL_REG1_OS4 = 0x10
+MPL3115A2_CTRL_REG1_OS8 = 0x18
+MPL3115A2_CTRL_REG1_OS16 = 0x20
+MPL3115A2_CTRL_REG1_OS32 = 0x28
+MPL3115A2_CTRL_REG1_OS64 = 0x30
+MPL3115A2_CTRL_REG1_OS128 = 0x38
+MPL3115A2_CTRL_REG1_RAW = 0x40
+MPL3115A2_CTRL_REG1_ALT = 0x80
+MPL3115A2_CTRL_REG1_BAR = 0x00
+MPL3115A2_CTRL_REG2 = (0x27)
+MPL3115A2_CTRL_REG3 = (0x28)
+MPL3115A2_CTRL_REG4 = (0x29)
+MPL3115A2_CTRL_REG5 = (0x2A)
+
+MPL3115A2_REGISTER_STARTCONVERSION = (0x12)
+
+class MPL3115A2(object):
+    def __init__(self):
+        self._bus = SMBus(1)
+        self._whoami = self._bus.read_byte_data(MPL3115A2_ADDRESS, MPL3115A2_WHOAMI)
+        if self._whoami != 0xc4:
+            print("Device not active")
+
+        self._bus.write_byte_data(
+            MPL3115A2_ADDRESS,
+            MPL3115A2_PT_DATA_CFG,
+            MPL3115A2_PT_DATA_CFG_TDEFE |
+            MPL3115A2_PT_DATA_CFG_PDEFE |
+            MPL3115A2_PT_DATA_CFG_DREM)
+
+        #These set the sample rate to be very fast and allow for us to constantly sample without needing it to be ready for a sample.
+        self._bus.write_byte_data(
+                MPL3115A2_ADDRESS,
+                MPL3115A2_CTRL_REG1,
+                0b00011011)
+        self._bus.write_byte_data(
+                MPL3115A2_ADDRESS,
+                MPL3115A2_CTRL_REG1,
+                0b00011001)
+
+
+    def temperature(self):
+        msb, lsb = self._bus.read_i2c_block_data(MPL3115A2_ADDRESS,MPL3115A2_REGISTER_TEMP_MSB,2)
+        #print(msb, lsb)
+        return msb + (lsb >> 4)/16.0
+
+
+    def pressure(self):
+        msb, csb, lsb = self._bus.read_i2c_block_data(MPL3115A2_ADDRESS,MPL3115A2_REGISTER_PRESSURE_MSB,3)
+        #print(msb, csb, lsb)
+        return ((msb * 65536) + (csb * 256) + (lsb & 0xF0))/ 64
+    def update(self): #preps for next check
+        # MPL3115A2 address, 0x60(96)
+        # Select data configuration register, 0x13(19)
+        #		0x07(07)	Data ready event enabled for altitude, pressure, temperature
+        #self._bus.write_byte_data(0x60, 0x13, 0x07)
+        # MPL3115A2 address, 0x60(96)
+        # Select control register, 0x26(38)
+        #		0x39(57)	Active mode, OSR = 128, Barometer mode
+        self._bus.write_byte_data(
+        MPL3115A2_ADDRESS,
+        MPL3115A2_CTRL_REG1,
+        0b00011011)
+        self._bus.write_byte_data(
+        MPL3115A2_ADDRESS,
+        MPL3115A2_CTRL_REG1,
+        0b00011001)
