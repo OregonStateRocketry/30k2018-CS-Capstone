@@ -44,8 +44,8 @@ document.body.addEventListener('click',function(event){
       var element = document.getElementById("displayList");
       flightText.appendChild(flightVal);
       element.appendChild(flightText);
-	
-      flight = "multi";	
+
+      flight = "multi";
       if (event.target.id=="multiSubmit"){
         document.getElementById('dataSelect').classList.toggle('hide');
         document.getElementById('multiSelect').classList.toggle('hide');
@@ -78,23 +78,23 @@ document.body.addEventListener('click',function(event){
     element.appendChild(showData);
 
     /* Call query function/ page change*/
-	var query = "graph?get="+data+"&fid="+flight+"&";	
-    	console.log("Query:",query);	
+	var query = "graph?get="+data+"&fid="+flight+"&";
+    	//console.log("Query:",query);	
      	if(flightList.length == 0){
-		console.log("One flight");
+		//console.log("One flight");
 	}
 	else{
-		console.log("Multiple flights");
+	//	console.log("Multiple flights");
 		var numFlights= flightList.length;
-		console.log("NUM:",numFlights);
+	//	console.log("NUM:",numFlights);
 		query += "num="+numFlights+"&";
 		var i;
 		for (i = 0; i < flightList.length; i++) {
     			query += "fid_" + i + "=" + flightList[i]+"&";
-		}		
-		console.log("Multi Query:",query);
+		}
+		//console.log("Multi Query:",query);
 	}
-	window.location.href = "/"+query; 
+	window.location.href = "/"+query;
     }
 });
 
@@ -102,26 +102,25 @@ document.body.addEventListener('click',function(event){
 function UpdateDropdown() {
     $.getJSON("/q?get=fid", function(data){
         $.each(data,function(key, value){
-            /*For each flight ID, create two option elements and append them to both the 
-            flight selection and multiple flight selection dropdown menus. 
+            /*For each flight ID, create two option elements and append them to both the
+            flight selection and multiple flight selection dropdown menus.
             This has been done twice because two elements must be created in order to append them to each of the dropdowns. */
-            
+
             //Add option to flight dropdown
             var option = document.createElement('option');
             option.value = value["flight_id"];
             option.text = value["flight_id"];
             var element = document.getElementById("flightField");
-            element.appendChild(option); 
-            
+            element.appendChild(option);
+
             //Add option to multi-flight dropdown
             var option = document.createElement('option');
             option.value = value["flight_id"];
             option.text = value["flight_id"];
             var element = document.getElementById("multiField");
-            element.appendChild(option);    
+            element.appendChild(option);
 
-        });    
+        });
     });
 };
 UpdateDropdown();
-

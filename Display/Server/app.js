@@ -18,6 +18,9 @@ db.connect(function(err) {
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
+-  res.render('index-page'); });
+
+app.get('/summary', function (req, res) {
   // Display a summary of all recorded flights
   sql = `
     SELECT
@@ -44,7 +47,9 @@ app.get('/', function (req, res) {
   `
   db.query(sql,function(err, results) {
       // console.log('Results: '+results['time']);
-      res.render('index-page', summary : result);
+      //res.render('index-page', summary : result);
+      res.send(JSON.stringify(results));
+
   });
 
 });
@@ -78,22 +83,37 @@ app.get('/graph', function (req, res){
     }
     //Remake query to send to page
     var queryText = "q?get=" + get + "&f_id=" + fid +"&";
-    console.log(queryText);
+    //console.log(queryText);
     switch(get){
         case 'altVtime':
             //render alt graph
             var titleText = "Flight " + fid + " Altitude vs Time";
             var partial =  "altitude";
+            var nav = 1;
             break;
         case 'receptionVtime':
 	        //render recep graph
             var titleText = "Flight " + fid + " Reception vs Time";
             var partial =  "reception";
+            var nav = 1;
 	        break;
 	    case 'map':
 	        //render map
             var titleText = "Flight " + fid + " Map";
             var partial = "map";
+            var nav = 1;
+            break;
+        case 'summary':
+    	     //render summary page
+            var titleText = "Flight Summary For Flight " + fid;
+            var partial = "summary";
+            var nav = 1;
+            break;
+        case 'about':
+        	//render summary page
+            var titleText = "About Our Team";
+            var partial = "about";
+            var nav = 0;
             break;
 	default:
 	    //Bad query
@@ -101,7 +121,7 @@ app.get('/graph', function (req, res){
     }
     //Render graph page with correct info
     res.render('graph', {title: titleText,
-        partialVars: {'query': queryText, 'fid': fid, 'get': get, 'show_nav': 1},
+        partialVars: {'query': queryText, 'fid': fid, 'get': get, 'show_nav': nav},
         whichPartial: function() {
             return partial;}
         });
@@ -129,7 +149,7 @@ app.get('/q', function(req, res){
             break;
         case 'altVtime':
             // Plots altitude vs time
-            console.log('Hit altVtime');
+            //console.log('Hit altVtime');
             sql = `SELECT callsign AS Source, time, alt
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    UNION
@@ -142,7 +162,7 @@ app.get('/q', function(req, res){
             break;
         case 'receptionVtime':
             // Plots reception vs time
-            console.log('Hit receptionVtime');
+            //console.log('Hit receptionVtime');
             sql = `SELECT time
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
@@ -164,7 +184,7 @@ app.get('/q', function(req, res){
             break;
         case 'map':
             // Plots location v time as 2d or 3d map
-            console.log('Hit map');
+            //console.log('Hit map');
             sql = `SELECT callsign as Source, time, lat, lon, alt
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
@@ -175,7 +195,7 @@ app.get('/q', function(req, res){
         		break;
         default:
             // Invalid or missing get field
-            console.log('DEFAULT.  get='+get);
+            //console.log('DEFAULT.  get='+get);
     }
 
     if(sql){
@@ -191,7 +211,7 @@ app.get('/q', function(req, res){
 });
 
 app.get('/beeline', function(req, res){
-    console.log('Beeline!');
+    //console.log('Beeline!');
     db.query(
         "SELECT * FROM BeelineGPS LIMIT 3",
         function(err, results) {

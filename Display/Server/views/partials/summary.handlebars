@@ -1,0 +1,43 @@
+<script src="jquery-3.2.1.min.js"></script>
+
+<!-- This script queries the database for flight summary information
+     and makes one block of inserts into the summaryBlock div.  -->
+<script>
+(function() {
+
+  $.getJSON( "summary", {
+  })
+    .done(function( data ) {
+      $.each( data, function( i, item ) {
+
+        // Select only values related to chosen flight
+        if (item.f_id == "{{fid}}"){
+
+            // Display values
+            //$( "<p>" ).text( "Flight ID:            "+ item.f_id).appendTo( "#summaryBlock" );
+            $( "<p>" ).text( "Status:               "+ item.status).appendTo( "#summaryBlock" );
+            $( "<p>" ).text( "Start Time:           "+ item.min_time).appendTo( "#summaryBlock" );
+            $( "<p>" ).text( "Most Recent Update:   "+ item.max_time).appendTo( "#summaryBlock" );
+            $( "<p>" ).text( "Starting Location:   ("+ item.start_lat + ", " + item.start_lon + ")").appendTo( "#summaryBlock" );
+            $( "<p>" ).text( "Most Recent Location:("+ item.end_lat + ", " + item.end_lon + ")").appendTo( "#summaryBlock" );
+            $( "<p>" ).text( "Highest Altitude:     "+ item.max_alt).appendTo( "#summaryBlock" );
+
+            /* BUG: This line generates an uncaught type error because it
+             * attempts to remove an attribute from an element that doesn't
+             * exist. The purpose of this line is to display only one Source
+             * and prevent others from being inserted into the DOM.
+             * this should be fixed in next release.*/
+            document.getElementById("summaryBlock").removeAttribute("id");
+        }
+
+      });
+    });
+})();
+
+</script>
+
+
+
+
+
+<div id=summaryBlock> </div>

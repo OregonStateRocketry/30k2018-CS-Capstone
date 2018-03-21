@@ -64,8 +64,9 @@
       display: block;
   }
   </style>
-{{#if show_nav}}
+
   <div class="navbar">
+{{#if show_nav}}
     <div class="dropdown">
       <button class="dropbtn">Flight Select
         <i class="fa fa-caret-down"></i>
@@ -82,16 +83,20 @@
         <a href="/graph?get=map&fid={{fid}}">Map</a>
       </div>
     </div>
-    <a href="#Summary">Flight Summary</a>
+    <a href="/graph?get=summary&fid={{fid}}">Flight Summary</a>
+{{/if}}
+
+    <a href="/graph?get=about">About Us</a>
   </div>
 
+{{#if show_nav}}
 
 <!-- Add Dynamic Flight ID Selection: Dropdowns should pull from the database  -->
 <script type="text/javascript">
     function UpdateDropdown() {
         $.getJSON("/q?get=fid", function(data){
             $.each(data,function(key, value){
-                console.log(value["flight_id"]);
+                //console.log(value["flight_id"]);
                 var option = document.createElement('a');
                 option.href = "/graph?get={{get}}&fid="+value["flight_id"];
                  option.text = value["flight_id"];

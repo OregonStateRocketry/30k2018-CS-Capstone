@@ -20,7 +20,7 @@
 				$.getJSON("/q?get=map&f_id={{fid}}&time=" + lasttime, function(data){
 					$.each(data, function(key, value) {
 						lasttime = value['time'];
-						console.log("hitmap");
+					//	console.log("hitmap");
 						addPoint(parseFloat(value['lat']),parseFloat(value['lon']));
 					});
 					waiting = false;
@@ -46,7 +46,7 @@
 		newPoint.style.left = xstr + "%";
 		newPoint.style.top = ystr + "%";
 		var main = document.getElementById('MapDiv');
-		console.log(main.class);
+		//console.log(main.class);
 		main.appendChild(newPoint);
 	};
   window.onload = addPoints();
