@@ -1,6 +1,6 @@
 import time
 
-class apogee_detect:
+class apogee_detect(object):
     """ This class takes the total acceleration and altitude as inputs
         to its primary method and outputs a 0 or 1 to indicate apogee status:
         0: apogee has not been reached
@@ -26,45 +26,47 @@ class apogee_detect:
     def check_timer(self):
         countdown_check = time.time()
         # Check timer for very close accel
-        if (countdown_start)
-            if(countdown_check - countdown_start >= SHORT_TIMER)
+        if self.countdown_start != 0:
+            if(countdown_check - self.countdown_start >= self.SHORT_TIMER):
                 return 1
         # Check timer for somewhat close accel
-        if (safety_countdown_start)
-            if (countdown_check - safety_countdown_start >= LONG_TIMER)
+        if (self.safety_countdown_start):
+            if (countdown_check - self.safety_countdown_start >= self.LONG_TIMER):
                 return 1
         return 0
 
     def check_apogee(self, acceleration, altitude):
         # if acceleration is close to apogee and starts decreasing, respond apogee
-        if (low_acceleration)
+        if (self.low_acceleration):
             # Zero is used here for comparison, but some implementations use a
             # threshold value to make sure altitude is really decreasing
-            if (altitude_prev - altitude) > 0
+            if (self.altitude_prev - altitude) > 0:
                 return 1    # respond with apogee
 
         # check apogee countdown
-        check_countdown_timers = check_timer()
-        if (check_countdown_timers)
+        check_countdown_timers = self.check_timer()
+        if (check_countdown_timers):
             return 1
 
         # check acceleration against threshold
-        if (acceleration < VERY_CLOSE_ACCEL)
+        if (acceleration < self.VERY_CLOSE_ACCEL):
             # set flag to check altitude
-            low_acceleration = 1
+            self.low_acceleration = 1
 
             # start countdown
-            if (countdown_start == 0) countdown_start = time.time()
-            altitude_prev = altitude
+            if (self.countdown_start == 0):
+                 self.countdown_start = time.time()
+            self.altitude_prev = altitude
             return 0
 
         # check acceleration against higher threshold
-        if (acceleration < CLOSE_ACCEL)
+        if (acceleration < self.CLOSE_ACCEL):
             # start safety countdown
-            if (safety_countdown_start == 0) safety_countdown_start = time.time()
-            altitude_prev = altitude
+            if (self.safety_countdown_start == 0):
+                 self.safety_countdown_start = time.time()
+            self.altitude_prev = altitude
             return 0
 
         # check for free fall -- was apogee missed completely?
-        if(acceleration > MISSED_APOGEE_ACCEL)
+        if(acceleration > self.MISSED_APOGEE_ACCEL):
             return 1 # apogee was missed
