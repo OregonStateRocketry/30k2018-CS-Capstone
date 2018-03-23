@@ -1,95 +1,140 @@
 CREATE TABLE `Flights` (
-	`flight_id` INT NOT NULL AUTO_INCREMENT,
-	`start_timestamp` DATETIME NOT NULL,
-	`last_timestamp` DATETIME,
-	`launch_lat` VARCHAR(25),
-	`launch_lon` VARCHAR(25),
-	`max_alt` INT(6) DEFAULT '0',
-	`launch_alt` INT(6),
+	`id` INT NOT NULL AUTO_INCREMENT,
 	`status` VARCHAR(25) NOT NULL DEFAULT 'Inactive',
-	PRIMARY KEY (`flight_id`)
+	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `BeelineGPS` (
+CREATE TABLE `Callsigns` (
 	`id` INT NOT NULL AUTO_INCREMENT,
-	`f_id` INT NOT NULL,
-	`time` DATETIME NOT NULL,
-	`lat` VARCHAR(25) NOT NULL,
-	`lon` VARCHAR(25) NOT NULL,
-	`alt` INT(6) NOT NULL DEFAULT '0',
-	`callsign` VARCHAR(25) NOT NULL,
+	`callsign` varchar(25) NOT NULL UNIQUE,
+	PRIMARY KEY (`id`, `callsign`)
+);
+
+CREATE TABLE `Avionics_State` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`state` varchar(25) NOT NULL,
 	PRIMARY KEY (`id`)
 );
 
 CREATE TABLE `Rocket_Avionics` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`f_id` INT NOT NULL,
-	`time` DATETIME NOT NULL,
+	`time` DATETIME(4) NOT NULL,
 	`acc_x` DECIMAL NOT NULL,
 	`acc_y` DECIMAL NOT NULL,
 	`gyro_x` DECIMAL NOT NULL,
-	PRIMARY KEY (`id`)
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`)
 );
 
-CREATE TABLE `TeleMega` (
+
+CREATE TABLE `TeleMega_Sensor` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`f_id` INT NOT NULL,
 	`time` DATETIME NOT NULL,
-	`lat` VARCHAR(25) NOT NULL,
-	`lon` VARCHAR(25) NOT NULL,
-	`alt` INT(6) NOT NULL DEFAULT '0',
-	`callsign` VARCHAR(25) NOT NULL,
-	PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `Payload_Avionics` (
-	`id` INT NOT NULL AUTO_INCREMENT,
-	`f_id` INT NOT NULL,
-	`time` DATETIME NOT NULL,
-	`acc_x` DECIMAL NOT NULL,
-	`acc_y` DECIMAL NOT NULL,
-	`gyro_x` DECIMAL NOT NULL,
-	PRIMARY KEY (`id`)
+	`orient` INT(8) NOT NULL,
+	`accel` INT(16) NOT NULL,
+	`pres` INT(32) NOT NULL,
+	`temp` INT(16) NOT NULL,
+	`accel_x` INT(16) NOT NULL,
+	`accel_y` INT(16) NOT NULL,
+	`accel_z` INT(16) NOT NULL,
+	`gyro_x` INT(16) NOT NULL,
+	`gyro_y` INT(16) NOT NULL,
+	`gyro_z` INT(16) NOT NULL,
+	`mag_x` INT(16) NOT NULL,
+	`mag_y` INT(16) NOT NULL,
+	`mag_z` INT(16) NOT NULL,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`)
 );
 
 CREATE TABLE `Event_Logs` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`f_id` INT NOT NULL,
-	`time` DATETIME NOT NULL,
-	`event_type` VARCHAR(255) NOT NULL,
+	`time` DATETIME(4) DEFAULT CURRENT_TIMESTAMP,
+	`event_type` VARCHAR(255),
 	`data` VARCHAR(255),
 	`status` VARCHAR(25),
-	PRIMARY KEY (`id`)
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`)
+);
+
+CREATE TABLE `Parser_Status` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`serialNum` varchar(25) NOT NULL UNIQUE,
+	`using_f_id` INT,
+	`last_activity` DATETIME DEFAULT CURRENT_TIMESTAMP,
+	`status` VARCHAR(25),
+	`callsign` VARCHAR(25),
+	PRIMARY KEY (`id`, `serialNum`),
+	FOREIGN KEY (`using_f_id`) REFERENCES `Flights`(`id`)
 );
 
 CREATE TABLE `raw_aprs` (
 	`id` INT NOT NULL AUTO_INCREMENT,
-	`p_id` varchar(25) NOT NULL,
-	`time` DATETIME NOT NULL,
+	`p_id` INT NOT NULL,
+	`time` DATETIME(4) DEFAULT CURRENT_TIMESTAMP,
 	`data` VARCHAR(255) NOT NULL,
-	`callsign` VARCHAR(255) NOT NULL,
-	PRIMARY KEY (`id`)
+	`callsign` VARCHAR(25),
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`p_id`) REFERENCES `Parser_Status`(`id`)
 );
 
-CREATE TABLE `Parser_Status` (
-	`parser_id` varchar(25) NOT NULL,
-	`using_f_id` INT,
-	`last_activity` DATETIME NOT NULL,
-	`status` VARCHAR(25),
-	PRIMARY KEY (`parser_id`)
+CREATE TABLE `TeleMega_Voltage` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`f_id` INT NOT NULL,
+	`time` DATETIME NOT NULL,
+	`state` INT(8) NOT NULL,
+	`v_batt` INT(16) NOT NULL,
+	`v_pyro` INT(16) NOT NULL,
+	`pyro_sense` INT(8) NOT NULL,
+	`ground_pres` INT(32) NOT NULL,
+	`ground_accel` INT(16) NOT NULL,
+	`accel_plus_g` INT(16) NOT NULL,
+	`accel_minus_g` INT(16) NOT NULL,
+	`acceleration` INT(16) NOT NULL,
+	`speed` INT(16) NOT NULL,
+	`height` INT(16) NOT NULL,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`)
 );
 
-ALTER TABLE `BeelineGPS` ADD CONSTRAINT `BeelineGPS_fk0` FOREIGN KEY (`f_id`) REFERENCES `Flights`(`flight_id`);
+CREATE TABLE `BeelineGPS` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`f_id` INT NOT NULL,
+	`c_id` INT NOT NULL,
+	`p_id` INT NOT NULL,
+	`time` DATETIME(4) DEFAULT CURRENT_TIMESTAMP,
+	`lat` VARCHAR(25),
+	`lon` VARCHAR(25),
+	`alt` INT(6) DEFAULT '0',
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`),
+	FOREIGN KEY (`c_id`) REFERENCES `Callsigns`(`id`),
+	FOREIGN KEY (`p_id`) REFERENCES `Parser_Status`(`id`)
+);
 
-ALTER TABLE `Rocket_Avionics` ADD CONSTRAINT `Rocket_Avionics_fk0` FOREIGN KEY (`f_id`) REFERENCES `Flights`(`flight_id`);
-
-ALTER TABLE `TeleMega` ADD CONSTRAINT `TeleMega_fk0` FOREIGN KEY (`f_id`) REFERENCES `Flights`(`flight_id`);
-
-ALTER TABLE `Payload_Avionics` ADD CONSTRAINT `Payload_Avionics_fk0` FOREIGN KEY (`f_id`) REFERENCES `Flights`(`flight_id`);
-
-ALTER TABLE `Event_Logs` ADD CONSTRAINT `Event_Logs_fk0` FOREIGN KEY (`f_id`) REFERENCES `Flights`(`flight_id`);
-
-ALTER TABLE `raw_aprs` ADD CONSTRAINT `raw_aprs_fk0` FOREIGN KEY (`p_id`) REFERENCES `Parser_Status`(`parser_id`);
-
-ALTER TABLE `Parser_Status` ADD CONSTRAINT `Parser_Status_fk0` FOREIGN KEY (`using_f_id`) REFERENCES `Flights`(`flight_id`);
-
+CREATE TABLE `Payload_Avionics` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`f_id` INT NOT NULL,
+	`s_id` INT NOT NULL,
+	`time` DATETIME(4) NOT NULL,
+	`acc_x` FLOAT,
+	`acc_y` FLOAT,
+	`acc_z` FLOAT,
+	`gyro_x` FLOAT,
+	`gyro_y` FLOAT,
+	`gyro_z` FLOAT,
+	`mag_x` FLOAT,
+	`mag_y` FLOAT,
+	`mag_z` FLOAT,
+	`temperature` FLOAT,
+	`prop_pid` INT,
+	`prop_pwm` INT,
+	`counter_pid` INT,
+	`counter_pwm` INT,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`),
+	FOREIGN KEY (`s_id`) REFERENCES `Avionics_State`(`id`)
+);

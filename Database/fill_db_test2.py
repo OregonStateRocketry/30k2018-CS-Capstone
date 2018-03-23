@@ -10,7 +10,7 @@ def BeelineGPS_Parabola(fname, o_type, a, b, c, cs, time=datetime.datetime(2017,
             f.write('Source: BeelineGPS\n')
             f.write('time, lat, lon, alt, callsign\n')
         # Fill out 100 values of this formula
-        for x in range(1500):
+        for x in range(3):
             y = int(a*x**2+b*x+c)
             if y < 0: y = 0
             lat = round(lat+float('0.00'+str(2*y**2)), 4)

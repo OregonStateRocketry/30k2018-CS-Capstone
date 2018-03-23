@@ -1,78 +1,92 @@
 import pymysql.cursors
 import datetime
 import yaml
+from os import system
 
 class Mariadb:
     '''A class to interact with the ESRA mariadb database'''
 
-    def __init__(self):
-        with open('config.yml', 'r') as cf:
-            cf = yaml.load(cf)
-        self.connection = pymysql.connect(
-            host        =   cf['database']['host'],
-            user        =   cf['database']['user'],
-            password    =   cf['database']['pass'],
-            db          =   cf['database']['db'],
-            charset     =   'utf8mb4',
-            cursorclass =   pymysql.cursors.DictCursor,
-            autocommit  =   True
-        )
+    def __init__(self, configFile='config.yml'):
+        assert(configFile)  # ensure we have a config file
+
+        try:
+            with open(configFile, 'r') as cf:
+                cf = yaml.load(cf)
+            self.connection = pymysql.connect(
+                host        =   cf['database']['host'],
+                user        =   cf['database']['user'],
+                password    =   cf['database']['pass'],
+                db          =   cf['database']['db'],
+                charset     =   'utf8mb4',
+                cursorclass =   pymysql.cursors.DictCursor,
+                autocommit  =   True
+            )
+        except Exception as e:
+            raise EnvironmentError
+
+        self.cf = cf
         self.last_connected = None
+        self.valid_callsigns = {}
+
+
+    def importSQLFile(self, sqlFile):
+        ''' Attempt to import an entire SQL file, mostly for testing '''
+        cmd = "mysql -h {host} -u {user} -p{pw} {db} < {sqlFile}".format(
+            host = self.cf['database']['host'],
+            user = self.cf['database']['user'],
+            pw   = self.cf['database']['pass'],
+            db   = self.cf['database']['db'],
+            sqlFile = sqlFile
+        )
+        return system(cmd)
+        # with self.connection.cursor() as c:
+        #     f = open(sqlFile, 'r')
+        #     query = " ".join(f.readlines())
+        #     f.close()
+        #     return c.execute(query)
+
+    def addNewFlight(self):
+        ''' Attempt to create a new flight without duplicates '''
+        new_fid = (self.getMaxFlightID() or 0) + 1
+        return self.createNewActiveFlight(new_fid)
 
 
     def checkActiveFlight(self):
         ''' Returns the currently active flight number, if available '''
         with self.connection.cursor() as c:
             sql = """
-                SELECT flight_id FROM Flights
+                SELECT id FROM Flights
                 WHERE status = 'Active'
-                ORDER BY start_timestamp DESC
                 LIMIT 1
             """
             c.execute(sql)
             res = c.fetchone()
-            return res['flight_id'] if res else None;
-
-    def getMaxFlightID(self):
-        ''' Returns the largest flight_id number '''
-        with self.connection.cursor() as c:
-            sql = 'SELECT MAX(flight_id) FROM Flights'
-            c.execute(sql)
-            return c.fetchone()['MAX(flight_id)']
+            return res['id'] if res else None;
 
 
     def createNewActiveFlight(self, fid):
         ''' Create a new flight ID while limiting duplicates '''
         with self.connection.cursor() as c:
             sql = """
-                INSERT INTO Flights(flight_id, start_timestamp, status)
-                VALUES({}, NOW(), 'Active')
+                INSERT INTO Flights(id, status)
+                VALUES({}, 'Active')
             """.format(fid)
-            return c.execute(sql)
-
-
-    def getFlightTable(self):
-        ''' Returns the Flight table '''
-        with self.connection.cursor() as c:
-            c.execute("SELECT * FROM Flights")
-            return c.fetchall()
+            c.execute(sql)
+            return c.lastrowid
 
 
     def getCurrentPosition(self):
         ''' Returns info about the current location of the flight '''
         with self.connection.cursor() as c:
             sql = """
-                SELECT B.*
-                    FROM Flights AS F
-                INNER JOIN BeelineGPS AS B
-                    ON B.f_id = F.flight_id
-                INNER JOIN (
-                    SELECT callsign, MAX(time) AS latest
-                    FROM BeelineGPS
-                    GROUP BY callsign
-                ) AS M
-                ON M.callsign = B.callsign AND M.latest = B.time
-                WHERE F.status = 'Active'
+            SELECT B.latest, B.lat, B.lon, B.alt, C.callsign FROM Flights AS F
+            JOIN (
+                SELECT f_id, c_id, lat, lon, alt, MAX(time) AS latest
+                FROM BeelineGPS
+                GROUP BY f_id, c_id
+            ) B ON B.f_id = F.id
+            JOIN ( SELECT id, callsign FROM Callsigns ) C ON C.id = B.c_id
+            WHERE F.status = 'Active'
             """
             c.execute(sql)
             return c.fetchall()
@@ -86,17 +100,19 @@ class Mariadb:
             return c.fetchone()['NOW()']
 
 
-    def insertRow(self, table, cols, vals):
-        ''' Inserts a single row into the database '''
+    def getFlightTable(self):
+        ''' Returns the Flight table '''
         with self.connection.cursor() as c:
-            sql = """
-                INSERT INTO {table}( {cols} ) VALUES
-                """.format(table=table, cols=cols)
-            for v in vals:
-                sql += '({}),'.format(v)
-            # Erase the trailing comma
-            sql = sql[:-1]
-            return c.execute(sql)
+            c.execute("SELECT * FROM Flights")
+            return c.fetchall()
+
+
+    def getMaxFlightID(self):
+        ''' Returns the largest id number '''
+        with self.connection.cursor() as c:
+            sql = 'SELECT MAX(id) FROM Flights'
+            c.execute(sql)
+            return c.fetchone()['MAX(id)']
 
 
     def getParserTable(self):
@@ -108,32 +124,70 @@ class Mariadb:
             return c.fetchall()
 
 
+    def validateCallsign(self, callsign):
+        ''' Ensure a callsign already exists in the database '''
+        # Return database id number of callsign, if known
+        if callsign in self.valid_callsigns:
+            return self.valid_callsigns[callsign]
+
+        with self.connection.cursor() as c:
+            # Query and store database id number for callsign
+            sql = """
+                SELECT id FROM Callsigns WHERE callsign='{}'
+                """.format(callsign)
+            c.execute(sql)
+            result = c.fetchone()
+            if result:
+                self.valid_callsigns[callsign] = result
+                return self.valid_callsigns[callsign]
+
+            # Insert and store database id number for callsign
+            sql = """
+                INSERT IGNORE INTO Callsigns(callsign) VALUES('{}')
+                """.format(callsign)
+            c.execute(sql)
+            self.valid_callsigns[callsign] = c.lastrowid
+            return self.valid_callsigns[callsign]
+
+
+    def insertRow(self, table, cols, vals):
+        ''' Inserts a single row into the database '''
+        with self.connection.cursor() as c:
+            sql = """
+                INSERT INTO {table}( {cols} ) VALUES
+                """.format(table=table, cols=cols)
+            for v in vals:
+                sql += '({}),'.format(v)
+            # Erase the trailing comma
+            sql = sql[:-1]
+            c.execute(sql)
+            return c.lastrowid
+
+
     def registerParser(self, parser_serial):
         ''' Ensure this serial number is in Parser_Status '''
         self.last_connected = datetime.datetime.now()
         with self.connection.cursor() as c:
-            return c.execute(
+            c.execute(
                 """
-                    INSERT INTO Parser_Status(parser_id, last_activity)
+                    INSERT INTO Parser_Status(serialNum, last_activity)
                     VALUES('{}', NOW())
                     ON DUPLICATE KEY UPDATE last_activity=NOW()
                 """.format(parser_serial)
             )
+            return c.lastrowid
 
 
-    def updateParserTable(self, f_id, parser_serial, callsign):
+    def updateParserTable(self, f_id, serialNum, callsign):
         '''Updates the Parser_Status table with diagnostic info'''
         self.last_connected = datetime.datetime.now()
         with self.connection.cursor() as c:
-            return c.execute("""
+            sql = """
                 UPDATE Parser_Status SET
                 using_f_id='{fid}',
                 last_activity=NOW(),
                 callsign='{cs}'
-                WHERE parser_id='{ser}'
-            """.format(
-                    fid=f_id,
-                    cs=callsign,
-                    ser=parser_serial
-                )
-            )
+                WHERE serialNum='{ser}'
+            """.format(fid=f_id, cs=callsign, ser=serialNum)
+            c.execute(sql)
+            return c.lastrowid

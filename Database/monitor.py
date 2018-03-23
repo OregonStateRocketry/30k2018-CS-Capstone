@@ -10,7 +10,7 @@ def connectToDatabase(stdscr):
     stdscr.addstr(1,33,"[    ]")
     while not db:
         try:
-            db = Mariadb()
+            db = Mariadb('configTest.yml')
             stdscr.addstr(1,35,"OK",curses.color_pair(2))
             screen.refresh()
         except Exception as e:
@@ -45,7 +45,7 @@ def updateParserSection(stdscr, db, dbtime):
         )
 
         stdscr.addstr(5+i,1,"{:6}{:3}{:7}{:6}{:10}".format(
-            str(r['parser_id'])[-5:],
+            str(r['id'])[-5:],
             str(r['using_f_id']),
             '',
             str(delay) if delay < 600 else '>600',
