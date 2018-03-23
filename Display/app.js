@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var express = require('express')
-var config = require('./config.yml')
+var config = require('./config.js')
 var exphbs = require('express-handlebars');
 const app = express();
 
