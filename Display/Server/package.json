@@ -1,0 +1,23 @@
+{
+  "name": "esra_30k",
+  "version": "1.0.0",
+  "description": "Website to display data gathered during the 2017-18 ESRA 30k Spaceport America Cup competition",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OregonStateRocketry/30k2018-CS-Capstone.git"
+  },
+  "author": "Levi Willmeth, Allison Sladek, and Joshua Novak",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.11.3",
+    "handlebars": "^4.0.11",
+    "mysql": "^2.15.0"
+  }
+}

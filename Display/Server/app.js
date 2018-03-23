@@ -1,7 +1,6 @@
 var mysql = require('mysql');
-var getJSON = require('get-json')
 var express = require('express')
-var config = require('./config')
+var config = require('./config.yml')
 var exphbs = require('express-handlebars');
 const app = express();
 
@@ -23,27 +22,30 @@ app.get('/', function (req, res) {
 app.get('/summary', function (req, res) {
   // Display a summary of all recorded flights
   sql = `
-    SELECT
-        P.f_id, P.id, P.callsign, F.status,
-        MIN_T.min_time, MIN_T.start_lat, MIN_T.start_lon,
-        MAX_T.max_time, MAX_T.end_lat, MAX_T.end_lon,
-        MAX_ALT.max_alt, MIN_ALT.min_alt
-    FROM BeelineGPS P
-    JOIN (SELECT flight_id AS f_id, status FROM Flights) F ON F.f_id = P.f_id
-    JOIN (
-        SELECT id, lat AS end_lat, lon AS end_lon, MAX(time) AS max_time
-        FROM BeelineGPS GROUP BY f_id, callsign
-        ) MAX_T ON MAX_T.id = P.id
-    JOIN (
-        SELECT id, lat AS start_lat, lon AS start_lon, MIN(time) AS min_time
-        FROM BeelineGPS GROUP BY f_id, callsign
-        ) MIN_T ON MIN_T.id = P.id
-    JOIN (
-        SELECT id, MAX(alt) AS max_alt FROM BeelineGPS GROUP BY f_id, callsign
-        ) MAX_ALT ON MAX_ALT.id = P.id
-    JOIN (
-        SELECT id, MIN(alt) AS min_alt FROM BeelineGPS GROUP BY f_id, callsign
-        ) MIN_ALT ON MIN_ALT.id = P.id
+      SELECT
+          B.f_id, B.id, C.callsign, F.status,
+          MIN_T.min_time, MIN_T.start_lat, MIN_T.start_lon,
+          MAX_T.max_time, MAX_T.end_lat, MAX_T.end_lon,
+          ALT.max_alt, ALT.min_alt
+      FROM BeelineGPS B
+      JOIN (SELECT id, status FROM Flights) F ON F.id = B.f_id
+      JOIN (SELECT id, callsign from Callsigns) C ON C.id=B.c_id
+      JOIN (
+          SELECT f_id, c_id, lat AS end_lat, lon AS end_lon, time AS max_time
+          FROM BeelineGPS WHERE time IN (
+              SELECT DISTINCT MAX(time) FROM BeelineGPS GROUP BY f_id, c_id
+              )
+          ) MAX_T ON MAX_T.f_id = F.id
+      JOIN (
+          SELECT f_id, lat AS start_lat, lon AS start_lon, time AS min_time
+          FROM BeelineGPS WHERE time IN (
+              SELECT DISTINCT MIN(time) FROM BeelineGPS GROUP BY f_id, c_id
+              )
+          ) MIN_T ON MIN_T.f_id = MAX_T.f_id
+      JOIN (
+          SELECT id, MIN(alt) AS min_alt, MAX(alt) AS max_alt FROM BeelineGPS
+          GROUP BY f_id, c_id
+          ) ALT ON ALT.id = B.id
   `
   db.query(sql,function(err, results) {
       // console.log('Results: '+results['time']);
