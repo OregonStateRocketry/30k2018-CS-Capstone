@@ -37,7 +37,7 @@ if __name__ == "__main__":
     }
     f_id = 1
     time = datetime.datetime(2018, 1, 16, 20, 20)
-    for x in range(1800):
+    for x in range(5):
         print(x)
         for e in [a,b]:
             e['alt'] = int(e['a']*x**2+e['b']*x+e['c'])

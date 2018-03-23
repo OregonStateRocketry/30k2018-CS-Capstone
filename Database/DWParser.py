@@ -2,26 +2,15 @@ from subprocess import Popen, PIPE
 import re
 # Inspired by http://alloutput.com/amateur-radio/aprs-notes/
 
-'''
-sample line from direwolf:
-
-[0;32m[5;47m
-AG7IU-1 audio level = 21(10/5)   [NONE]   __|||||||
-[1;32m[5;47m[0.5] AG7IU-1>APBL10:!4533.17N/12246.66WA/A=001105F
-[1;34m[5;47mPosition, Aid station, BigRedBee BeeLine
-[1;34m[5;47mN 45 33.1700, W 122 46.6600, alt 1105 ft
-F
-
-'''
-
 class DWParser:
     ''' Manage collecting and parsing audio signals with Direwolf '''
 
     def __init__(self):
         ''' Constructor
         Defaults to Direwolf settings for Enhanced Plus mode and 2x sampling,
-            which yielded the best results during tests.
+        which yielded the best results during tests.
         '''
+        self.dw = None
         self.dw = Popen(
             ['direwolf', '-P', 'E+', '-D', '2'],
             stdout=PIPE
@@ -67,3 +56,22 @@ class DWParser:
                     data['alt units'] = l[5]
         self.count += 1
         return data
+
+# def demo():
+#     print("Connecting to direwolf audio parser...", end='', flush=True)
+#     wolf = None
+#     try:
+#         wolf = DWParser()
+#     except Exception as e:
+#         print(" FAILED")
+#         print("Direwolf failed to start, often solved by rebooting.")
+#         print("Debugging info: ",e)
+#         sys.exit(0)
+#     print(" OK")
+#
+#     while(True):
+#         print("Waiting for a packet..")
+#         print(wolf.checkAudio())
+#
+# if __name__ == '__main__':
+#     demo()

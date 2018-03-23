@@ -1,2 +1,4 @@
 PyYAML==3.12
 pymysql==0.8.0
+
+{'callsign': 'AG7IU-1', 'audio level': 195, 'lat': 45.5528, 'lon': 122.7777, 'alt': 1118, 'alt units': 'ft', 'f_id': 1, 'serialNum': '0000'}
