@@ -17,7 +17,44 @@ db.connect(function(err) {
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
--  res.render('index-page'); });
+  var sqlSummary = `
+  SELECT
+      B.f_id, B.id, C.callsign, F.status,
+      MIN_T.min_time, MIN_T.start_lat, MIN_T.start_lon,
+      MAX_T.max_time, MAX_T.end_lat, MAX_T.end_lon,
+      ALT.max_alt, ALT.min_alt
+  FROM BeelineGPS B
+  JOIN (SELECT id, status FROM Flights) F ON F.id = B.f_id
+  JOIN (SELECT id, callsign from Callsigns) C ON C.id=B.c_id
+  JOIN (
+      SELECT f_id, c_id, lat AS end_lat, lon AS end_lon, time AS max_time
+      FROM BeelineGPS WHERE time IN (
+          SELECT DISTINCT MAX(time) FROM BeelineGPS GROUP BY f_id, c_id
+          )
+      ) MAX_T ON MAX_T.f_id = F.id
+  JOIN (
+      SELECT f_id, lat AS start_lat, lon AS start_lon, time AS min_time
+      FROM BeelineGPS WHERE time IN (
+          SELECT DISTINCT MIN(time) FROM BeelineGPS GROUP BY f_id, c_id
+          )
+      ) MIN_T ON MIN_T.f_id = MAX_T.f_id
+  JOIN (
+      SELECT id, MIN(alt) AS min_alt, MAX(alt) AS max_alt FROM BeelineGPS
+      GROUP BY f_id, c_id
+      ) ALT ON ALT.id = B.id
+      GROUP BY B.f_id, B.c_id
+  `
+  sqlDropdowns = `SELECT * FROM Flights`
+  db.query(sqlSummary, function(err, resSummary) {
+    db.query(sqlDropdowns, function(err, resDropdowns) {
+      res.render('index-page', {
+        sumRows:resSummary,
+        dropdowns:resDropdowns
+      });
+    });
+  });
+});
+
 
 app.get('/summary', function (req, res) {
   // Display a summary of all recorded flights
@@ -46,6 +83,7 @@ app.get('/summary', function (req, res) {
           SELECT id, MIN(alt) AS min_alt, MAX(alt) AS max_alt FROM BeelineGPS
           GROUP BY f_id, c_id
           ) ALT ON ALT.id = B.id
+          GROUP BY B.f_id, B.c_id
   `
   db.query(sql,function(err, results) {
       // console.log('Results: '+results['time']);
@@ -152,15 +190,20 @@ app.get('/q', function(req, res){
         case 'altVtime':
             // Plots altitude vs time
             //console.log('Hit altVtime');
-            sql = `SELECT callsign AS Source, time, alt
-                   FROM BeelineGPS WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT 'Rocket', time, alt
-                   FROM Rocket_Avionics WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT 'Payload', time, alt
-                   FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
-                   ORDER BY time ASC`+limit;
+            sql = `SELECT time, alt, callsign AS Source
+                   FROM BeelineGPS WHERE f_id=${f_id}
+                   ORDER BY time ASC`;
+            console.log('hit altVtime');
+
+            // sql = `SELECT callsign AS Source, time, alt
+            //        FROM BeelineGPS WHERE f_id=${f_id}`+time+`
+            //        UNION
+            //        SELECT 'Rocket', time, alt
+            //        FROM Rocket_Avionics WHERE f_id=${f_id}`+time+`
+            //        UNION
+            //        SELECT 'Payload', time, alt
+            //        FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
+            //        ORDER BY time ASC`+limit;
             break;
         case 'receptionVtime':
             // Plots reception vs time
@@ -193,7 +236,7 @@ app.get('/q', function(req, res){
             break;
       	case 'fid':
         		//return list of flight IDs
-        		sql = `SELECT DISTINCT flight_id FROM Flights`;
+        		sql = `SELECT id FROM Flights`;
         		break;
         default:
             // Invalid or missing get field
@@ -203,7 +246,7 @@ app.get('/q', function(req, res){
     if(sql){
         // console.log('SQL = '+sql)
         db.query(sql,function(err, results) {
-            // console.log('Results: '+results['time']);
+            //console.log('Results: '+JSON.stringify(results));
             res.send(JSON.stringify(results));
         });
     } else {

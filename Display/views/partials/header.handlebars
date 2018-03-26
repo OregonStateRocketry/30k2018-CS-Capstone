@@ -96,10 +96,10 @@
     function UpdateDropdown() {
         $.getJSON("/q?get=fid", function(data){
             $.each(data,function(key, value){
-                //console.log(value["flight_id"]);
+                console.log('each: '+value["id"]);
                 var option = document.createElement('a');
-                option.href = "/graph?get={{get}}&fid="+value["flight_id"];
-                 option.text = value["flight_id"];
+                option.href = "/graph?get={{get}}&fid="+value["id"];
+                 option.text = value["id"];
                  var element = document.getElementById("headerFlight");
                 element.appendChild(option);
             });

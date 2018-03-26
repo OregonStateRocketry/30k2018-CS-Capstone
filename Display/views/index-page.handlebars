@@ -6,29 +6,29 @@
 
 <!-- DISPLAY SELECTIONS-------------------------------------------------------->
 <!-- Area to display selections for user-->
-<div id = "displaySelect">
-  <h2 id = "displayTitle"></h2>
-  <ul id ="displayList" ></ul>
+<div id="displaySelect">
+  <h2 id="displayTitle"></h2>
+  <ul id="displayList" ></ul>
 </div>
 
 <!-- SELECT FLIGHT------------------------------------------------------------->
 <!-- Flight selection div should populate dropdown from database -->
-<div id = "flightSelect">
+<div id="flightSelect">
   <h2>Please select a flight:</h2>
   <select name="flightField" id="flightField">
-   <!--Options will be updated to select from flights in the database -->
-     <option value="" selected disabled hidden>*SELECT*</option>
+    <!--Options will be updated to select from flights in the database -->
+    {{#each dropdowns}}
+      <option value="{{id}}">{{id}}</option>
+    {{/each}}
     <!-- Commenting out multi-flight selection while waiting for implementation
      <option value="multi">multiple flights</option> -->
   </select>
  <!--FlightSubmit button should hide this div and save user selections to query later-->
- <button type="button" id = "flightSubmit">Next</button>
+ <button type="button" id="flightSubmit">Next</button>
 </div>
 
-
-
 <!-- Flight selection for multiple flights -->
-<div id = "multiSelect" class = "hide">
+<div id = "multiSelect" class="hide">
   <h2>Please select a flight:</h2>
   <select name="multiField" id="multiField">
     <!--Options are currently hard coded, but will need to be updated to
@@ -36,13 +36,13 @@
     <option value="" selected disabled hidden>*SELECT*</option>
   </select>
   <!--FlightSubmit button should hide this div and save user selections to query later-->
-  <button type="button" id = "multiAdd">Add Next</button>
-  <button type="button" id = "multiSubmit">Done</button>
+  <button type="button" id="multiAdd">Add Next</button>
+  <button type="button" id="multiSubmit">Done</button>
 </div>
 
 <!-- SELECT DATA--------------------------------------------------------------->
 <!-- data selection div should be hard coded according to implemented graphs-->
-<div id = "dataSelect" class = "hide">
+<div id = "dataSelect" class="hide">
   <h2>Please select a data set:</h2>
   <select name="dataField" id="dataField">
     <!--Options are hard coded and should match implemented features-->
@@ -52,8 +52,42 @@
     <option value="summary">Summary</option>
   </select>
   <!-- dataSubmit button should hide this div and save user selections to query later-->
-  <button type="button" id = "dataSubmit">Next</button>
+  <button type="button" id="dataSubmit">Next</button>
 </div>
+
+<hr>
+<p>
+<h2>Flight Summary</h2>
+<p>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Status</th>
+    <th>Callsign</th>
+    <th>min_time</th>
+    <th>max_time</th>
+    <th>start_lat</th>
+    <th>end_lat</th>
+    <th>start_lon</th>
+    <th>end_lon</th>
+    <th>min_alt</th>
+    <th>max_alt</th>
+  </tr>
+  {{#each sumRows}}
+  <tr>
+    <td>{{f_id}}</td>
+    <td>{{status}}</td>
+    <td>{{callsign}}</td>
+    <td>{{min_time}}</td>
+    <td>{{max_time}}</td>
+    <td>{{start_lat}}</td>
+    <td>{{end_lat}}</td>
+    <td>{{start_lon}}</td>
+    <td>{{end_lon}}</td>
+    <td>{{min_alt}}</td>
+    <td>{{max_alt}}</td>
+  </tr>
+  {{/each}}
 
 <script src="/index.js"></script>
 </main>

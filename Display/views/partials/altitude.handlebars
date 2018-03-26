@@ -1,4 +1,4 @@
-<script src="/canvasjs.min.js"></script>
+<script src="canvasjs.min.js"></script>
 <script src="jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
     window.onload = function () {
@@ -10,9 +10,11 @@
     var pause = true;
     var counter = 0;
     var lasttime = "";
+    console.log("bout to hit altvtime");
     $.getJSON("/q?get=altVtime&f_id={{fid}}", function(data){
+        console.log("all data -> "+ data);
             $.each(data, function(key, value) {
-//                  console.log(value['Source']);
+                    console.log("data -> "+ data);
                     var n = 0;
                     while(lines[n].source != "" && n<6){
                           if(value['Source'] == lines[n].source){
