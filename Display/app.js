@@ -191,9 +191,10 @@ app.get('/q', function(req, res){
             // Plots altitude vs time
             //console.log('Hit altVtime');
             sql = `SELECT time, alt, callsign AS Source
-                   FROM BeelineGPS WHERE f_id=${f_id}
+                   FROM BeelineGPS B
+                   JOIN Callsigns C ON C.id = B.c_id
+                   WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`;
-            console.log('hit altVtime');
 
             // sql = `SELECT callsign AS Source, time, alt
             //        FROM BeelineGPS WHERE f_id=${f_id}`+time+`
@@ -246,7 +247,6 @@ app.get('/q', function(req, res){
     if(sql){
         // console.log('SQL = '+sql)
         db.query(sql,function(err, results) {
-            //console.log('Results: '+JSON.stringify(results));
             res.send(JSON.stringify(results));
         });
     } else {
