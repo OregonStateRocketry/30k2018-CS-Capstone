@@ -189,26 +189,26 @@ app.get('/q', function(req, res){
             break;
         case 'altVtime':
             // Plots altitude vs time
-            //console.log('Hit altVtime');
             sql = `SELECT time, alt, callsign AS Source
                    FROM BeelineGPS B
                    JOIN Callsigns C ON C.id = B.c_id
                    WHERE f_id=${f_id}`+time+`
-                   ORDER BY time ASC`;
-
-            // sql = `SELECT callsign AS Source, time, alt
-            //        FROM BeelineGPS WHERE f_id=${f_id}`+time+`
-            //        UNION
-            //        SELECT 'Rocket', time, alt
-            //        FROM Rocket_Avionics WHERE f_id=${f_id}`+time+`
-            //        UNION
-            //        SELECT 'Payload', time, alt
-            //        FROM Payload_Avionics WHERE f_id=${f_id}`+time+`
-            //        ORDER BY time ASC`+limit;
+                   UNION
+                   SELECT time, alt, 'Payload'
+                   FROM Payload_Avionics
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, alt, 'Rocket'
+                   FROM Rocket_Avionics
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, height as alt, 'TeleMega'
+                   FROM TeleMega_Voltage
+                   WHERE f_id=${f_id}`+time+`
+                   ORDER BY time ASC`+limit;
             break;
         case 'receptionVtime':
             // Plots reception vs time
-            //console.log('Hit receptionVtime');
             sql = `SELECT time
                    FROM BeelineGPS WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
@@ -225,14 +225,14 @@ app.get('/q', function(req, res){
                      GROUP BY callsign
                    ) AS M
                    ON M.callsign = B.callsign AND M.latest = B.time
-                   WHERE F.status = 'Active'
-                  `;
+                   WHERE F.status = 'Active'`;
             break;
         case 'map':
             // Plots location v time as 2d or 3d map
-            //console.log('Hit map');
-            sql = `SELECT callsign as Source, time, lat, lon, alt
-                   FROM BeelineGPS WHERE f_id=${f_id}`+time+`
+            sql = `SELECT time, lat, lon, alt
+                   FROM BeelineGPS B
+                   JOIN Callsigns C ON C.id = B.c_id
+                   WHERE B.id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
       	case 'fid':
@@ -241,7 +241,6 @@ app.get('/q', function(req, res){
         		break;
         default:
             // Invalid or missing get field
-            //console.log('DEFAULT.  get='+get);
     }
 
     if(sql){
