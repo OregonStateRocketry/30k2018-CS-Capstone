@@ -39,11 +39,7 @@ class Mariadb:
             sqlFile = sqlFile
         )
         return system(cmd)
-        # with self.connection.cursor() as c:
-        #     f = open(sqlFile, 'r')
-        #     query = " ".join(f.readlines())
-        #     f.close()
-        #     return c.execute(query)
+
 
     def addNewFlight(self):
         ''' Attempt to create a new flight without duplicates '''
@@ -176,6 +172,13 @@ class Mariadb:
                 """.format(parser_serial)
             )
             return c.lastrowid
+
+
+    def fetchSql(self, sql):
+        ''' Run an SQL query and return the results '''
+        with self.connection.cursor() as c:
+            c.execute(sql)
+            return c.fetchall()
 
 
     def updateParserTable(self, f_id, serialNum, callsign):

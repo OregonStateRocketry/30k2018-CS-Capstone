@@ -82,6 +82,7 @@ class Parser:
 
     def insertBeelineGPS(self, data):
         self.db.validateCallsign(data['callsign'])
+        print("data = ", data)
         return self.db.insertRow(
             table='BeelineGPS',
             cols='f_id, lat, lon, alt, p_id, c_id',
@@ -125,7 +126,7 @@ class Parser:
             next(f)
 
             for line in f:
-                try:
+                # try:
                     # ugly way to process csv files and dw audio using same fn
                     data = {}
                     data['time'], data['callsign'], data['audio level'], \
@@ -133,10 +134,10 @@ class Parser:
                     data['f_id'], data['serialNum'] = line[:-1].split(',')
 
                     insertType(data)
-                except Exception as e:
-                    print("IMPORT CSV FAILED --- "),
-                    print(e)
-                    sys.exit(0)
+                # except Exception as e:
+                #     print("IMPORT CSV FAILED --- "),
+                #     print(e)
+                #     sys.exit(0)
             print("Finished importing {}.".format(filename))
 
 
@@ -193,8 +194,11 @@ class Parser:
 
 if __name__ == "__main__":
     print("ESRA 30k Telemetry Parser.")
-    if len(sys.argv) > 1:
-        client = Parser(dbConfig=sys.argv[1])
+    if len(sys.argv) > 2:
+        client = Parser(dbConfig=sys.argv[1], csv=sys.argv[2])
+    elif len(sys.argv) > 1:
+        client = Parser(dbConfig=sys.argv[1]
     else:
         client = Parser()
+
     client.listen()

@@ -4,7 +4,6 @@ import time
 import curses
 from curses import wrapper
 
-
 def connectToDatabase(stdscr):
     db = None
     stdscr.addstr(1,33,"[    ]")
@@ -99,7 +98,6 @@ def main(stdscr):
         screen.refresh()
         # No need to hammer the database, just check every other second
         time.sleep(2)
-
 
 if __name__ == "__main__":
     wrapper(main)
