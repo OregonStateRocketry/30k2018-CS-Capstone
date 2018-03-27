@@ -1,6 +1,7 @@
 CREATE TABLE `Flights` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`status` VARCHAR(25) NOT NULL DEFAULT 'Inactive',
+	`description` VARCHAR(255),
 	PRIMARY KEY (`id`)
 );
 
@@ -15,18 +16,6 @@ CREATE TABLE `Avionics_State` (
 	`state` varchar(25) NOT NULL,
 	PRIMARY KEY (`id`)
 );
-
-CREATE TABLE `Rocket_Avionics` (
-	`id` INT NOT NULL AUTO_INCREMENT,
-	`f_id` INT NOT NULL,
-	`time` DATETIME(4) NOT NULL,
-	`acc_x` DECIMAL NOT NULL,
-	`acc_y` DECIMAL NOT NULL,
-	`gyro_x` DECIMAL NOT NULL,
-	PRIMARY KEY (`id`),
-	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`)
-);
-
 
 CREATE TABLE `TeleMega_Sensor` (
 	`id` INT NOT NULL AUTO_INCREMENT,
@@ -129,11 +118,33 @@ CREATE TABLE `Payload_Avionics` (
 	`mag_x` FLOAT,
 	`mag_y` FLOAT,
 	`mag_z` FLOAT,
-	`temperature` FLOAT,
+	`temp` FLOAT,
+	`alt` INT,
 	`prop_pid` INT,
 	`prop_pwm` INT,
 	`counter_pid` INT,
 	`counter_pwm` INT,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`),
+	FOREIGN KEY (`s_id`) REFERENCES `Avionics_State`(`id`)
+);
+
+CREATE TABLE `Rocket_Avionics` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`f_id` INT NOT NULL,
+	`s_id` INT NOT NULL,
+	`time` DATETIME(4) NOT NULL,
+	`acc_x` FLOAT,
+	`acc_y` FLOAT,
+	`acc_z` FLOAT,
+	`gyro_x` FLOAT,
+	`gyro_y` FLOAT,
+	`gyro_z` FLOAT,
+	`mag_x` FLOAT,
+	`mag_y` FLOAT,
+	`mag_z` FLOAT,
+	`temp` FLOAT,
+	`alt` INT,
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`),
 	FOREIGN KEY (`s_id`) REFERENCES `Avionics_State`(`id`)
