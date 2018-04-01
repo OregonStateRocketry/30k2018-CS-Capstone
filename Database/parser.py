@@ -187,7 +187,7 @@ class Parser:
                 self.insertBeelineGPS(data)     # write to database
                 log.write(
                     str(datetime.datetime.now())+','+   \
-                    ','.join([f'{value}' for key, value in data.items()])+'\n'
+                    ','.join([str(value) for key, value in data.items()])+'\n'
                     ) # write values to local log
         return True
 
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         client = Parser(dbConfig=sys.argv[1], csv=sys.argv[2])
     elif len(sys.argv) > 1:
-        client = Parser(dbConfig=sys.argv[1]
+        client = Parser(dbConfig=sys.argv[1])
     else:
         client = Parser()
 
