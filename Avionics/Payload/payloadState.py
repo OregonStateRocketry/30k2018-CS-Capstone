@@ -8,7 +8,6 @@ def getAvgAcc(sensors):
 class State(object):
     def __init__(self):
         self.stateNum = None
-        print("Changed to state: ", str(self))
 
     def monitorPhase(self, sensors):
         ''' Implemented by the specific phases '''
@@ -40,7 +39,6 @@ class PreLaunchPhase(State):
         self.duration_start     = None
         self.duration_threshold = 0.2
         self.acc_threshold      = 1.5
-        print("Entering PreLaunchPhase...")
 
     def monitorPhase(self, sensors):
         """

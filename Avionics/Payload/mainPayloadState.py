@@ -64,9 +64,6 @@ def runLoop():
     piggy.write(DEBUG_GPIO, 1)
     currentState = payloadState.PreLaunchPhase()
 
-    # print("pre-currentState = ", payloadState.PayloadState())
-    print("currentState = ", currentState)
-
     with open("av_out.csv", "a+") as out:
         # Write a header line
         print("Running ESRA 30k payload avionics...\n")
@@ -78,7 +75,7 @@ def runLoop():
                 "gyro_pid,gyro_pwm\n"
               )
 
-        for x in range(5):
+        for x in range(1000):
             # Build a new dictionary of sensor data for this sample
             data = mpuA.read_all()
 
