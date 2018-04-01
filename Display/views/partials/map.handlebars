@@ -7,7 +7,7 @@
 		$.getJSON("q?get=map&f_id={{fid}}", function(data){
 			$.each(data, function(key, value) {
 				lasttime = value['time'];
-				addPoint(parseFloat(value['lat']),parseFloat(value['lon']));
+				addPoint(parseFloat(value['lat']),parseFloat(value['lon']),parseInt(value['alt']));
 			});
 			waiting = false;
 		});
@@ -21,7 +21,7 @@
 					$.each(data, function(key, value) {
 						lasttime = value['time'];
 					//	console.log("hitmap");
-						addPoint(parseFloat(value['lat']),parseFloat(value['lon']));
+						addPoint(parseFloat(value['lat']),parseFloat(value['lon']),parseInt(value['alt']));
 					});
 					waiting = false;
 				});
@@ -29,7 +29,10 @@
 			}
 		};
 	};
-	function addPoint(lat, lon) {
+	function addPoint(lat, lon, alt) {
+		colors = ["red","orange","yellow","green","blue","purple"];
+		altrem = alt%3000;
+		n = Math.floor(altrem/500);
 		var newPoint = document.createElement("div");
 		newPoint.className = "point";
 		newPointTxt = document.createTextNode("+");
@@ -45,6 +48,7 @@
 		newPoint.style.position = "absolute";
 		newPoint.style.left = xstr + "%";
 		newPoint.style.top = ystr + "%";
+		newPoint.style.color = colors[n];
 		var main = document.getElementById('MapDiv');
 		//console.log(main.class);
 		main.appendChild(newPoint);
