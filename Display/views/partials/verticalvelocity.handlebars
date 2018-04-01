@@ -2,72 +2,96 @@
 <script src="jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
     window.onload = function () {
-    var dps1 = [];
-    var dps2 = [];
+      function line() {
+        this.source = "";
+        this.lastalt = 0;
+        this.lastseconds = 0;
+        this.velocity = 0;
+        this.dps = [];
+      };
+      var lines = [new line(),new line(),new line(),new line(),new line(),new line()];
     var pause = true;
     var counter = 0;
     var lasttime = "";
-    var lastalt1 = 0;
-    var lastalt2 = 0;
-    var velocity1 = 0;
-    var velocity2 = 0;
-    var lastseconds1 = 0;
-    var lastseconds2 = 0;
     $.getJSON("/q?get=altVtime&f_id={{fid}}", function(data){
             $.each(data, function(key, value) {
-//                  console.log(value['Source']);
-                    velocity = parseInt(value['alt'])
-                    if(value['Source'] == "Beeline1"){
-                      if(lastseconds1 == 0){
-                        lastseconds1 = new Date(value['time']).getTime()/1000;
-                        velocity1 = parseInt(value['alt']) - lastalt1;
-                        lastalt1 = parseInt(value['alt']);
-                        dps1.push({x : new Date(value['time']), y : velocity1.toString()});
-                      }else {
-                        velocity1 = (parseInt(value['alt']) - lastalt1)/(Date(value['time']).getTime()/1000 - lastseconds1);
-                        lastseconds1 = new Date(value['time']).getTime()/1000;
-                        lastalt1 = parseInt(value['alt']);
-                        dps1.push({x : new Date(value['time']), y : velocity1.toString()});
-                      }
-                    }
-                    if(value['Source'] == "Beeline2"){
-                      if(lastseconds2 == 0){
-                        lastseconds2 = new Date(value['time']).getTime()/1000;
-                        velocity2 = parseInt(value['alt']) - lastalt2;
-                        lastalt2 = parseInt(value['alt']);
-                        dps2.push({x : new Date(value['time']), y : velocity2.toString()});
-                      }else {
-                        velocity2 = (parseInt(value['alt']) - lastalt2)/(Date(value['time']).getTime()/1000 - lastseconds2);
-                        lastseconds2 = new Date(value['time']).getTime()/1000;
-                        lastalt2 = parseInt(value['alt']);
-                        dps2.push({x : new Date(value['time']), y : velocity2.toString()});
-                      }
-                    }
-                    lasttime = value['time'];
+              var n = 0;
+              while(lines[n].source != "" && n<6){
+                if(value['Source'] == lines[n].source){
+                  if(lines[n].lastseconds = 0){
+                    lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                    lines[n].velocity = 0;
+                    lines[n].lastalt = parseInt(value['alt']);
+                    lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                  }else {
+                    lines[n].velocity = (parseInt(value['alt']) - lines[n].lastalt)/((new Date(value['time']).getTime()/1000) - lines[n].lastseconds);
+                    lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                    lines[n].lastalt = parseInt(value['alt']);
+                    lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                  }
+                  break;
+                }
+                n++;
+              }
+              if(lines[n].source == ""){
+                lines[n].source = value['Source'];
+                if(lines[n].lastseconds = 0){
+                  lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                  lines[n].velocity = 0;
+                  lines[n].lastalt = parseInt(value['alt']);
+                  lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                }else {
+                  lines[n].velocity = (parseInt(value['alt']) - lines[n].lastalt)/((new Date(value['time']).getTime()/1000) - lines[n].lastseconds);
+                  lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                  lines[n].lastalt = parseInt(value['alt']);
+                  lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                }
+              }
+              lasttime = value['time'];
                     // console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
-                });
-                pause = false;
-        });
+            });
+            pause = false;
+          });
 
-        var chart = new CanvasJS.Chart("chartContainer",
-        {
+          var chart = new CanvasJS.Chart("chartContainer",
+          {
 
-            title:{
-            text: ""
-            },
-             data: [
-            {
-                type: "line",
-                name: "Beeline1",
-                dataPoints: dps1
-            },
-            {
-                type: "line",
-                name: "Beeline2",
-                dataPoints: dps2
-            }
-            ]
-        });
+              title:{
+              text: ""
+              },
+               data: [
+              {
+                  type: "line",
+                  name: lines[0].source,
+                  dataPoints: lines[0].dps
+              },
+              {
+                  type: "line",
+                  name: lines[1].source,
+                  dataPoints: lines[1].dps
+              },
+              {
+                  type: "line",
+                  name: lines[2].source,
+                  dataPoints: lines[2].dps
+              },
+              {
+                  type: "line",
+                  name: lines[3].source,
+                  dataPoints: lines[3].dps
+              },
+              {
+                  type: "line",
+                  name: lines[4].source,
+                  dataPoints: lines[4].dps
+              },
+              {
+                  type: "line",
+                  name: lines[5].source,
+                  dataPoints: lines[5].dps
+              }
+              ]
+          });
         waitForGraph();
 
         function waitForGraph(){
@@ -83,20 +107,43 @@
         function updateChart() {
           console.log("Last time: "+lasttime);
             $.getJSON("/q?get=altVtime&f_id={{fid}}&time=" + lasttime, function(data){
-                console.log("in, last time is " + lasttime);
-                    $.each(data, function(key, value) {
-    //                  console.log(value['Source']);
-                        console.log("in" + value['time']);
-                        if(value['Source'] == "Beeline1"){
-                            dps1.push({x : new Date(value['time']), y : value['alt']});
-                        }
-                        if(value['Source'] == "Beeline2"){
-                            dps2.push({x : new Date(value['time']), y : value['alt']});
-                        }
-                        lasttime = value['time'];
-                        // console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
-                    });
-                    pause = false;
+              $.each(data, function(key, value) {
+                var n = 0;
+                while(lines[n].source != "" && n<6){
+                  if(value['Source'] == lines[n].source){
+                    if(lines[n].lastseconds = 0){
+                      lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                      lines[n].velocity = 0;
+                      lines[n].lastalt = parseInt(value['alt']);
+                      lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                    }else {
+                      lines[n].velocity = (parseInt(value['alt']) - lines[n].lastalt)/((new Date(value['time']).getTime()/1000) - lines[n].lastseconds);
+                      lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                      lines[n].lastalt = parseInt(value['alt']);
+                      lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                    }
+                    break;
+                  }
+                  n++;
+                }
+                if(lines[n].source == ""){
+                  lines[n].source = value['Source'];
+                  if(lines[n].lastseconds = 0){
+                    lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                    lines[n].velocity = 0;
+                    lines[n].lastalt = parseInt(value['alt']);
+                    lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                  }else {
+                    lines[n].velocity = (parseInt(value['alt']) - lines[n].lastalt)/((new Date(value['time']).getTime()/1000) - lines[n].lastseconds);
+                    lines[n].lastseconds = new Date(value['time']).getTime()/1000;
+                    lines[n].lastalt = parseInt(value['alt']);
+                    lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                  }
+                }
+                lasttime = value['time'];
+                      // console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
+              });
+              pause = false;
             });
             waitForUpdate();
             function waitForUpdate(){

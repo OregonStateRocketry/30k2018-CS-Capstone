@@ -84,21 +84,24 @@
         function updateChart() {
           console.log("Last time: "+lasttime);
             $.getJSON("/q?get=altVtime&f_id={{fid}}&time=" + lasttime, function(data){
-                console.log("in, last time is " + lasttime);
-                    $.each(data, function(key, value) {
-    //                  console.log(value['Source']);
-                        console.log("in" + value['time']);
-                        if(value['Source'] == "Beeline1"){
-                            dps1.push({x : new Date(value['time']), y : value['alt']});
-                        }
-                        if(value['Source'] == "Beeline2"){
-                            dps2.push({x : new Date(value['time']), y : value['alt']});
-                        }
-                        lasttime = value['time'];
-                        // console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
-                    });
-                    pause = false;
-            });
+              $.each(data, function(key, value) {
+                      var n = 0;
+                      while(lines[n].source != "" && n<6){
+                            if(value['Source'] == lines[n].source){
+                                  lines[n].dps.push({x : new Date(value['time']), y : value['alt']});
+                                  break;
+                            }
+                            n++;
+                      }
+                      if(lines[n].source ==""){
+                            lines[n].source = value['Source'];
+                            lines[n].dps.push({x : new Date(value['time']), y : value['alt']});
+                      }
+                      lasttime = value['time'];
+                      // console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
+                  });
+                  pause = false;
+          });
             waitForUpdate();
             function waitForUpdate(){
                 if (pause){
