@@ -44,18 +44,25 @@ def setLinuxClock():
 def logSensors(csv, sensors):
     ''' Write one line of sensor data to CSV '''
     sensors['time'] = time.time()
-    csv.write("{state},{time:.4f},"
-              "{gyro_x:.3f},{gyro_y:.3f},{gyro_z:.3f},"
-              "{acc_x:.3f},{acc_y:.3f},{acc_z:.3f},"
-              "{temp:.2f},{alt},"
-              "{acc_pid:.3f},{acc_pwm},"
-              "{gyro_pid:.3f},{gyro_pwm}\n".format(**sensors)
-              )
+    if len(sensors) > 10:
+        csv.write("{state},{time:.4f},"
+                  "{gyro_x:.3f},{gyro_y:.3f},{gyro_z:.3f},"
+                  "{acc_x:.3f},{acc_y:.3f},{acc_z:.3f},"
+                  "{temp:.2f},{alt},"
+                  "{acc_pid:.3f},{acc_pwm},"
+                  "{gyro_pid:.3f},{gyro_pwm}\n".format(**sensors)
+                  )
+    else:
+        csv.write("{state},{time:.4f},"
+                  "{gyro_x:.3f},{gyro_y:.3f},{gyro_z:.3f},"
+                  "{acc_x:.3f},{acc_y:.3f},{acc_z:.3f},"
+                  "{temp:.2f},{alt}\n".format(**sensors)
+                  )
 
 def runLoop():
     # Turn on LED on GPIO 4 to indicate program started
     piggy.write(DEBUG_GPIO, 1)
-    currentState = payloadState.PayloadState()
+    currentState = payloadState.PreLaunchPhase()
 
     # print("pre-currentState = ", payloadState.PayloadState())
     print("currentState = ", currentState)
@@ -70,6 +77,7 @@ def runLoop():
                 "acc_pid,acc_pwm,"
                 "gyro_pid,gyro_pwm\n"
               )
+
         for x in range(5):
             # Build a new dictionary of sensor data for this sample
             data = mpuA.read_all()
@@ -77,19 +85,20 @@ def runLoop():
             data['temp'], data['alt'] = mpl.readTempAlt()
 
             currentState = currentState.monitorPhase(data)
-            data['state'] = str(currentState)
+            data['state'] = currentState.stateNum
 
-            # Recalculate propeller motor speed using latest acceleration
-            # avg_acc_z = avg_three(m1['acc_z'], m2['acc_z'], m3['acc_z'])
-            data['acc_pid'], data['acc_pwm'] = motor_propeller.update_motor(
-                    data['acc_z']
-                )
+            if currentState == 'ExperimentPhase':
+                # Recalculate propeller motor speed using latest acceleration
+                # avg_acc_z = avg_three(m1['acc_z'], m2['acc_z'], m3['acc_z'])
+                data['acc_pid'], data['acc_pwm'] = motor_propeller.update_motor(
+                        data['acc_z']
+                    )
 
-            # Recalculate counterweight motor speed using latest gyro
-            # avg_gyro = avg_three(m1['gyro_z'], m2['gyro_z'], m3['gyro_z'])
-            data['gyro_pid'], data['gyro_pwm'] = motor_counter.update_motor(
-                    data['gyro_x']
-                )
+                # Recalculate counterweight motor speed using latest gyro
+                # avg_gyro = avg_three(m1['gyro_z'], m2['gyro_z'], m3['gyro_z'])
+                data['gyro_pid'], data['gyro_pwm'] = motor_counter.update_motor(
+                        data['gyro_x']
+                    )
 
             logSensors(out, data)
 

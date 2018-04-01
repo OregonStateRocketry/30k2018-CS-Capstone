@@ -5,35 +5,23 @@ def getAvgAcc(sensors):
     return (sensors['acc_x']+sensors['acc_y']+sensors['acc_z']) / 3
 
 
-class PayloadState(object):
-    def __init__(self):
-        self.state = PreLaunchPhase()
-
-    def monitorPhase(self, sensors):
-        self.state = self.state.monitorPhase(sensors)
-        return self
-
-    def __repr__(self):
-        return str(self.state.stateNum)
-
 class State(object):
-
     def __init__(self):
-        # Flights begin on the launch pad
+        self.stateNum = None
         print("Changed to state: ", str(self))
 
     def monitorPhase(self, sensors):
-        print("base state is passing")
+        ''' Implemented by the specific phases '''
         pass
 
     def __repr__(self):
         """Represent this object as a string"""
         # print("__repr__ = ", self.stateNum)
-        return self.stateNum
+        return self.__str__()
 
     def __str__(self):
         """Describe this object by it's class name"""
-        return str(self.stateNum)
+        return self.__class__.__name__
 
 
 class PreLaunchPhase(State):
@@ -59,7 +47,6 @@ class PreLaunchPhase(State):
         Move to the next phase if:
             Over 1.5 G acceleration on Z axis for over 0.2 seconds.
         """
-        print("PreLaunchPhase.monitorPhase = ", self)
         if sensors['acc_z'] > self.acc_threshold:
             if not self.duration_start:
                 # First tick of acceleration sets the duration timer
