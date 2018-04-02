@@ -116,19 +116,19 @@ class SecondaryEnginePhase(State):
     def monitorPhase(self, sensors):
         """
         Move to the next phase if:
-            Under 0.15 G magnitude of acceleration (all axis).
-            AND
+            Under 0.15 G magnitude of acceleration (all axis),
+            THEN
             Altitude is decreasing.
         """
-        if low_acc_flag:
-            if self.altitude_prev < sensors['alt']:
+        if self.low_acc_flag:
+            if self.altitude_prev > sensors['alt']:
                 return ExperimentPhase()
         else:
+            self.altitude_prev = sensors['alt']
             avg_acc = getAvgAcc(sensors)
             # Low acceleration means to start checking altitude
             if avg_acc < self.acc_threshold:
                 self.low_acc_flag = True
-                self.altitude_prev = sensors['alt']
         return self
 
 
@@ -164,11 +164,7 @@ class ExperimentPhase(State):
         elif sensors['acc_z'] > self.acc_threshold: # <- check this
             # Should we check duration here too?
             return DescentPhase()
-        else:
-            # Not enough G's should reset the duration timer
-            self.duration_start = None
-            return self
-
+        return self
 
 class DescentPhase(State):
     """

@@ -43,3 +43,4 @@ class PCF8523:
                 _bin2bcd(value.tm_mon),
                 _bin2bcd(value.tm_year - 2000)]
         self._bus.write_i2c_block_data(0x68,0x03,buff)
+        return True

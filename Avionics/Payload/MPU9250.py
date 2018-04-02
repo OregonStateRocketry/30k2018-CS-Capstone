@@ -142,27 +142,3 @@ class MPU9250(object):
             self.accel_scaled_y,
             self.accel_scaled_z
         )))
-
-
-if __name__ == "__main__":
-    piggy = pigpio.pi()
-
-    mpuA = MPU9250(pi=piggy, gpio=17)
-    mpuB = MPU9250(pi=piggy, gpio=27)
-    mpuC = MPU9250(pi=piggy, gpio=22)
-
-    for x in range(1000):
-        m1 = mpuA.read_all()
-        m2 = mpuB.read_all()
-        m3 = mpuC.read_all()
-
-        print("{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}\t"
-              "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}\t"
-              "{:.3f},{:.3f},{:.3f},{:.3f},{:.3f},{:.3f}".format(
-                  m1['gyro_x'], m1['gyro_y'], m1['gyro_z'],
-                  m1['acc_x'], m1['acc_y'], m1['acc_z'],
-                  m2['gyro_x'], m2['gyro_y'], m2['gyro_z'],
-                  m2['acc_x'], m2['acc_y'], m2['acc_z'],
-                  m3['gyro_x'], m3['gyro_y'], m3['gyro_z'],
-                  m3['acc_x'], m3['acc_y'], m3['acc_z'])
-              )
