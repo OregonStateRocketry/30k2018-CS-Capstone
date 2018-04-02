@@ -19,3 +19,17 @@ $ sudo ./installPayload.sh
 The software is designed to run automatically on startup, however, you can also run it manually with:
 
 `Avionics/Payload/$ python3 mainPayloadState.py`
+
+To run unit tests, make sure you have the `coverage` library installed:
+
+`pip install coverage`
+
+Then run the tests:
+
+`coverage run unitTests.py`
+
+And view the report for whichever modules you're interested in:
+
+`coverage report -m ESCMotor.py MPL3115A2.py MPU9250.py PCF8523.py mainPayload.py payloadState.py`
+
+You can also see a general report using `coverage report` but it will include some libraries that we are not responsible for writing.
