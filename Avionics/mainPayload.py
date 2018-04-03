@@ -68,6 +68,7 @@ class Payload(object):
             # Write a header line
             print("Running ESRA 30k payload avionics...\n")
             out.write(
+                    "state,time,"
                     "gyro_x,gyro_y,gyro_z,"
                     "acc_x,acc_y,acc_z,"
                     "temp(c),alt(m),"
