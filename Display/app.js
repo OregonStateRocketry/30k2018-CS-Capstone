@@ -232,7 +232,7 @@ app.get('/q', function(req, res){
             sql = `SELECT time, lat, lon, alt
                    FROM BeelineGPS B
                    JOIN Callsigns C ON C.id = B.c_id
-                   WHERE B.id=${f_id}`+time+`
+                   WHERE B.f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
       	case 'fid':
@@ -244,7 +244,6 @@ app.get('/q', function(req, res){
     }
 
     if(sql){
-        // console.log('SQL = '+sql)
         db.query(sql,function(err, results) {
             res.send(JSON.stringify(results));
         });
