@@ -9,7 +9,7 @@
         this.velocity = 0;
         this.dps = [];
       };
-      var lines = [new line(),new line(),new line(),new line(),new line(),new line()];
+    var lines = [new line(),new line(),new line(),new line(),new line(),new line()];
     var pause = true;
     var counter = 0;
     var lasttime = "";
@@ -18,7 +18,9 @@
               var n = 0;
               while(lines[n].source != "" && n<6){
                 if(value['Source'] == lines[n].source){
-                  if(lines[n].lastseconds = 0){
+                  console.log(value['Source']);
+                  if(lines[n].lastseconds == 0){
+                    console.log("in");
                     lines[n].lastseconds = new Date(value['time']).getTime()/1000;
                     lines[n].velocity = 0;
                     lines[n].lastalt = parseInt(value['alt']);
@@ -27,7 +29,7 @@
                     lines[n].velocity = (parseInt(value['alt']) - lines[n].lastalt)/((new Date(value['time']).getTime()/1000) - lines[n].lastseconds);
                     lines[n].lastseconds = new Date(value['time']).getTime()/1000;
                     lines[n].lastalt = parseInt(value['alt']);
-                    lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                    lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity});
                   }
                   break;
                 }
@@ -35,7 +37,7 @@
               }
               if(lines[n].source == ""){
                 lines[n].source = value['Source'];
-                if(lines[n].lastseconds = 0){
+                if(lines[n].lastseconds == 0){
                   lines[n].lastseconds = new Date(value['time']).getTime()/1000;
                   lines[n].velocity = 0;
                   lines[n].lastalt = parseInt(value['alt']);
@@ -44,7 +46,7 @@
                   lines[n].velocity = (parseInt(value['alt']) - lines[n].lastalt)/((new Date(value['time']).getTime()/1000) - lines[n].lastseconds);
                   lines[n].lastseconds = new Date(value['time']).getTime()/1000;
                   lines[n].lastalt = parseInt(value['alt']);
-                  lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity.toString()});
+                  lines[n].dps.push({x : new Date(value['time']), y : lines[n].velocity});
                 }
               }
               lasttime = value['time'];

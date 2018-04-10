@@ -1,13 +1,48 @@
 
+	<style type="text/css">
+		.point .over{
+			visibility: hidden;
+			color: black;
+			background-color: yellow;
+			opacity: 0;
+		}
+		.point:hover .over{
+			visibility: visible;
+			opacity: 1;
+		}
+
+	</style>
 	<script src="jquery-3.2.1.min.js"></script>
 	<script type="text/javascript">
 	function addPoints() {
+		var sources = ["","","","","",""];
 		var waiting = true;
 		var lasttime = "";
-		$.getJSON("q?get=map&f_id={{fid}}", function(data){
+		$.getJSON("/q?get=map&f_id={{fid}}&time=" + lasttime, function(data){
 			$.each(data, function(key, value) {
 				lasttime = value['time'];
-				addPoint(parseFloat(value['lat']),parseFloat(value['lon']),parseInt(value['alt']));
+				var n = 0;
+				var sourcenum = 0;
+				while(n < 6){
+					if(sources[n] == value['Source']) {
+						break;
+					}
+					n = n+1;
+				}
+				if(n==6){
+					n=0;
+					while(n < 6){
+						if(sources[n] == "") {
+							sourcenum = n;
+							sources[n] = value['Source'];
+							break;
+						}
+						n=n+1;
+					}
+				} else{
+					sourcenum = n;
+				}
+				addPoint(parseFloat(value['lat']),parseFloat(value['lon']),parseInt(value['alt']),sourcenum,value['Source']);
 			});
 			waiting = false;
 		});
@@ -20,8 +55,28 @@
 				$.getJSON("/q?get=map&f_id={{fid}}&time=" + lasttime, function(data){
 					$.each(data, function(key, value) {
 						lasttime = value['time'];
-					//	console.log("hitmap");
-						addPoint(parseFloat(value['lat']),parseFloat(value['lon']),parseInt(value['alt']));
+						var n = 0;
+						var sourcenum = 0;
+						while(n < 6){
+							if(sources[n] == value['Source']) {
+								break;
+							}
+							n = n+1;
+						}
+						if(n==6){
+							n=0;
+							while(n < 6){
+								if(sources[n] == "") {
+									sourcenum = n;
+									sources[n] = value['Source'];
+									break;
+								}
+								n=n+1;
+							}
+						} else{
+							sourcenum = n;
+						}
+						addPoint(parseFloat(value['lat']),parseFloat(value['lon']),parseInt(value['alt']),sourcenum,value['Source']);
 					});
 					waiting = false;
 				});
@@ -29,14 +84,21 @@
 			}
 		};
 	};
-	function addPoint(lat, lon, alt) {
+	function addPoint(lat, lon, alt, sourcenum, source) {
+		console.log(sourcenum);
+		var symbols = ['+','O','=','X','8','-'];
 		colors = ["red","orange","yellow","green","blue","purple"];
 		altrem = alt%3000;
 		n = Math.floor(altrem/500);
 		var newPoint = document.createElement("div");
+		var newPointHover = document.createElement("span");
 		newPoint.className = "point";
-		newPointTxt = document.createTextNode("+");
+		newPointHover.className = "over";
+		newPointTxt = document.createTextNode("" + symbols[sourcenum]);
+		newPointHoverTxt = document.createTextNode("" + source + "," + alt);
 		newPoint.appendChild(newPointTxt);
+		newPointHover.appendChild(newPointHoverTxt);
+		newPoint.appendChild(newPointHover);
 		botlat = 44.550845;
 		botlon = -123.312016;
 		toplat = 44.684565;
@@ -50,7 +112,6 @@
 		newPoint.style.top = ystr + "%";
 		newPoint.style.color = colors[n];
 		var main = document.getElementById('MapDiv');
-		//console.log(main.class);
 		main.appendChild(newPoint);
 	};
   window.onload = addPoints();
