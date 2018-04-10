@@ -229,7 +229,7 @@ app.get('/q', function(req, res){
             break;
         case 'map':
             // Plots location v time as 2d or 3d map
-            sql = `SELECT time, lat, lon, alt
+            sql = `SELECT time, lat, lon, alt, callsign AS Source
                    FROM BeelineGPS B
                    JOIN Callsigns C ON C.id = B.c_id
                    WHERE B.f_id=${f_id}`+time+`
