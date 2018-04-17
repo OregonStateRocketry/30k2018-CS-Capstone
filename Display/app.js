@@ -131,10 +131,10 @@ app.get('/graph', function (req, res){
             var partial =  "altitude";
             var nav = 1;
             break;
-        case 'receptionVtime':
-	        //render recep graph
-            var titleText = "Flight " + fid + " Reception vs Time";
-            var partial =  "reception";
+        case 'vertVelocity':
+	        //render velocity graph
+            var titleText = "Flight " + fid + " Vertical Velocity vs Time";
+            var partial =  "verticalvelocity";
             var nav = 1;
 	        break;
 	    case 'map':

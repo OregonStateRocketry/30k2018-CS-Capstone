@@ -79,7 +79,7 @@ document.body.addEventListener('click',function(event){
 
     /* Call query function/ page change*/
 	var query = "graph?get="+data+"&fid="+flight+"&";
-    	//console.log("Query:",query);	
+    	//console.log("Query:",query);
      	if(flightList.length == 0){
 		//console.log("One flight");
 	}
@@ -111,16 +111,18 @@ function UpdateDropdown() {
             option.value = value["flight_id"];
             option.text = value["flight_id"];
             var element = document.getElementById("flightField");
-            element.appendChild(option);
+                element.appendChild(option);
+
 
             //Add option to multi-flight dropdown
+            /* //This feature hasn't been implemented
             var option = document.createElement('option');
             option.value = value["flight_id"];
             option.text = value["flight_id"];
             var element = document.getElementById("multiField");
             element.appendChild(option);
+            */
 
         });
     });
 };
-UpdateDropdown();
