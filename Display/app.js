@@ -98,29 +98,6 @@ app.get('/summary', function (req, res) {
 app.get('/graph', function (req, res){
     var get = req.query.get;
     var fid = req.query.fid;
-    //Special case for multiple flight ids selected
-    if (fid == "multi"){
-        // Define array of flight IDs and form multi query
-        var fid_mult = [];
-        var num = req.query.num;
-        switch(num){ //Switch should add all selected flights to an array
-            default: //Currently supports up to four flights
-                fid_mult.push(req.query.fid_3);
-            case 3:
-                fid_mult.push(req.query.fid_2);
-            case 2:
-                fid_mult.push(req.query.fid_1);
-            case 1:
-                fid_mult.push(req.query.fid_0);
-        }
-
-        //TODO: Form multi-query
-        //Will need to change q? case to allow multiple f_ids
-
-        //In the meantime, the first flight will be used instead
-        fid = req.query.fid_0;
-
-    }
     //Remake query to send to page
     var queryText = "q?get=" + get + "&f_id=" + fid +"&";
     //console.log(queryText);

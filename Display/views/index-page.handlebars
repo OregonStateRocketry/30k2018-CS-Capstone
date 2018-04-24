@@ -20,24 +20,9 @@
     {{#each dropdowns}}
       <option value="{{id}}">{{id}}</option>
     {{/each}}
-    <!-- Commenting out multi-flight selection while waiting for implementation
-     <option value="multi">multiple flights</option> -->
   </select>
  <!--FlightSubmit button should hide this div and save user selections to query later-->
  <button type="button" id="flightSubmit">Next</button>
-</div>
-
-<!-- Flight selection for multiple flights -->
-<div id = "multiSelect" class="hide">
-  <h2>Please select a flight:</h2>
-  <select name="multiField" id="multiField">
-    <!--Options are currently hard coded, but will need to be updated to
-        Select from flights in the database -->
-    <option value="" selected disabled hidden>*SELECT*</option>
-  </select>
-  <!--FlightSubmit button should hide this div and save user selections to query later-->
-  <button type="button" id="multiAdd">Add Next</button>
-  <button type="button" id="multiSubmit">Done</button>
 </div>
 
 <!-- SELECT DATA--------------------------------------------------------------->

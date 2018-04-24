@@ -1,7 +1,12 @@
+<!-- Filename: header.handlebars
+     This file gives the style and functionality for the header and navigation
+     bar on the top of each of the pages for the webviewer.
+     The style section is first, followed by the structure, then the functionality.-->
+
 <header>
 
-  <a href = "/" title ="Home"><h1>ESRA 30k Flight Viewer</h1></a>
-
+<!-- STYLE SECTION ------------------------------------------------------------>
+<!-- CSS here gives the header section of the page styling.-->
   <style>
   .navbar {
       overflow: hidden;
@@ -65,8 +70,16 @@
   }
   </style>
 
+  <!-- STRUCTURE SECTION ------------------------------------------------------>
+  <!-- The html here gives the header section of the page structure.-->
+
+  <!-- Title is a link to home -->
+  <a href = "/" title ="Home"><h1>ESRA 30k Flight Viewer</h1></a>
+
+<!-- This section builds the navbar and dropdown menus for graph selection -->
   <div class="navbar">
-{{#if show_nav}}
+{{#if show_nav}} <!-- Only display graph selection if navigating from another graph-->
+
     <div class="dropdown">
       <button class="dropbtn">Flight Select
         <i class="fa fa-caret-down"></i>
@@ -74,23 +87,32 @@
       <div id = "headerFlight" class="dropdown-content">
       </div>
     </div>
+
     <div class="dropdown">
       <button class="dropbtn">Graph Select
         <i class="fa fa-caret-down"></i>
       </button>
       <div class="dropdown-content">
+        <!-- This graph selection is manually entered from available graphs -->
         <a href="/graph?get=altVtime&fid={{fid}}">Altitude vs Time</a>
         <a href="/graph?get=vertVelocity&fid={{fid}}">Vertical Velocity vs Time</a>
         <a href="/graph?get=map&fid={{fid}}">Map</a>
       </div>
     </div>
-    <a href="/graph?get=summary&fid={{fid}}">Flight Summary</a>
-{{/if}}
 
+    <a href="/graph?get=summary&fid={{fid}}">Flight Summary</a>
+{{/if}}<!-- End navigation from graph section-->
+
+    <!-- This about button should always be visible-->
     <a href="/graph?get=about">About Us</a>
   </div>
 
-{{#if show_nav}}
+<!-- FUNCTIONALITY SECTION ---------------------------------------------------->
+<!-- The javascript here gives the header section of the page functionality.
+     This function, UpdateDropdown, pulls flight IDs from the database to
+     populate the flight selection list.-->
+
+{{#if show_nav}} <!-- Only run when navigating from a graph -->
 
 <!-- Add Dynamic Flight ID Selection: Dropdowns should pull from the database  -->
 <script type="text/javascript">
@@ -109,6 +131,6 @@
     UpdateDropdown();
 </script>
 
-{{/if}}
+{{/if}} <!-- only when navigating from a graph -->
 
 </header>
