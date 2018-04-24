@@ -1,74 +1,9 @@
 <!-- Filename: header.handlebars
      This file gives the style and functionality for the header and navigation
      bar on the top of each of the pages for the webviewer.
-     The style section is first, followed by the structure, then the functionality.-->
+     The html section is first, followed by the functionality.-->
 
 <header>
-
-<!-- STYLE SECTION ------------------------------------------------------------>
-<!-- CSS here gives the header section of the page styling.-->
-  <style>
-  .navbar {
-      overflow: hidden;
-      background-color: #333;
-      font-family: Arial;
-      display: block;
-      width: 100%;
-  }
-
-  .navbar a {
-      float: left;
-      font-size: 16px;
-      color: white;
-      text-align: center;
-      padding: 14px 16px;
-      text-decoration: none;
-  }
-
-  .dropdown {
-      float: left;
-      overflow: hidden;
-  }
-
-  .dropdown .dropbtn {
-      font-size: 16px;
-      border: none;
-      outline: none;
-      color: white;
-      padding: 14px 16px;
-      background-color: inherit;
-  }
-
-  .navbar a:hover, .dropdown:hover .dropbtn {
-      background-color: gray;
-  }
-
-  .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #f9f9f9;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 1;
-  }
-
-  .dropdown-content a {
-      float: none;
-      color: black;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      text-align: left;
-  }
-
-  .dropdown-content a:hover {
-      background-color: #ddd;
-  }
-
-  .dropdown:hover .dropdown-content {
-      display: block;
-  }
-  </style>
 
   <!-- STRUCTURE SECTION ------------------------------------------------------>
   <!-- The html here gives the header section of the page structure.-->
@@ -78,6 +13,8 @@
 
 <!-- This section builds the navbar and dropdown menus for graph selection -->
   <div class="navbar">
+<div class="navbarDivider"></div>
+
 {{#if show_nav}} <!-- Only display graph selection if navigating from another graph-->
 
     <div class="dropdown">

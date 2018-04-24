@@ -1,62 +1,141 @@
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 body {
+  border: 0;
   margin: 0;
+  padding: 0;
+  background-color: rgb(4,4,4);*/
+  font-family: "Calibri", Times, serif;
+  color: white;
+  position: relative;
+  padding-bottom: 30pt;
+  min-height: 100%;
 }
 
 a {
   text-decoration: none;
+  font-family: "Cambria", Times, serif;
 }
 
 header {
-  background-color: #d12e0a;
+  background-color:rgb(242, 116, 33); /* Orange for header*/
   padding: 5px 20px 0 5px;
 }
 
 header h1 {
   display: inline-block;
-  /*font-family: 'Niconne', cursive;*/
+  font-family: "Cambria", Times, serif;
   font-size: 72px;
-  font-weight: 200;
   margin: 5px 20px;
-  color: #000000; /*Test color for title*/
-  text-shadow: 1px 1px 2px #ffffff; /*Shadow for title*/
-}
-
-header h1 a {
-  color: inherit;
+  color: #fff; /*Test color for title*/
+  /*text-shadow: 1px 1px 2px #ffffff; /*Shadow for title*/
 }
 
 header h1 a:hover {
   text-decoration: none;
 }
 
-nav {
-  background-color: #333;
-  color: white;
-  margin: 0 -20px;  /* negative margin here makes up for header padding */
-  font-size: 28px;
-  font-weight: 200;
-}
-
-.navbar-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0 20px;
-}
-
-.navbar-item {
-  display: inline;
-}
-
-.navbar-item a{
-  display: inline-block;
-  padding: 10px 20px;
-  color: white;
-}
-
-.navbar-item a:hover{
-  background-color: #444;
-}
-
 .hide {
   display:none;
+}
+
+.navbarDivider{
+    border-top:rgb(0,0,0) solid 8px;
+    width:100%;
+    position: absolute;
+    left:0;
+    right:0;
+}
+
+.navbar {
+    overflow: hidden;
+    background-color:rgb(242, 116, 33); /* Orange for header*/
+    display: block;
+    width: 100%;
+    margin:0;
+    padding:0;
+    border:0;
+}
+
+.navbar a {
+    float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.dropdown {
+    float: left;
+    overflow: hidden;
+}
+
+.dropdown .dropbtn {
+    font-size: 16px;
+      font-family: "Cambria", Times, serif;
+    border: none;
+    outline: none;
+    color: white;
+    padding: 14px 16px;
+    background-color: inherit;
+
+}
+
+.navbar a:hover, .dropdown:hover .dropbtn {
+    background-color:rgb(193, 84, 11); /* Dark orange on hover*/
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color:#fff;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    float: none;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+/*Footer style*/
+
+footer{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    text-align: center;
+    background-color: rgb(242, 116, 33); /* Orange for header*/
+    width: 100%;
+    height:30px;
+}
+#footerspace{
+    background-color: transparent;
+    display: block;
+    width: 100%;
+    height:30px;
 }
