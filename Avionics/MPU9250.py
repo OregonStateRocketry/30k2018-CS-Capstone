@@ -6,16 +6,25 @@ class MPU9250(object):
     PWR_MGMT_1 = 0x6b
 
     GYRO_CONFIG = 0x1B
-    FS_250 = 0
-    FS_500 = 1
+    FS_250  = 0
+    FS_500  = 1
     FS_1000 = 2
     FS_2000 = 3
 
     ACCEL_CONFIG = 0x1C
-    AFS_2g = 0
-    AFS_4g = 1
-    AFS_8g = 2
+    AFS_2g  = 0
+    AFS_4g  = 1
+    AFS_8g  = 2
     AFS_16g = 3
+
+    ORIENTATION = {
+        'gyro_x': ('gyro_x', 1),
+        'gyro_y': ('gyro_y', 1),
+        'gyro_z': ('gyro_z', 1),
+        'acc_x' : ('acc_x',  1),
+        'acc_y' : ('acc_y',  1),
+        'acc_z' : ('acc_z',  1)
+    }
 
     ACCEL_SCALE = {
         AFS_2g  : [ 2, 16384.0],
@@ -24,8 +33,8 @@ class MPU9250(object):
         AFS_16g : [16, 2048.0]
         }
 
-    TEMP_START_BLOCK = 0x41
-    GYRO_START_BLOCK = 0x43
+    TEMP_START_BLOCK  = 0x41
+    GYRO_START_BLOCK  = 0x43
     ACCEL_START_BLOCK = 0x3B
 
     GYRO_SCALE = {
@@ -35,11 +44,8 @@ class MPU9250(object):
         FS_2000 : [2000, 16.4]
         }
 
-    DICT_HEADER = 'gyro_x gyro_y gyro_z acc_x acc_y acc_z'.split()
-
-    def __init__(self, pi, gpio, address=0x69,
-                 gyro_scale=FS_250, accel_scale=AFS_2g,
-                 bus=1
+    def __init__(self, pi, gpio, orient=MPU9250.ORIENTATION, address=0x69,
+                 gyro_scale=FS_250, accel_scale=AFS_2g, bus=1
                  ):
         self.pi = pi
         self.bus = smbus.SMBus(1)
@@ -48,6 +54,8 @@ class MPU9250(object):
         self.gpio = gpio
         self.gyro_scale = gyro_scale
         self.accel_scale = accel_scale
+
+        self.orientation = orient
 
         # Enable output pin via pigpio
         self.pi.set_mode(self.gpio, pigpio.OUTPUT)
@@ -66,6 +74,9 @@ class MPU9250(object):
             )
         # Set this sensor's address back to 0x68 with the others
         self.disable_sensor()
+
+    def set_orientation(self, newOrientation):
+        self.orientation = newOrientation
 
     def enable_sensor(self):
         ''' Pull this sensor's enable pin HIGH '''
@@ -134,11 +145,12 @@ class MPU9250(object):
     def read_all(self):
         ''' Return dictionary of acceleration (m/s^2) and gyro (rad/s) '''
         self.refresh_data()
-        return dict(zip(MPU9250.DICT_HEADER, (
-            self.gyro_scaled_x,
-            self.gyro_scaled_y,
-            self.gyro_scaled_z,
-            self.accel_scaled_x,
-            self.accel_scaled_y,
-            self.accel_scaled_z
-        )))
+        # Convert axis and reverse signs if needed
+        return {
+            self.orientation['gyro_x'][0] : self.gyro_scaled_x * self.orientation['gyro_x'][1],
+            self.orientation['gyro_y'][0] : self.gyro_scaled_y * self.orientation['gyro_y'][1],
+            self.orientation['gyro_z'][0] : self.gyro_scaled_z * self.orientation['gyro_z'][1],
+            self.orientation['acc_x'][0]  : self.accel_scaled_x * self.orientation['acc_x'][1],
+            self.orientation['acc_y'][0]  : self.accel_scaled_y * self.orientation['acc_y'][1],
+            self.orientation['acc_z'][0]  : self.accel_scaled_z * self.orientation['acc_z'][1],
+        }
