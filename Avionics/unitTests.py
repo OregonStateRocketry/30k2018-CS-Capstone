@@ -68,11 +68,35 @@ class TestPCF8523(unittest.TestCase):
         pcf = PCF8523.PCF8523()
         firstTime = pcf.gettime()
         self.assertIsNotNone(firstTime)
+        time.sleep(1)
         secondTime = pcf.gettime()
-        # self.assertTrue(firstTime < secondTime)
+        self.assertTrue(time.mktime(firstTime) < time.mktime(secondTime))
 
     def test_settime(self):
         pcf = PCF8523.PCF8523()
+        setter = time.localtime()
+        pcf.settime(setter)
+        time.sleep(1)
+        t2 = pcf.gettime()
+        self.assertTrue((time.mktime(t2) - time.mktime(setter) == 1)or(time.mktime(t2) - time.mktime(setter) == 2))
+
+class TestMPL3115A2(unittest.TestCase):
+    def test_read(self):
+        mpl = MPL3115A2.MPL3115A2()
+        num = 10
+        p,t = mpl.readTempAlt()
+        while num:
+            if num not True: num -=1
+            time.sleep(0.1)
+            lp, lt = p,t
+            p, t = mpl.readTempAlt()
+            #check that noise is small
+            assertTrue(abs(p-lp) <= 2)
+            assertTrue(abs(t-lt) <= 2)
+            #check that values are in bounds
+            assertTrue(p < 10000)
+            assertTrue(t < 50)
+            assertTrue(t > 0)
 
 
 class TestPayloadState(unittest.TestCase):
