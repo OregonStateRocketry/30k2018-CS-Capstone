@@ -118,24 +118,29 @@ class SecondaryEnginePhase(State):
         self.duration_threshold = 2
         self.max_alt            = 0
         self.apogee_time        = None
+        self.alt_threshold      = 300
+        self.last_alt           = 0
         # self.acc_threshold  = 0.15
         # self.low_acc_flag   = False
 
     def monitorPhase(self, sensors):
         """
         Move to the next phase if:
-            Under 0.15 G magnitude of acceleration (all axis),
-            THEN
-            Altitude is decreasing.
+            Altitude has decreased from max by 300 feet and
+            Altitude has been below max for two seconds
+
         """
         # Keep track of when, and how high apogee occurred
         if sensors['alt'] > self.max_alt:
-            self.max_alt = sensors['alt']
             self.apogee_time = time.time()
+            # Check for low velocity (we should only get new values at ~ 30Hz, so this checks for v < 900ft/s), sensor most reliable under this condition
+            if (sensors['alt'] != self.last_alt & sensors['alt'] < self.last_alt + 30  & sensors['alt'] > self.last_alt - 30):
+                self.max_alt = sensors['alt']
 
         # Move on if the payload remains x feet under apogee, for y seconds
         altCheck = (self.alt_threshold+sensors['alt']) < self.max_alt
         timeCheck = (self.apogee_time+self.duration_threshold) < time.time()
+        self.last_alt = sensors['alt']
 
         if altCheck and timeCheck:
             return ExperimentPhase()
@@ -170,9 +175,8 @@ class ExperimentPhase(State):
     def __init__(self):
         self.stateNum           = 3
         self.duration_start     = time.time()
-        self.duration_threshold = 15
+        self.duration_threshold = 12
         self.acc_threshold      = 1.5
-
     def monitorPhase(self, sensors):
         """
         Move to the next phase if:
