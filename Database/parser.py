@@ -7,31 +7,16 @@ import fileinput
 class Parser:
     ''' A class representing each Parser '''
 
-    def __init__(self, dbConfig='config.yml', log='log.csv', csv=None, fid=None):
+    def __init__(self, dbConfig='config.yml', log='log.csv', fid=None):
         self.db = self.connectDB(dbConfig)
         self.callsign = 'UNKNOWN'
         self.logFile = log
 
-        # Either use a CSV file or live input, not both
-        if csv:
-            # Parse CSV file, then quit.
-            # Prompt for flight id?
-            '''
-            validFlightIDs = displayImportMenu(availFlights)
-            if f_id: validFlightIDs += [f_id]
+        # Find the active flight, and serial number for this parser
+        self.f_id = fid or self.connectParser(fid)
 
-            while f_id not in validFlightIDs:
-                f_id = input('Enter a Flight ID for {}: '.format(filename))
-            '''
-            fid = fid or self.db.getFlightTable()
-            self.importFile(csv)
-            sys.exit(1)
-        else:
-            # Find the active flight, and serial number for this parser
-            self.f_id = fid or self.connectParser(fid)
-
-            # Prepare the direwolf client
-            self.wolf = self.connectDirewolf()
+        # Prepare the direwolf client
+        self.wolf = self.connectDirewolf()
 
 
     def connectDB(self, cf):
@@ -95,70 +80,6 @@ class Parser:
         )
 
 
-    def insertRocketAvionics(self, line):
-        print('insertRocketAvionics not implemented yet.')
-
-
-    def insertPayloadAvionics(self, line):
-        print('insertPayloadAvionics not implemented yet.')
-        # Sample header and first line from CSV file:
-        # state,time,gyro_x,gyro_y,gyro_z,acc_x,acc_y,acc_z,temp(c),alt(m),acc_pid,acc_pwm,gyro_pid,gyro_pwm
-        # 0,1522766739.1681,1.344,1.313,-1.389,-0.005,-0.002,0.956,19.88,59
-        return self.db.insertRow(
-            table='Payload_Avionics',
-            cols='f_id, s_id, time, '       \
-                'gyro_x, gyro_y, gyro_z, '  \
-                'acc_x, acc_y, acc_z, '     \
-                'temperature, alt, '        \
-                'prop_pid, prop_pwm, '      \
-                'counter_pid, counter_pwm'
-            vals=["""
-                {f_id}, {lat}, {lon}, {alt},
-                (SELECT id FROM Avionics_State WHERE id='{serialNum}'),
-                (SELECT id FROM Callsigns WHERE callsign='{callsign}')
-                """.format(**data)
-            ]
-        )
-
-
-    def insertOther(self, line):
-        print('insertOther not implemented yet.')
-
-
-    def importFile(self, filename):
-        '''Parses and imports a file'''
-        if not os.path.isfile(filename):
-            print(filename, "is not a valid filename.")
-            sys.exit(0)
-        else:
-            print("Parsing {}.".format(filename))
-
-        with open(filename, 'r') as f:
-            # Check the file header to see what the source is:
-            insertType = {
-                'BeelineGPS\n'        :   self.insertBeelineGPS,
-                'Rocket_Avionics\n'   :   self.insertRocketAvionics,
-                'Payload_Avionics\n'  :   self.insertPayloadAvionics,
-            }.get(next(f), self.insertOther)
-            # Skip the csv header
-            next(f)
-
-            for line in f:
-                # try:
-                    # ugly way to process csv files and dw audio using same fn
-                    data = {}
-                    data['time'], data['callsign'], data['audio level'], \
-                    data['lat'],data['lon'], data['alt'], data['alt units'], \
-                    data['f_id'], data['serialNum'] = line[:-1].split(',')
-
-                    insertType(data)
-                # except Exception as e:
-                #     print("IMPORT CSV FAILED --- "),
-                #     print(e)
-                #     sys.exit(0)
-            print("Finished importing {}.".format(filename))
-
-
     def getSerial(self):
         ''' Read the serial number for the current pi '''
         try:
@@ -212,8 +133,6 @@ class Parser:
 
 if __name__ == "__main__":
     print("ESRA 30k Telemetry Parser.")
-    if len(sys.argv) > 2:
-        client = Parser(dbConfig=sys.argv[1], csv=sys.argv[2])
     elif len(sys.argv) > 1:
         client = Parser(dbConfig=sys.argv[1])
     else:
