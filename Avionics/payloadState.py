@@ -1,13 +1,12 @@
 import time
 from subprocess import call
-from math import sqrt
 
 def getAvgAcc(sensors):
     return (sensors['acc_x']+sensors['acc_y']+sensors['acc_z']) / 3
 
 def get_acc_mag(sensors):
-    return sqrt(
-        sensors['acc_x']**2+sensors['acc_y']**2+sensors['acc_z']**2
+    return (
+        (sensors['acc_x']**2)+(sensors['acc_y']**2)+(sensors['acc_z']**2)**(0.5)
     )
 
 
@@ -129,19 +128,19 @@ class SecondaryEnginePhase(State):
         Move to the next phase if:
             Altitude has decreased from max by 300 feet and
             Altitude has been below max for two seconds
+
         """
         # Keep track of when, and how high apogee occurred
         if sensors['alt'] > self.max_alt:
             self.apogee_time = time.time()
             # Check for low velocity (we should only get new values at ~ 30Hz, so this checks for v < 900ft/s), sensor most reliable under this condition
-            if  sensors['alt'] != self.last_alt & \
-                sensors['alt'] < self.last_alt + 30  & \
-                sensors['alt'] > self.last_alt - 30:
-                    self.max_alt = sensors['alt']
+            if (sensors['alt'] != self.last_alt & sensors['alt'] < self.last_alt + 30  & sensors['alt'] > self.last_alt - 30):
+                self.max_alt = sensors['alt']
 
         # Move on if the payload remains x feet under apogee, for y seconds
         altCheck = (self.alt_threshold+sensors['alt']) < self.max_alt
         timeCheck = (self.apogee_time+self.duration_threshold) < time.time()
+        # print(self.apogee_time+self.duration_threshold, time.time())
         self.last_alt = sensors['alt']
 
         if altCheck and timeCheck:

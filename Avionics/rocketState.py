@@ -119,14 +119,12 @@ class SecondaryEnginePhase(State):
         self.duration_threshold = 0.2
         self.long_duration_threshold = 2.0
         self.max_alt            = 0
-        self.apogee_time        = None
+        self.apogee_time        = False
         self.alt_threshold      = 300
         self.last_alt           = 0
         self.acc_threshold  = 0.15
         self.low_acc_flag   = False
-        self.high_acc_start = 0
-        self.foundapogee = False
-        self.missedapogee = False
+        self.high_acc_start = False
 
     def monitorPhase(self, sensors):
         """
@@ -138,25 +136,29 @@ class SecondaryEnginePhase(State):
         """
         # Keep track of when, and how high apogee occurred
 
-        if sensors['alt'] > self.max_alt:
+        if (sensors['alt'] > self.max_alt) & (self.low_acc_flag):
                 self.max_alt = sensors['alt']
+                print("set this at" + str(sensors['alt']))
         if abs(sensors['acc_z']) > self.acc_threshold:
             self.apogee_time = time.time()
 
-        if self.apogee_time+self.long_duration_threshold < time.time():
-            self.low_acc_flag = True
+        if self.apogee_time:
+            if self.apogee_time+self.duration_threshold < time.time():
+                self.low_acc_flag = True
 
         if abs(sensors['acc_z']) < self.acc_threshold:
             self.high_acc_start = time.time()
-
-        if self.high_acc_start+self.duration_threshold < time.time():
-            self.low_acc_flag = False
-
-        if sensors['alt'] < self.max_alt and self.low_acc_flag:
-            self.foundapogee = True;
+        if self.high_acc_start:
+            if self.high_acc_start+self.long_duration_threshold < time.time():
+                self.low_acc_flag = False
+        foundapogee = False
+        missedapogee = False
+        if sensors['alt'] < self.max_alt:
+            if self.low_acc_flag:
+                foundapogee = True
         if sensors['alt'] < self.max_alt - 1000:
-            self.missedapogee = True
-        if (self.foundapogee or self.missedapogee):
+            missedapogee = True
+        if (foundapogee or missedapogee):
             return DescentPhase()
         return self
 
@@ -188,7 +190,7 @@ class DescentPhase(State):
     """
 
     def __init__(self):
-        self.stateNum           = 4
+        self.stateNum           = 3
         self.duration_start     = time.time()
         self.duration_threshold = 5
         self.acc_min_threshold  = 0.9
@@ -228,7 +230,7 @@ class FinalPhase(State):
     """
 
     def __init__(self):
-        self.stateNum = 5
+        self.stateNum = 4
 
     def monitorPhase(self, sensors):
         print("Closing file handler.")
