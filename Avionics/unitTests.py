@@ -1,6 +1,7 @@
 import unittest
 import time, sys, os
-import ESCMotor, MPL3115A2, MPU9250, PCF8523, mainPayload, payloadState
+import ESCMotor, MPL3115A2, MPU9250, PCF8523
+import mainPayload, mainRocket, payloadState, rocketState
 import pigpio
 
 class TestESCMotor(unittest.TestCase):
@@ -56,124 +57,195 @@ class TestESCMotor(unittest.TestCase):
 
 class TestMainPayload(unittest.TestCase):
     def test_read(self):
-        os.remove("av_out.csv")
-        self.assertFalse(os.path.isfile("av_out.csv"))
+        os.remove("av_payload.csv")
+        self.assertFalse(os.path.isfile("av_payload.csv"))
         payload = mainPayload.Payload()
         payload.runLoop(5)
-        self.assertTrue(os.path.isfile("av_out.csv"))
+        self.assertTrue(os.path.isfile("av_payload.csv"))
+        with open('av_payload.csv') as f:
+            reader = csv.reader(f)
+            row1 = next(reader)
+            row1str = ','.join(row1)
+            assertEqual(row1str, "state,time,gyro_x,gyro_y,gyro_z,acc_x,acc_y,acc_z,temp(c),alt(m),acc_pid,acc_pwm,gyro_pid,gyro_pwm")
 
+            row2 = next(reader)
+            assertEqual(row2[0],0)
+            assertTrue(row2[1] <= time.time())
+            assertTrue(row2[1] > time.time() -2)
 
-class TestPCF8523(unittest.TestCase):
-    def test_gettime(self):
-        pcf = PCF8523.PCF8523()
-        firstTime = pcf.gettime()
-        self.assertIsNotNone(firstTime)
-        time.sleep(1)
-        secondTime = pcf.gettime()
-        self.assertTrue(time.mktime(firstTime) < time.mktime(secondTime))
+class TestMainRocket(unittest.TestCase):
+    def test_read(self):
+        os.remove("av_rocket.csv")
+        self.assertFalse(os.path.isfile("av_rocket.csv"))
+        rocket = mainRocket.Rocket()
+        rocket.runLoop(5)
+        self.assertTrue(os.path.isfile("av_rocket.csv"))
+        with open('av_rocket.csv') as f:
+            reader = csv.reader(f)
+            row1 = next(reader)
+            row1str = ','.join(row1)
+            assertEqual(row1str, "state,time,17_gyro_x,17_gyro_y,17_gyro_z,17_acc_x,17_acc_y,17_acc_z,27_gyro_x,27_gyro_y,27_gyro_z,27_acc_x,27_acc_y,27_acc_z,22_gyro_x,22_gyro_y,22_gyro_z,22_acc_x,22_acc_y,22_acc_z,temp(c),alt(ft)")
+            row2 = next(reader)
+            assertEqual(row2[0],0)
+            assertTrue(row2[1] <= time.time())
+            assertTrue(row2[1] > time.time() -2)
 
-    def test_settime(self):
-        pcf = PCF8523.PCF8523()
-        setter = time.localtime()
-        pcf.settime(setter)
-        time.sleep(1)
-        t2 = pcf.gettime()
-        self.assertTrue((time.mktime(t2) - time.mktime(setter) == 1)or(time.mktime(t2) - time.mktime(setter) == 2))
 
 class TestMPL3115A2(unittest.TestCase):
     def test_read(self):
         mpl = MPL3115A2.MPL3115A2()
         num = 10
-        p,t = mpl.readTempAlt()
+        t, p = mpl.readTempAlt()
         while num:
-            if num not True: num -=1
+            num -=1
             time.sleep(0.1)
-            lp, lt = p,t
-            p, t = mpl.readTempAlt()
+            lp = p
+            lt = t
+            t, p = mpl.readTempAlt()
             #check that noise is small
-            assertTrue(abs(p-lp) <= 2)
-            assertTrue(abs(t-lt) <= 2)
+            self.assertTrue(abs(p-lp) <= 5)
+            self.assertTrue(abs(t-lt) <= 2)
             #check that values are in bounds
-            assertTrue(p < 10000)
-            assertTrue(t < 50)
-            assertTrue(t > 0)
+            self.assertTrue(p < 10000)
+            self.assertTrue(t < 50)
+            self.assertTrue(t > 0)
 
 
 class TestPayloadState(unittest.TestCase):
     def test_PreLaunchPhase(self):
         state = payloadState.PreLaunchPhase()
-        self.assertEquals(str(state), 'PreLaunchPhase')
+        self.assertEqual(str(state), 'PreLaunchPhase')
         data = {'acc_z': 2}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'PreLaunchPhase')
+        self.assertEqual(str(state), 'PreLaunchPhase')
         time.sleep(0.2)
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'PrimaryEnginePhase')
+        self.assertEqual(str(state), 'PrimaryEnginePhase')
 
     def test_PrimaryEnginePhase(self):
         state = payloadState.PrimaryEnginePhase()
-        self.assertEquals(str(state), 'PrimaryEnginePhase')
+        self.assertEqual(str(state), 'PrimaryEnginePhase')
         data = {'acc_z': 1.0}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'PrimaryEnginePhase')
+        self.assertEqual(str(state), 'PrimaryEnginePhase')
         time.sleep(0.2)
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'SecondaryEnginePhase')
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
 
     def test_SecondaryEnginePhase(self):
         state = payloadState.SecondaryEnginePhase()
         data = {'acc_x': 1, 'acc_y': 1, 'acc_z': 1, 'alt': 27123}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'SecondaryEnginePhase')
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'SecondaryEnginePhase')
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
         # Its waiting for the avg acceleration to be low
         data = {'acc_x': 0.1, 'acc_y': 0.1, 'acc_z': 0.1, 'alt': 27123}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'SecondaryEnginePhase')
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'SecondaryEnginePhase')
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'SecondaryEnginePhase')
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
         # AND for the altitude to decrease
-        data['alt'] = data['alt'] - 10
+        data['alt'] = data['alt'] - 1000
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'ExperimentPhase')
+        time.sleep(2.05)
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'ExperimentPhase')
 
     def test_ExperimentPhase(self):
         state = payloadState.ExperimentPhase()
-        data = {'acc_z': 1}
+        data = {'acc_z': 1, 'alt' : 30000}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'ExperimentPhase')
+        self.assertEqual(str(state), 'ExperimentPhase')
         data['acc_z'] = 2
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'DescentPhase')
+        self.assertEqual(str(state), 'DescentPhase')
 
         # Should also check time.. but 15 sec is sooo long
         state = payloadState.ExperimentPhase()
-        data = {'acc_z': 1}
+        data = {'acc_z': 1, 'alt' : 30000}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'ExperimentPhase')
-        time.sleep(14)
+        self.assertEqual(str(state), 'ExperimentPhase')
+        time.sleep(11)
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'ExperimentPhase')
+        self.assertEqual(str(state), 'ExperimentPhase')
         time.sleep(1)
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'DescentPhase')
+        self.assertEqual(str(state), 'DescentPhase')
 
     def test_DescentPhase(self):
         state = payloadState.DescentPhase()
         data = {'acc_x': 0.1, 'acc_y': 0.1, 'acc_z': 0.7}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'DescentPhase')
+        self.assertEqual(str(state), 'DescentPhase')
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'DescentPhase')
-        data = {'acc_x': 1, 'acc_y': 1, 'acc_z': 1}
+        self.assertEqual(str(state), 'DescentPhase')
+        data = {'acc_x': 0, 'acc_y': 0, 'acc_z': 1}
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'DescentPhase')
+        self.assertEqual(str(state), 'DescentPhase')
         time.sleep(5)
         state = state.monitorPhase(data)
-        self.assertEquals(str(state), 'FinalPhase')
+        self.assertEqual(str(state), 'FinalPhase')
+
+
+class TestRocketState(unittest.TestCase):
+    def test_PreLaunchPhase(self):
+        state = rocketState.PreLaunchPhase()
+        self.assertEqual(str(state), 'PreLaunchPhase')
+        data = {'acc_z': 2}
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'PreLaunchPhase')
+        time.sleep(0.2)
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'PrimaryEnginePhase')
+
+    def test_PrimaryEnginePhase(self):
+        state = rocketState.PrimaryEnginePhase()
+        self.assertEqual(str(state), 'PrimaryEnginePhase')
+        data = {'acc_z': 1.0}
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'PrimaryEnginePhase')
+        time.sleep(0.2)
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
+
+    def test_SecondaryEnginePhase(self):
+        state = rocketState.SecondaryEnginePhase()
+        data = {'acc_x': 1, 'acc_y': 1, 'acc_z': 1, 'alt': 27123}
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
+        # Its waiting for the avg acceleration to be low
+        data = {'acc_x': 0.1, 'acc_y': 0.1, 'acc_z': 0.1, 'alt': 27123}
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'SecondaryEnginePhase')
+        # AND for the altitude to decrease
+        data['alt'] = data['alt'] - 1000
+        state = state.monitorPhase(data)
+        time.sleep(2.05)
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'DescentPhase')
+
+    def test_DescentPhase(self):
+        state = rocketState.DescentPhase()
+        data = {'acc_x': 0.1, 'acc_y': 0.1, 'acc_z': 0.7}
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'DescentPhase')
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'DescentPhase')
+        data = {'acc_x': 0, 'acc_y': 0, 'acc_z': 1}
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'DescentPhase')
+        time.sleep(5)
+        state = state.monitorPhase(data)
+        self.assertEqual(str(state), 'FinalPhase')
 
 
 class TestMPU9250(unittest.TestCase):
@@ -181,19 +253,21 @@ class TestMPU9250(unittest.TestCase):
         piggy = pigpio.pi()
         mpuA = MPU9250.MPU9250(pi=piggy, gpio=17)
         for x in range(10):
+            m1 = {}
             m1 = mpuA.read_all()
-            self.assertTrue(m1['gyro_x'] < 2)
-            self.assertTrue(m1['gyro_x'] > -2)
-            self.assertTrue(m1['gyro_y'] < 2)
-            self.assertTrue(m1['gyro_y'] > -2)
-            self.assertTrue(m1['gyro_z'] < 2)
-            self.assertTrue(m1['gyro_z'] > -2)
-            self.assertTrue(m1['acc_x'] > -0.05)
-            self.assertTrue(m1['acc_x'] < 0.05)
-            self.assertTrue(m1['acc_y'] > -0.05)
-            self.assertTrue(m1['acc_y'] < 0.05)
-            self.assertTrue(m1['acc_z'] < 1.2)
-            self.assertTrue(m1['acc_z'] > 0.8)
+            # print(m1['acc_x'])
+            self.assertTrue(m1['gyro_x'] < 10)
+            self.assertTrue(m1['gyro_x'] > -10)
+            self.assertTrue(m1['gyro_y'] < 10)
+            self.assertTrue(m1['gyro_y'] > -10)
+            self.assertTrue(m1['gyro_z'] < 10)
+            self.assertTrue(m1['gyro_z'] > -10)
+            self.assertTrue(m1['acc_x'] > -0.5)
+            self.assertTrue(m1['acc_x'] < 0.5)
+            self.assertTrue(m1['acc_y'] > -0.5)
+            self.assertTrue(m1['acc_y'] < 0.5)
+            self.assertTrue(m1['acc_z'] < 1.5)
+            self.assertTrue(m1['acc_z'] > 0.5)
 
 if __name__ == "__main__":
     unittest.main()

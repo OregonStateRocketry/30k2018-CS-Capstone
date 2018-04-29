@@ -1,8 +1,14 @@
 import time
 from subprocess import call
+from math import sqrt
 
 def getAvgAcc(sensors):
     return (sensors['acc_x']+sensors['acc_y']+sensors['acc_z']) / 3
+
+def get_acc_mag(sensors):
+    return sqrt(
+        sensors['acc_x']**2+sensors['acc_y']**2+sensors['acc_z']**2
+    )
 
 
 class State(object):
@@ -45,7 +51,7 @@ class PreLaunchPhase(State):
         Move to the next phase if:
             Over 1.5 G acceleration on Z axis for over 0.2 seconds.
         """
-        if sensors['acc_z'] > self.acc_threshold:
+        if abs(sensors['acc_z']) > self.acc_threshold:
             if not self.duration_start:
                 # First tick of acceleration sets the duration timer
                 self.duration_start = time.time()
@@ -82,7 +88,7 @@ class PrimaryEnginePhase(State):
         Move to the next phase if:
             Under 1.5 G acceleration on Z axis for over 0.2 seconds.
         """
-        if sensors['acc_z'] < self.acc_threshold:
+        if abs(sensors['acc_z']) < self.acc_threshold:
             if not self.duration_start:
                 # First tick of acceleration sets the duration timer
                 self.duration_start = time.time()
@@ -109,62 +115,65 @@ class SecondaryEnginePhase(State):
     """
 
     def __init__(self):
-        self.stateNum       = 2
+        self.stateNum           = 2
+        self.duration_threshold = 0.2
+        self.long_duration_threshold = 2.0
+        self.max_alt            = 0
+        self.apogee_time        = None
+        self.alt_threshold      = 300
+        self.last_alt           = 0
         self.acc_threshold  = 0.15
         self.low_acc_flag   = False
+        self.high_acc_start = 0
+        self.foundapogee = False
+        self.missedapogee = False
 
     def monitorPhase(self, sensors):
         """
         Move to the next phase if:
-            Under 0.15 G magnitude of acceleration (all axis),
-            THEN
-            Altitude is decreasing.
+            Acceleration is low and
+            Altitude has been descreasing for .2 seconds
+        Or
+            Altitude has decreased by 300 feet below local max
         """
-        if self.low_acc_flag:
-            if self.altitude_prev > sensors['alt']:
-                return ExperimentPhase()
-        else:
-            self.altitude_prev = sensors['alt']
-            avg_acc = getAvgAcc(sensors)
-            # Low acceleration means to start checking altitude
-            if avg_acc < self.acc_threshold:
-                self.low_acc_flag = True
-        return self
+        # Keep track of when, and how high apogee occurred
 
+        if sensors['alt'] > self.max_alt:
+                self.max_alt = sensors['alt']
+        if abs(sensors['acc_z']) > self.acc_threshold:
+            self.apogee_time = time.time()
 
-class ExperimentPhase(State):
-    """
-    The state during freefall, while the experiment runs.
-    Current conditions:
-        The rocket is attempting to reach and maintain 0 G on Z axis
-    Duration:
-        ~12 seconds.
-    Goals:
-        Log sensor data.
-        Control propeller motor.
-        Control counterweight motor.
-    """
+        if self.apogee_time+self.long_duration_threshold < time.time():
+            self.low_acc_flag = True
 
-    def __init__(self):
-        self.stateNum           = 3
-        self.duration_start     = time.time()
-        self.duration_threshold = 15
-        self.acc_threshold      = 1.5
+        if abs(sensors['acc_z']) < self.acc_threshold:
+            self.high_acc_start = time.time()
 
-    def monitorPhase(self, sensors):
-        """
-        Move to the next phase if:
-            15 seconds has elapsed.
-            OR
-            Over 1.5 G on Z axis (drogue deployed) (check force direction and duration on this)
-        """
-        if (time.time() - self.duration_start) > self.duration_threshold:
-            # Experiment ends by default
-            return DescentPhase()
-        elif sensors['acc_z'] > self.acc_threshold: # <- check this
-            # Should we check duration here too?
+        if self.high_acc_start+self.duration_threshold < time.time():
+            self.low_acc_flag = False
+
+        if sensors['alt'] < self.max_alt and self.low_acc_flag:
+            self.foundapogee = True;
+        if sensors['alt'] < self.max_alt - 1000:
+            self.missedapogee = True
+        if (self.foundapogee or self.missedapogee):
             return DescentPhase()
         return self
+
+        # # Check if the payload is nearing apogee (low acc flag set)
+        # if self.low_acc_flag:
+        #     if self.altitude_prev > sensors['alt']:
+        #         return ExperimentPhase()
+        # else:
+        #     self.altitude_prev = sensors['alt']
+        #     mag_acc = get_acc_mag(sensors)
+        #     # Low acceleration means to start checking altitude
+        #     if mag_acc < self.acc_threshold:
+        #         self.low_acc_flag = True
+        # return self
+
+
+
 
 class DescentPhase(State):
     """
@@ -190,9 +199,9 @@ class DescentPhase(State):
         Move to the next phase if:
             0.9 <= |acc| < 1.1 G acceleration for over 5 seconds.
         """
-        avg_acc = getAvgAcc(sensors)
+        mag_acc = get_acc_mag(sensors)
 
-        if self.acc_min_threshold < avg_acc < self.acc_max_threshold:
+        if self.acc_min_threshold < mag_acc < self.acc_max_threshold:
             if not self.duration_start:
                 # First tick of acceleration sets the duration timer
                 self.duration_start = time.time()
