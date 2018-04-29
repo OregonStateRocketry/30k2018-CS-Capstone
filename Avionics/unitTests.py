@@ -4,6 +4,7 @@ import ESCMotor, MPL3115A2, MPU9250, PCF8523
 import mainPayload, mainRocket, payloadState, rocketState
 import pigpio
 import csv
+import random
 
 class TestESCMotor(unittest.TestCase):
     def test_init(self):
@@ -335,6 +336,86 @@ class TestMPU9250(unittest.TestCase):
             self.assertTrue(m1['acc_y'] < 0.5)
             self.assertTrue(m1['acc_z'] < 1.5)
             self.assertTrue(m1['acc_z'] > 0.5)
+        #try with swapped y,z
+        ORIENTATION = {
+            'gyro_x': ('gyro_x', 1),
+            'gyro_y': ('gyro_y', 1),
+            'gyro_z': ('gyro_z', 1),
+            'acc_x' : ('acc_x',  1),
+            'acc_y' : ('acc_z',  1),
+            'acc_z' : ('acc_y',  1)
+        }
+        mpuA.set_orientation(ORIENTATION)
+        for x in range(10):
+            m1 = {}
+            m1 = mpuA.read_all()
+            # print(m1['acc_x'])
+            self.assertTrue(m1['gyro_x'] < 10)
+            self.assertTrue(m1['gyro_x'] > -10)
+            self.assertTrue(m1['gyro_y'] < 10)
+            self.assertTrue(m1['gyro_y'] > -10)
+            self.assertTrue(m1['gyro_z'] < 10)
+            self.assertTrue(m1['gyro_z'] > -10)
+            self.assertTrue(m1['acc_x'] > -0.5)
+            self.assertTrue(m1['acc_x'] < 0.5)
+            self.assertTrue(m1['acc_y'] > 0.5)
+            self.assertTrue(m1['acc_y'] < 1.5)
+            self.assertTrue(m1['acc_z'] < 0.5)
+            self.assertTrue(m1['acc_z'] > -0.5)
+        #try with random multiplication factor, small number chosen since it will lower rather than increase bounds
+        scaling = random.uniform(0,1)
+        ORIENTATION = {
+            'gyro_x': ('gyro_x', scaling),
+            'gyro_y': ('gyro_y', scaling),
+            'gyro_z': ('gyro_z', scaling),
+            'acc_x' : ('acc_x',  scaling),
+            'acc_y' : ('acc_y',  scaling),
+            'acc_z' : ('acc_z',  scaling)
+        }
+        mpuA.set_orientation(ORIENTATION)
+        for x in range(10):
+            m1 = {}
+            m1 = mpuA.read_all()
+            # print(m1['acc_x'])
+            self.assertTrue(m1['gyro_x'] < 10*scaling)
+            self.assertTrue(m1['gyro_x'] > -10*scaling)
+            self.assertTrue(m1['gyro_y'] < 10*scaling)
+            self.assertTrue(m1['gyro_y'] > -10*scaling)
+            self.assertTrue(m1['gyro_z'] < 10*scaling)
+            self.assertTrue(m1['gyro_z'] > -10*scaling)
+            self.assertTrue(m1['acc_x'] > -0.5*scaling)
+            self.assertTrue(m1['acc_x'] < 0.5*scaling)
+            self.assertTrue(m1['acc_y'] > -0.5*scaling)
+            self.assertTrue(m1['acc_y'] < 0.5*scaling)
+            self.assertTrue(m1['acc_z'] < 1.5*scaling)
+            self.assertTrue(m1['acc_z'] > 0.5*scaling)
+
+        #try with negative z
+        ORIENTATION = {
+            'gyro_x': ('gyro_x', 1),
+            'gyro_y': ('gyro_y', 1),
+            'gyro_z': ('gyro_z', 1),
+            'acc_x' : ('acc_x',  1),
+            'acc_y' : ('acc_y',  1),
+            'acc_z' : ('acc_z',  -1)
+        }
+        mpuA.set_orientation(ORIENTATION)
+        for x in range(10):
+            m1 = {}
+            m1 = mpuA.read_all()
+            # print(m1['acc_x'])
+            self.assertTrue(m1['gyro_x'] < 10)
+            self.assertTrue(m1['gyro_x'] > -10)
+            self.assertTrue(m1['gyro_y'] < 10)
+            self.assertTrue(m1['gyro_y'] > -10)
+            self.assertTrue(m1['gyro_z'] < 10)
+            self.assertTrue(m1['gyro_z'] > -10)
+            self.assertTrue(m1['acc_x'] > -0.5)
+            self.assertTrue(m1['acc_x'] < 0.5)
+            self.assertTrue(m1['acc_y'] > -0.5)
+            self.assertTrue(m1['acc_y'] < 0.5)
+            self.assertTrue(m1['acc_z'] > -1.5)
+            self.assertTrue(m1['acc_z'] < -0.5)
 
 if __name__ == "__main__":
     unittest.main()
