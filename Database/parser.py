@@ -101,6 +101,24 @@ class Parser:
 
     def insertPayloadAvionics(self, line):
         print('insertPayloadAvionics not implemented yet.')
+        # Sample header and first line from CSV file:
+        # state,time,gyro_x,gyro_y,gyro_z,acc_x,acc_y,acc_z,temp(c),alt(m),acc_pid,acc_pwm,gyro_pid,gyro_pwm
+        # 0,1522766739.1681,1.344,1.313,-1.389,-0.005,-0.002,0.956,19.88,59
+        return self.db.insertRow(
+            table='Payload_Avionics',
+            cols='f_id, s_id, time, '       \
+                'gyro_x, gyro_y, gyro_z, '  \
+                'acc_x, acc_y, acc_z, '     \
+                'temperature, alt, '        \
+                'prop_pid, prop_pwm, '      \
+                'counter_pid, counter_pwm'
+            vals=["""
+                {f_id}, {lat}, {lon}, {alt},
+                (SELECT id FROM Avionics_State WHERE id='{serialNum}'),
+                (SELECT id FROM Callsigns WHERE callsign='{callsign}')
+                """.format(**data)
+            ]
+        )
 
 
     def insertOther(self, line):

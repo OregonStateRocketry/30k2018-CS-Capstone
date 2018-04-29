@@ -149,3 +149,13 @@ CREATE TABLE `Rocket_Avionics` (
 	FOREIGN KEY (`f_id`) REFERENCES `Flights`(`id`),
 	FOREIGN KEY (`s_id`) REFERENCES `Avionics_State`(`id`)
 );
+
+ALTER TABLE Avionics_State AUTO_INCREMENT = 0;
+
+INSERT INTO Avionics_State (state) VALUES
+	("PreLaunchPhase"),
+	("PrimaryEnginePhase"),
+	("SecondaryEnginePhase"),
+	("ExperimentPhase"),
+	("DescentPhase"),
+	("FinalPhase");

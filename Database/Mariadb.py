@@ -150,14 +150,27 @@ class Mariadb:
         ''' Inserts a single row into the database '''
         with self.connection.cursor() as c:
             sql = """
-                INSERT INTO {table}( {cols} ) VALUES
+                INSERT INTO {table}( {cols} ) VALUES (
                 """.format(table=table, cols=cols)
             for v in vals:
-                sql += '({}),'.format(v)
+                sql += '{},'.format(v)
             # Erase the trailing comma
-            sql = sql[:-1]
+            sql = sql[:-1] + ')'
             c.execute(sql)
             return c.lastrowid
+
+
+    def insertManyRows(self, table, cols, vals):
+        ''' Inserts many rows into the same table and columns '''
+        with self.connection.cursor() as c:
+            sql = "INSERT INTO {} ({}) VALUES ({}%s)".format(
+                table, cols, "%s, "*(len(vals[0])-1)
+            )
+            print('sql=', sql)
+            print('\nvals=', vals)
+            print("num cols = ", len(cols.split(',')) )
+            print("num vals = ", len(vals[0]) )
+            return c.executemany(sql, vals)
 
 
     def registerParser(self, parser_serial):
