@@ -64,7 +64,7 @@ class Payload(object):
         # Turn on LED on GPIO 4 to indicate program started
         self.piggy.write(self.DEBUG_GPIO, 1)
 
-        with open("av_out.csv", "a+") as out:
+        with open("av_payload.csv", "a+") as out:
             # Write a header line
             print("Running ESRA 30k payload avionics...\n")
             out.write(
@@ -106,4 +106,4 @@ class Payload(object):
 
 if __name__ == "__main__":
     payload = Payload()
-    payload.runLoop(5)
+    payload.runLoop(10)

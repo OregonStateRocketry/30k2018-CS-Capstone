@@ -18,10 +18,19 @@ class Rocket(object):
         # Most sensors share a pigpio object to control enable pins
         self.piggy = pigpio.pi()
 
+        temp22_Orientation = {
+                'gyro_x': ('gyro_x', 1),
+                'gyro_y': ('gyro_y', 1),
+                'gyro_z': ('gyro_z', 1),
+                'acc_x' : ('acc_x',  1),
+                'acc_y' : ('acc_y',  1),
+                'acc_z' : ('acc_z',  1)
+            }
+
         # Use the GPIO number, NOT the pin number!
         self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17)
         self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27)
-        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22)
+        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22, orient=temp22_Orientation)
 
         self.mpl = MPL3115A2.MPL3115A2()
         self.clock = PCF8523.PCF8523()
@@ -48,7 +57,7 @@ class Rocket(object):
         # Turn on LED on GPIO 4 to indicate program started
         self.piggy.write(self.DEBUG_GPIO, 1)
 
-        with open("av_out.csv", "a+") as out:
+        with open("av_rocket.csv", "a+") as out:
             # Write a header line
             print("Running ESRA 30k rocket avionics...\n")
             out.write(
@@ -68,7 +77,7 @@ class Rocket(object):
                 data = {}
                 # Try something like:
                 # {'b_'+k:v for k,v in a.items()}
-                for x,y in [('17_',self.mpuA), ('27_', self.mpuB), ('22_', self.mpuB)]:
+                for x,y in [('17_',self.mpuA), ('27_', self.mpuB), ('22_', self.mpuC)]:
                   data.update( {x+k:v for k,v in y.read_all().items()} )
 
                 data['acc_x'] = avg_three(
@@ -95,4 +104,4 @@ class Rocket(object):
 
 if __name__ == "__main__":
     rocket = Rocket()
-    rocket.runLoop(1)
+    rocket.runLoop(10)
