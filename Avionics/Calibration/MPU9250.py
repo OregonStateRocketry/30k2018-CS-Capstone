@@ -79,13 +79,20 @@ class MPU9250(object):
         offsetxd = accelx * 16384.0/8
         offsetyd = accely * 16384.0/8
         offsetzd = (accelz * 16384.0 - 16384.0)/8
+        if offsetxd%2 == 1:
+            offsetxd = offsetxd - 1
+        if offsetyd%2 == 1:
+            offsetyd = offsetyd - 1
+        if offsetzd%2 == 1:
+            offsetzd = offsetzd - 1
+
         self.enable_sensor()
         rawx = self.bus.read_i2c_block_data(
-            self.address, 0x06, 2)
+            self.address, 119, 2)
         rawy = self.bus.read_i2c_block_data(
-            self.address, 0x08, 2)
+            self.address, 122, 2)
         rawz = self.bus.read_i2c_block_data(
-            self.address, 0x0A, 2)
+            self.address, 125, 2)
         offsetx = int(self.twos_compliment(rawx[0],rawx[1]) - offsetxd)
         offsety = int(self.twos_compliment(rawy[0],rawy[1]) - offsetyd)
         offsetz = int(self.twos_compliment(rawz[0],rawz[1]) - offsetzd)
@@ -98,12 +105,12 @@ class MPU9250(object):
         data.append((offsetz >> 8) & 0xff)
         data.append((offsetz) & 0xff)
 
-        self.bus.write_byte_data(self.address, 0x06, data[0])
-        self.bus.write_byte_data(self.address, 0x07, data[1])
-        self.bus.write_byte_data(self.address, 0x08, data[2])
-        self.bus.write_byte_data(self.address, 0x09, data[3])
-        self.bus.write_byte_data(self.address, 0x0A, data[4])
-        self.bus.write_byte_data(self.address, 0x0B, data[5])
+        self.bus.write_byte_data(self.address, 119, data[0])
+        #self.bus.write_byte_data(self.address, 120, data[1])
+        self.bus.write_byte_data(self.address, 122, data[2])
+        #self.bus.write_byte_data(self.address, 123, data[3])
+        self.bus.write_byte_data(self.address, 125, data[4])
+        #self.bus.write_byte_data(self.address, 126, data[5])
         self.disable_sensor()
 
     def calibrate_gyro(self, gyrox, gyroy, gyroz):

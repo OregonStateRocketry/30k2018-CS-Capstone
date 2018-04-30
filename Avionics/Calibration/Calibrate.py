@@ -60,7 +60,7 @@ class Calibrate(object):
 
         loops += 1
         data = {}
-        for x,y in [('17_',self.mpuA), ('27_', self.mpuB), ('22_', self.mpuB)]:
+        for x,y in [('17_',self.mpuA), ('27_', self.mpuB), ('22_', self.mpuC)]:
             data.update( {x+k:v for k,v in y.read_all().items()} )
 
         tot_x_17 += data['17_acc_x']
@@ -103,6 +103,7 @@ class Calibrate(object):
         meanc_z_27 = totc_z_27/loops
         meanc_z_22 = totc_z_22/loops
 
+    print(meanc_x_17, meanc_x_27, meanc_x_22, meanc_y_17, meanc_y_27, meanc_y_22, meanc_z_17, meanc_z_27, meanc_z_22)
     print(mean_x_17, mean_x_27, mean_x_22, mean_y_17, mean_y_27, mean_y_22, mean_z_17, mean_z_27, mean_z_22)
     self.mpuA.calibrate_accel(mean_x_17,mean_y_17,mean_z_17)
     self.mpuB.calibrate_accel(mean_x_27,mean_y_27,mean_z_27)
