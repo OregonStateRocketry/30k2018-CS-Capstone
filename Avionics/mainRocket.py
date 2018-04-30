@@ -1,6 +1,7 @@
 import time, pigpio, os
 import MPU9250, MPL3115A2, PCF8523, rocketState
 
+
 def avg_three(z1, z2, z3):
     return ((z1+z2+z3) / 3.0)
 
@@ -13,25 +14,33 @@ def setLinuxClock(newTime):
 
 
 class Rocket(object):
-
     def __init__(self):
         # Most sensors share a pigpio object to control enable pins
         self.piggy = pigpio.pi()
-
-        temp22_Orientation = {
-                'gyro_x': ('gyro_x', 1),
+        Orientation = {
+                'gyro_x': ('gyro_z', -1),
                 'gyro_y': ('gyro_y', 1),
-                'gyro_z': ('gyro_z', 1),
-                'acc_x' : ('acc_x',  1),
+                'gyro_z': ('gyro_x', -1),
+                'acc_x' : ('acc_z',  -1),
                 'acc_y' : ('acc_y',  1),
-                'acc_z' : ('acc_z',  1)
+                'acc_z' : ('acc_x',  -1)
             }
-
+        accel_17=[-5495,4982,9098]
+        accel_27=[-5708,-5757,9744]
+        accel_22=[-4053,-4382,8801]
+        gyro_17=[23,-16,12]
+        gyro_27=[3,-18,-2]
+        gyro_22=[-3,-24,7]
         # Use the GPIO number, NOT the pin number!
-        self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17)
-        self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27)
-        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22, orient=temp22_Orientation)
-
+        self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17,orient=Orientation)
+        self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27,orient=Orientation)
+        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22,orient=Orientation)
+        self.mpuA.set_accel_calibration(accel_17[0],accel_17[1],accel_17[2])
+        self.mpuA.set_gyro_calibration(gyro_17[0],gyro_17[1],gyro_17[2])
+        self.mpuB.set_accel_calibration(accel_27[0],accel_27[1],accel_27[2])
+        self.mpuB.set_gyro_calibration(gyro_27[0],gyro_27[1],gyro_27[2])
+        self.mpuC.set_accel_calibration(accel_22[0],accel_22[1],accel_22[2])
+        self.mpuC.set_gyro_calibration(gyro_22[0],gyro_22[1],gyro_22[2])
         self.mpl = MPL3115A2.MPL3115A2()
         self.clock = PCF8523.PCF8523()
         self.currentState = rocketState.PreLaunchPhase()
@@ -104,4 +113,4 @@ class Rocket(object):
 
 if __name__ == "__main__":
     rocket = Rocket()
-    rocket.runLoop(10)
+    rocket.runLoop(100)

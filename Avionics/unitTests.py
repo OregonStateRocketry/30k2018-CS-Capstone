@@ -101,6 +101,7 @@ class TestMainRocket(unittest.TestCase):
             self.assertEqual(row1str, "state,time,17_gyro_x,17_gyro_y,17_gyro_z,17_acc_x,17_acc_y,17_acc_z,27_gyro_x,27_gyro_y,27_gyro_z,27_acc_x,27_acc_y,27_acc_z,22_gyro_x,22_gyro_y,22_gyro_z,22_acc_x,22_acc_y,22_acc_z,temp(c),alt(ft)")
             row2 = next(reader)
             self.assertEqual(row2[0],'0')
+            #Evaluation based on standard orientation morphed by Rocket Orientation
             self.assertTrue(float(row2[1]) <= time.time())
             self.assertTrue(float(row2[1]) > time.time() -2)
             self.assertTrue(float(row2[2]) > -10)
@@ -109,12 +110,12 @@ class TestMainRocket(unittest.TestCase):
             self.assertTrue(float(row2[3]) < 10)
             self.assertTrue(float(row2[4]) > -10)
             self.assertTrue(float(row2[4]) < 10)
-            self.assertTrue(float(row2[5]) > -0.5)
-            self.assertTrue(float(row2[5]) < 0.5)
+            self.assertTrue(float(row2[5]) > -1.5)
+            self.assertTrue(float(row2[5]) < -0.5)
             self.assertTrue(float(row2[6]) > -0.5)
             self.assertTrue(float(row2[6]) < 0.5)
-            self.assertTrue(float(row2[7]) > 0.5)
-            self.assertTrue(float(row2[7]) < 1.5)
+            self.assertTrue(float(row2[7]) > -0.5)
+            self.assertTrue(float(row2[7]) < 0.5)
 
 class TestMPL3115A2(unittest.TestCase):
     def test_read(self):

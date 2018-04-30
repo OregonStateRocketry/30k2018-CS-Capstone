@@ -74,6 +74,36 @@ class MPU9250(object):
             )
         # Set this sensor's address back to 0x68 with the others
         self.disable_sensor()
+    def set_gyro_calibration(self,offsetx,offsety,offsetz):
+        self.enable_sensor()
+        data = bytearray()
+        data.append((offsetx >> 8) & 0xff)
+        data.append((offsetx) & 0xff)
+        data.append((offsety >> 8) & 0xff)
+        data.append((offsety) & 0xff)
+        data.append((offsetz >> 8) & 0xff)
+        data.append((offsetz) & 0xff)
+        self.bus.write_byte_data(self.address, 0x13, data[0])
+        self.bus.write_byte_data(self.address, 0x14, data[1])
+        self.bus.write_byte_data(self.address, 0x15, data[2])
+        self.bus.write_byte_data(self.address, 0x16, data[3])
+        self.bus.write_byte_data(self.address, 0x17, data[4])
+        self.bus.write_byte_data(self.address, 0x18, data[5])
+        self.disable_sensor()
+    def set_accel_calibration(self,offsetx,offsety,offsetz):
+        self.enable_sensor()
+        data = bytearray()
+        data.append((offsetx >> 8) & 0xff)
+        data.append((offsetx) & 0xff)
+        data.append((offsety >> 8) & 0xff)
+        data.append((offsety) & 0xff)
+        data.append((offsetz >> 8) & 0xff)
+        data.append((offsetz) & 0xff)
+        #ignore LSB to avoid overwriting temp bit
+        self.bus.write_byte_data(self.address, 119, data[0])
+        self.bus.write_byte_data(self.address, 122, data[2])
+        self.bus.write_byte_data(self.address, 125, data[4])
+        self.disable_sensor()
 
     def set_orientation(self, newOrientation):
         self.orientation = newOrientation
