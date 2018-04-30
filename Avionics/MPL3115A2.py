@@ -28,7 +28,7 @@ class MPL3115A2(object):
             I2C_ADDRESS,
             CTRL_REG1,
             CTRL_8_REFRESH)
-        self.last_alt
+        self.last_alt = 0
     def readTempAlt(self):
         # Read 5 bits that include 3-bit pressure and 2-bit temperature
         data = self._bus.read_i2c_block_data(I2C_ADDRESS, PRESSURE_REG, 5)
