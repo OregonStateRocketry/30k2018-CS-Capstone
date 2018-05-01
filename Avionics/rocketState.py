@@ -138,7 +138,7 @@ class SecondaryEnginePhase(State):
 
         if (sensors['alt'] > self.max_alt) & (self.low_acc_flag):
                 self.max_alt = sensors['alt']
-                print("set this at" + str(sensors['alt']))
+                #print("set this at" + str(sensors['alt']))
         if abs(sensors['acc_z']) > self.acc_threshold:
             self.apogee_time = time.time()
 
