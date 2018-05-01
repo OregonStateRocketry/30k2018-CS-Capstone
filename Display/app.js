@@ -108,6 +108,18 @@ app.get('/graph', function (req, res){
             var partial =  "altitude";
             var nav = 1;
             break;
+        case 'acc_zVtime':
+            //render alt graph
+            var titleText = "Flight " + fid + " Acceleration vs Time";
+            var partial =  "acc_z";
+            var nav = 1;
+            break;
+        case 'tempVtime':
+            //render alt graph
+            var titleText = "Flight " + fid + " Temperature vs Time";
+            var partial =  "temp";
+            var nav = 1;
+            break;
         case 'vertVelocity':
 	        //render velocity graph
             var titleText = "Flight " + fid + " Vertical Velocity vs Time";
@@ -167,6 +179,46 @@ app.get('/q', function(req, res){
         case 'altVtime':
             // Plots altitude vs time
             sql = `SELECT time, alt, callsign AS Source
+                   FROM BeelineGPS B
+                   JOIN Callsigns C ON C.id = B.c_id
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, alt, 'Payload'
+                   FROM Payload_Avionics
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, alt, 'Rocket'
+                   FROM Rocket_Avionics
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, height as alt, 'TeleMega'
+                   FROM TeleMega_Voltage
+                   WHERE f_id=${f_id}`+time+`
+                   ORDER BY time ASC`+limit;
+            break;
+        case 'acc_zVtime':
+            // Plots altitude vs time
+            sql = `SELECT time, acc_z, callsign AS Source
+                   FROM BeelineGPS B
+                   JOIN Callsigns C ON C.id = B.c_id
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, alt, 'Payload'
+                   FROM Payload_Avionics
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, alt, 'Rocket'
+                   FROM Rocket_Avionics
+                   WHERE f_id=${f_id}`+time+`
+                   UNION
+                   SELECT time, height as alt, 'TeleMega'
+                   FROM TeleMega_Voltage
+                   WHERE f_id=${f_id}`+time+`
+                   ORDER BY time ASC`+limit;
+            break;
+        case 'tempVtime':
+            // Plots altitude vs time
+            sql = `SELECT time, temp, callsign AS Source
                    FROM BeelineGPS B
                    JOIN Callsigns C ON C.id = B.c_id
                    WHERE f_id=${f_id}`+time+`

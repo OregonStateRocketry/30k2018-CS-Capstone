@@ -1,0 +1,124 @@
+<script src="canvasjs.min.js"></script>
+<script src="jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+    window.onload = function () {
+    function line() {
+      this.source = "";
+      this.dps = [];
+    };
+    var lines = [new line(),new line(),new line(),new line(),new line(),new line()];
+    var pause = true;
+    var counter = 0;
+    var lasttime = "";
+    $.getJSON("/q?get=tempVtime&f_id={{fid}}", function(data){
+            $.each(data, function(key, value) {
+                    var n = 0;
+                    while(lines[n].source != "" && n<6){
+                          if(value['Source'] == lines[n].source){
+                                lines[n].dps.push({x : new Date(value['time']), y : value['temp']});
+                                break;
+                          }
+                          n++;
+                    }
+                    if(lines[n].source ==""){
+                          console.log(""+new Date(value['time']))
+                          lines[n].source = value['Source'];
+                          lines[n].dps.push({x : new Date(value['time']), y : value['temp']});
+                    }
+                    lasttime = value['time'];
+                });
+                pause = false;
+        });
+
+        var chart = new CanvasJS.Chart("chartContainer",
+        {
+
+            title:{
+            text: ""
+            },
+            axisX:{
+                valueFormatString: "MM-DD-HH:mm:ss"
+            },
+             data: [
+            {
+                type: "line",
+                name: lines[0].source,
+                dataPoints: lines[0].dps
+            },
+            {
+                type: "line",
+                name: lines[1].source,
+                dataPoints: lines[1].dps
+            },
+            {
+                type: "line",
+                name: lines[2].source,
+                dataPoints: lines[2].dps
+            },
+            {
+                type: "line",
+                name: lines[3].source,
+                dataPoints: lines[3].dps
+            },
+            {
+                type: "line",
+                name: lines[4].source,
+                dataPoints: lines[4].dps
+            },
+            {
+                type: "line",
+                name: lines[5].source,
+                dataPoints: lines[5].dps
+            }
+            ]
+        });
+        waitForGraph();
+
+        function waitForGraph(){
+            if(pause) {
+                setTimeout(function(){waitForGraph()}, 100)
+            } else {
+                pause = true;
+                updateChart();
+                chart.render();
+            };
+        };
+
+        function updateChart() {
+          console.log("Last time: "+lasttime);
+            $.getJSON("/q?get=tempVtime&f_id={{fid}}&time=" + lasttime, function(data){
+              $.each(data, function(key, value) {
+                      var n = 0;
+                      while(lines[n].source != "" && n<6){
+                            if(value['Source'] == lines[n].source){
+                                  lines[n].dps.push({x : new Date(value['time']), y : value['temp']});
+                                  break;
+                            }
+                            n++;
+                      }
+                      if(lines[n].source ==""){
+                            lines[n].source = value['Source'];
+                            lines[n].dps.push({x : new Date(value['time']), y : value['temp']});
+                      }
+                      lasttime = value['time'];
+                      console.log("values are" + JSON.stringify(key[0]) + "," + key[1] + "," + key[2]);
+                  });
+                  pause = false;
+          });
+            waitForUpdate();
+            function waitForUpdate(){
+                if (pause){
+                    setTimeout(function(){waitForUpdate()}, 100)
+                } else {
+                    pause = true;
+                    chart.render();
+                    setTimeout(function(){updateChart()}, 1000);
+                };
+            }
+
+        }
+
+  }
+    </script>
+    <div id="chartContainer" style="height: 400px; width: 100%;">
+    </div>
