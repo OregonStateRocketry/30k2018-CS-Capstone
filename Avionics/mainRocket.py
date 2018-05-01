@@ -25,12 +25,12 @@ class Rocket(object):
                 'acc_y' : ('acc_y',  1),
                 'acc_z' : ('acc_x',  1)
             }
-        accel_17=[-5495,4982,9098]
-        accel_27=[-5708,-5757,9744]
-        accel_22=[-4053,-4382,8801]
-        gyro_17=[23,-16,12]
-        gyro_27=[3,-18,-2]
-        gyro_22=[-3,-24,7]
+        accel_17=[-5216,4379,9095]
+        accel_27=[-5602,-5673,9750]
+        accel_22=[-3821,-4426,8930]
+        gyro_17=[18,-17,11]
+        gyro_27=[1,-18,-2]
+        gyro_22=[-5,-21,4]
         # Use the GPIO number, NOT the pin number!
         self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17,orient=Orientation)
         self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27,orient=Orientation)
