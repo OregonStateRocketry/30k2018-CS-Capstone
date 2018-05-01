@@ -79,12 +79,6 @@ class MPU9250(object):
         offsetxd = accelx * 16384.0/8
         offsetyd = accely * 16384.0/8
         offsetzd = (accelz * 16384.0 - 16384.0)/8
-        if offsetxd%2 == 1:
-            offsetxd = offsetxd - 1
-        if offsetyd%2 == 1:
-            offsetyd = offsetyd - 1
-        if offsetzd%2 == 1:
-            offsetzd = offsetzd - 1
 
         self.enable_sensor()
         rawx = self.bus.read_i2c_block_data(
@@ -105,6 +99,7 @@ class MPU9250(object):
         data.append((offsetz >> 8) & 0xff)
         data.append((offsetz) & 0xff)
 
+        #ignore LSB to avoid overwriting temperature correction bit
         self.bus.write_byte_data(self.address, 119, data[0])
         #self.bus.write_byte_data(self.address, 120, data[1])
         self.bus.write_byte_data(self.address, 122, data[2])
