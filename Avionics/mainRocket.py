@@ -20,10 +20,10 @@ class Rocket(object):
         Orientation = {
                 'gyro_x': ('gyro_z', -1),
                 'gyro_y': ('gyro_y', 1),
-                'gyro_z': ('gyro_x', -1),
+                'gyro_z': ('gyro_x', 1),
                 'acc_x' : ('acc_z',  -1),
                 'acc_y' : ('acc_y',  1),
-                'acc_z' : ('acc_x',  -1)
+                'acc_z' : ('acc_x',  1)
             }
         accel_17=[-5495,4982,9098]
         accel_27=[-5708,-5757,9744]
@@ -42,6 +42,7 @@ class Rocket(object):
         self.mpuC.set_accel_calibration(accel_22[0],accel_22[1],accel_22[2])
         self.mpuC.set_gyro_calibration(gyro_22[0],gyro_22[1],gyro_22[2])
         self.mpl = MPL3115A2.MPL3115A2()
+        self.mpl.setOffset(235)
         self.clock = PCF8523.PCF8523()
         self.currentState = rocketState.PreLaunchPhase()
 

@@ -110,8 +110,8 @@ class TestMainRocket(unittest.TestCase):
             self.assertTrue(float(row2[3]) < 10)
             self.assertTrue(float(row2[4]) > -10)
             self.assertTrue(float(row2[4]) < 10)
-            self.assertTrue(float(row2[5]) > -1.5)
-            self.assertTrue(float(row2[5]) < -0.5)
+            self.assertTrue(float(row2[5]) > 0.5)
+            self.assertTrue(float(row2[5]) < 1.5)
             self.assertTrue(float(row2[6]) > -0.5)
             self.assertTrue(float(row2[6]) < 0.5)
             self.assertTrue(float(row2[7]) > -0.5)
@@ -121,6 +121,7 @@ class TestMPL3115A2(unittest.TestCase):
     def test_read(self):
         mpl = MPL3115A2.MPL3115A2()
         num = 10
+        mpl.setOffset(235)
         t, p = mpl.readTempAlt()
         while num:
             num -=1
@@ -128,9 +129,10 @@ class TestMPL3115A2(unittest.TestCase):
             lp = p
             lt = t
             t, p = mpl.readTempAlt()
-            #check that noise is small
+            #check that noise is "small"
             self.assertTrue(abs(p-lp) <= 5)
             self.assertTrue(abs(t-lt) <= 2)
+            self.assertTrue(abs(p-235) <= 10)
             #check that values are in bounds
             self.assertTrue(p < 10000)
             self.assertTrue(t < 50)

@@ -29,6 +29,8 @@ class MPL3115A2(object):
             CTRL_REG1,
             CTRL_8_REFRESH)
         self.last_alt = 0
+        self.offset = 0
+
     def readTempAlt(self):
         # Read 5 bits that include 3-bit pressure and 2-bit temperature
         data = self._bus.read_i2c_block_data(I2C_ADDRESS, PRESSURE_REG, 5)
@@ -47,8 +49,11 @@ class MPL3115A2(object):
         self.last_alt = alt
         # Condense 2 bits into temperature in C
         temp = ((data[3] * 256) + (data[4] & 0xF0)) / 256.0
-        return temp, alt
+        return temp, (alt + self.offset)
 
+    def setOffset(self, realalt):
+        t, a = self.readTempAlt()
+        self.offset = realalt - a
 
 # def demo(num):
 #     mpl = MPL3115A2()
