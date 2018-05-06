@@ -54,7 +54,7 @@ class TestESCMotor(unittest.TestCase):
         self.assertFalse(m1.set_motor(5))
         self.assertTrue(m1.set_motor(900))
         self.assertFalse(m1.set_motor(5000))
-        self.assertEqual(m1.update_motor(0.0), (0, 800))
+        self.assertEqual(m1.update_motor(0.0), (0, 1300))
 
 
 class TestMainPayload(unittest.TestCase):
@@ -68,7 +68,7 @@ class TestMainPayload(unittest.TestCase):
             reader = csv.reader(f)
             row1 = next(reader)
             row1str = ','.join(row1)
-            self.assertEqual(row1str, "state,time,gyro_x,gyro_y,gyro_z,acc_x,acc_y,acc_z,temp(c),alt(m),acc_pid,acc_pwm,gyro_pid,gyro_pwm")
+            self.assertEqual(row1str, "state,time,17_gyro_x,17_gyro_y,17_gyro_z,17_acc_x,17_acc_y,17_acc_z,27_gyro_x,27_gyro_y,27_gyro_z,27_acc_x,27_acc_y,27_acc_z,22_gyro_x,22_gyro_y,22_gyro_z,22_acc_x,22_acc_y,22_acc_z,temp(c),alt(ft),acc_pid,acc_pwm,gyro_pid,gyro_pwm")
 
             row2 = next(reader)
             self.assertEqual(row2[0],'0')
