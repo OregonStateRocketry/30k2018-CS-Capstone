@@ -19,19 +19,27 @@ class Payload(object):
         self.piggy = pigpio.pi()
 
         # Adjust orientation of certain payload sensors
-        self.orientation = {
-                'gyro_x': ('gyro_z', -1),
-                'gyro_y': ('gyro_y', 1),
-                'gyro_z': ('gyro_x', 1),
-                'acc_x' : ('acc_z',  -1),
-                'acc_y' : ('acc_y',  1),
-                'acc_z' : ('acc_x',  1)
-            }
+        orient_AB = {
+            'gyro_x': ('gyro_x', -1),
+            'gyro_y': ('gyro_z', -1),
+            'gyro_z': ('gyro_y', 1),
+            'acc_x' : ('acc_x',  -1),
+            'acc_y' : ('acc_z',  -1),
+            'acc_z' : ('acc_y',  1)
+        }
+        orient_C = {
+            'gyro_x': ('gyro_x', -1),
+            'gyro_y': ('gyro_z', 1),
+            'gyro_z': ('gyro_y', -1),
+            'acc_x' : ('acc_x',  -1),
+            'acc_y' : ('acc_z',  1),
+            'acc_z' : ('acc_y',  -1)
+        }
 
         # Use the GPIO number, NOT the pin number!
-        self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17)
-        self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27)
-        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22)
+        self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17, orient=orient_AB)
+        self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27, orient=orient_AB)
+        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22, orient=orient_C)
 
         # Get these IMU values from the Calibration/Calibrate.py script
         accel_17=[4964,4100,10587]
