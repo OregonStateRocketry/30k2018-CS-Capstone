@@ -107,6 +107,7 @@ class MPU9250(object):
         self.bus.write_byte_data(self.address, 125, data[4])
         #self.bus.write_byte_data(self.address, 126, data[5])
         self.disable_sensor()
+        return (offsetx,offsety,offsetz)
 
     def calibrate_gyro(self, gyrox, gyroy, gyroz):
         offsetxd = gyrox * MPU9250.GYRO_SCALE[self.gyro_scale][1]/4
@@ -138,6 +139,7 @@ class MPU9250(object):
         self.bus.write_byte_data(self.address, 0x17, data[4])
         self.bus.write_byte_data(self.address, 0x18, data[5])
         self.disable_sensor()
+        return (offsetx,offsety,offsetz)
 
     def read_acc_gyro(self):
         ''' Read block containing both gyro and accelerometer values '''

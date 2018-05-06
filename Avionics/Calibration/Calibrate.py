@@ -105,12 +105,31 @@ class Calibrate(object):
 
     print(meanc_x_17, meanc_x_27, meanc_x_22, meanc_y_17, meanc_y_27, meanc_y_22, meanc_z_17, meanc_z_27, meanc_z_22)
     print(mean_x_17, mean_x_27, mean_x_22, mean_y_17, mean_y_27, mean_y_22, mean_z_17, mean_z_27, mean_z_22)
-    self.mpuA.calibrate_accel(mean_x_17,mean_y_17,mean_z_17)
-    self.mpuB.calibrate_accel(mean_x_27,mean_y_27,mean_z_27)
-    self.mpuC.calibrate_accel(mean_x_22,mean_y_22,mean_z_22)
-    self.mpuA.calibrate_gyro(meanc_x_17,meanc_y_17,meanc_z_17)
-    self.mpuB.calibrate_gyro(meanc_x_27,meanc_y_27,meanc_z_27)
-    self.mpuC.calibrate_gyro(meanc_x_22,meanc_y_22,meanc_z_22)
+    acc_17_offsets = self.mpuA.calibrate_accel(mean_x_17,mean_y_17,mean_z_17)
+    acc_27_offsets = self.mpuB.calibrate_accel(mean_x_27,mean_y_27,mean_z_27)
+    acc_22_offsets = self.mpuC.calibrate_accel(mean_x_22,mean_y_22,mean_z_22)
+    gyro_17_offsets = self.mpuA.calibrate_gyro(meanc_x_17,meanc_y_17,meanc_z_17)
+    gyro_27_offsets = self.mpuB.calibrate_gyro(meanc_x_27,meanc_y_27,meanc_z_27)
+    gyro_22_offsets = self.mpuC.calibrate_gyro(meanc_x_22,meanc_y_22,meanc_z_22)
+
+    with open("calibration_values.csv", "w") as csv_out:
+        csv_out.write(
+            "accel_17 = [{:>5},{:>5},{:>5}]\n" \
+            "accel_27 = [{:>5},{:>5},{:>5}]\n" \
+            "accel_22 = [{:>5},{:>5},{:>5}]\n" \
+            "gyro_17  = [{:>5},{:>5},{:>5}]\n"  \
+            "gyro_27  = [{:>5},{:>5},{:>5}]\n"  \
+            "gyro_22  = [{:>5},{:>5},{:>5}]\n".format(
+                *acc_17_offsets,
+                *acc_27_offsets,
+                *acc_22_offsets,
+                *gyro_17_offsets,
+                *gyro_27_offsets,
+                *gyro_22_offsets
+            )
+        )
+    print("Created 'calibration_values.csv' file with calibration values.")
+
 if __name__ == "__main__":
     calibrate = Calibrate()
     calibrate.runLoop(10)
