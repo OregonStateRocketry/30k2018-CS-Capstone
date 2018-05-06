@@ -8,26 +8,35 @@ class Motor:
     #while True:
     #     pid = p.update(measurement_value)
 
-    def __init__(self, pi, pin, P=2.0, I=0.0, D=1.0, Z=0.0):
+    def __init__(self, pi, pin, DC=False, pinR=None, P=2.0, I=0.0, D=1.0, goal=0.0):
         # PID components
         self.pi             = pi
         self.Kp             = P
         self.Ki             = I
         self.Kd             = D
-        self.set_point      = Z
+        self.set_point      = goal
         self.clear()
 
         # Motor components
         self.ESC_MIN        = 800
         self.ESC_MAX        = 1800
         self.PIN            = pin
+        self.PIN_R          = pinR
+        self.TYPE_DC        = DC
 
-        # Enable ESC output pin
+        # Set up either ESC or DC motor
+        if self.TYPE_DC:
+            # Set PWM range to match the ESC input range
+            self.pi.set_PWM_range(self.ESC_MAX-self.ESC_MIN)
+            # Will need to refactor to use the reverse pin
+
+        # Enable motor output pins
         self.pi.set_mode(self.PIN, pigpio.OUTPUT)
+        self.set_motor(self.ESC_MIN)
 
-        # Allow the ESC to 'wake up' by sending minimum value
-        if self.PIN == 18:
-            self.set_motor(self.ESC_MIN)
+    def __del__(self):
+        ''' Ensure the motor stops when this object is destroyed '''
+        self.stop()
 
 
     def clear(self):
@@ -38,21 +47,16 @@ class Motor:
         self.windup_guard   = 20
         self.last_time      = time.time()
 
-    # def set_ESC_range(self, low=800, high=1800):
-    #     '''Configure input range on ESC, MUST run while ESC is starting!'''
-    #     'Times are arbitrary, but these take a few seconds.'
-    #     self.pi.set_servo_pulsewidth(self.PIN, low)
-    #     time.sleep(10)
-    #     self.pi.set_servo_pulsewidth(self.PIN, high)
-    #     time.sleep(3)
-    #     self.pi.set_servo_pulsewidth(self.PIN, 0)     # off
-    #     time.sleep(2)
-    #     return True
+
+    def stop(self):
+        ''' Stop the motor '''
+        self.set_motor(self.ESC_MIN)
+
 
     def pid_to_pwm(self, pid):
         '''Converts from one range of numbers to another'''
         pwm_min, pwm_max = self.ESC_MIN, self.ESC_MAX
-        pid_min, pid_max = 0.0, self.Kp*2     # Are PID values always positive?
+        pid_min, pid_max = -self.Kp*2, self.Kp*2     # Are PID values always positive?
 
         if pid<pid_min: pid = pid_min
         if pid>pid_max: pid = pid_max
@@ -61,18 +65,25 @@ class Motor:
         pwm_range = (pwm_max - pwm_min)
         return int((((pid - pid_min) * pwm_range) / pid_range) + pwm_min)
 
+
     def set_motor(self, speed):
         '''Set the motor speed to a PWM value'''
         if self.ESC_MIN <= speed <= self.ESC_MAX:
-            self.pi.set_servo_pulsewidth(self.PIN, speed)
+            # Two types of motors use this library:
+            if self.TYPE_DC:    # DC motors
+                # Remember: the PWM range is 0 to (MAX - MIN)
+                # speed will be between MIN and MAX, so subtract MIN here
+                self.pi.set_PWM_dutycycle(self.PIN, speed-self.ESC_MIN)
+            else:               # Brushless motors w/ESC
+                self.pi.set_servo_pulsewidth(self.PIN, speed)
             return True
-        print("Bad value")
         return False
+
 
     def update_motor(self, current_value):
         '''Takes acceleration, updates PID and motor'''
         PID = self.update(current_value)
-        PWM = self.pid_to_pwm(PID)
+        PWM = self.pid_to_pwm(-PID)
         self.set_motor(PWM)
         return (PID, PWM)
 
@@ -106,38 +117,3 @@ class Motor:
         self.last_error = error
 
         return self.PTerm + self.Ki * self.ITerm + self.Kd * self.DTerm
-
-# def demo():
-#     piggy = pigpio.pi()
-#
-#     m1 = Motor(pi=piggy, pin=18)
-#     # motor_counter = ESCMotor.Motor(pi=piggy, pin=13)
-#
-#     # m1.set_ESC_range()
-#
-#     print("Waking up ESC..")
-#     piggy.set_servo_pulsewidth(18, 800)
-#     time.sleep(5)
-#
-#     print("Running motor demo:\n")
-#     while True:
-#         for n in range(50):
-#             m1.set_motor(800+n*20)
-#             print("."*n)
-#             sys.stdout.write("\033[F") # Cursor up one line
-#             # sys.stdout.write("\033[K") # Clear to the end of line
-#             # pi.set_servo_pulsewidth(PIN, 1010+20*n)
-#             time.sleep(0.05)
-#
-#         for n in range(50, 0, -1):
-#             m1.set_motor(800+n*20)
-#             print("."*n)
-#             sys.stdout.write("\033[F") # Cursor up one line
-#             sys.stdout.write("\033[K") # Clear to the end of line
-#             # pi.set_servo_pulsewidth(PIN, 1010+20*n)
-#             time.sleep(0.05)
-#
-#         time.sleep(1)
-#
-# if __name__ == "__main__":
-#     demo()
