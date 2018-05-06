@@ -27,12 +27,14 @@ class Motor:
         # Set up either ESC or DC motor
         if self.TYPE_DC:
             # Set PWM range to match the ESC input range
-            self.pi.set_PWM_range(self.ESC_MAX-self.ESC_MIN)
+            self.pi.set_PWM_range(self.PIN, self.ESC_MAX-self.ESC_MIN)
             # Will need to refactor to use the reverse pin
+            # self.pi.set_PWM_range(self.PIN_R, self.ESC_MAX-self.ESC_MIN)
 
         # Enable motor output pins
         self.pi.set_mode(self.PIN, pigpio.OUTPUT)
         self.set_motor(self.ESC_MIN)
+
 
     def __del__(self):
         ''' Ensure the motor stops when this object is destroyed '''

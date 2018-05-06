@@ -42,12 +42,12 @@ class Payload(object):
         self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22, orient=orient_C)
 
         # Get these IMU values from the Calibration/Calibrate.py script
-        accel_17=[4964,4100,10587]
-        accel_27=[-7066,8118,11279]
-        accel_22=[-3636,-9422,11107]
-        gyro_17=[36,-8,20]
-        gyro_27=[-22,-5,-17]
-        gyro_22=[-86,-15,37]
+        accel_17 = [ 4883, 6144, 8468]
+        accel_27 = [-7065, 6068, 9173]
+        accel_22 = [-3779, 7385, 9001]
+        gyro_17  = [   34,  -11,   24]
+        gyro_27  = [  -28,   -2,  -16]
+        gyro_22  = [  -90,  -16,   38]
 
         # Apply calibration offsets into registers on the IMU
         self.mpuA.set_accel_calibration(accel_17[0],accel_17[1],accel_17[2])
