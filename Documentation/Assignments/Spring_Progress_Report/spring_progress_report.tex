@@ -26,7 +26,7 @@
  					%Preliminary Design Document
 					Spring Progress Report
 				}
-			
+
 \newcommand{\NameSigPair}[1]{
 	\par
 	\makebox[2.75in][r]{#1} \hfill
@@ -47,9 +47,9 @@
     \pagenumbering{gobble}
     \begin{singlespace}
     	%\includegraphics[height=4cm]{coe_v_spot1}
-        \hfill 
+        \hfill
         % 4. If you have a logo, use this includegraphics command to put it on the coversheet.
-        %\includegraphics[height=4cm]{CompanyLogo}   
+        %\includegraphics[height=4cm]{CompanyLogo}
         \par\vspace{.2in}
         \centering
         \scshape{
@@ -75,7 +75,7 @@
             \vspace{20pt}
         }
     \end{singlespace}
-    
+
     \section*{Revision History}
     \begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}|c|c|c|c|}
       \hline
@@ -85,7 +85,7 @@
       \hline
     \end{tabular*}
 	\\
-    
+
     \begin{abstract}
     Spring midterm project report covering the current design, progress, technical challenges and solutions for the computer science portions of the Oregon State University (OSU) American Institute of Aeronautics and Astronautics (AIAA) team's entry in the Spaceport America Cup 30k competition during the summer of 2018.  The competition involves designing, building, and launching a student-made rocket to 30,000 feet.
 	\end{abstract}
@@ -162,18 +162,18 @@ The current ground station is effective and meets our goals, but we would like t
 Section by Allison Sladek
 
 \subsubsection{Overview}
-The Raspberry Pi 3B computer in the ground station will serve a local Wi-Fi network that nearby people can join to interact with our system. 
-Each of the Raspberry Pi Zero computers will be networked to the main Pi 3B computer using USB OTG, which allows them to be powered and networked over a single USB cable.  
-We will be able to ssh into the Pi 3B or Pi Zeros using this Wi-Fi network. 
-This system should allow our teammates to connect to our web interface to view incoming flight data during the launches as well as any stored data from previous launches after it has been uploaded. 
+The Raspberry Pi 3B computer in the ground station will serve a local Wi-Fi network that nearby people can join to interact with our system.
+Each of the Raspberry Pi Zero computers will be networked to the main Pi 3B computer using USB OTG, which allows them to be powered and networked over a single USB cable.
+We will be able to ssh into the Pi 3B or Pi Zeros using this Wi-Fi network.
+This system should allow our teammates to connect to our web interface to view incoming flight data during the launches as well as any stored data from previous launches after it has been uploaded.
 
 \subsubsection{Current Progress}
-The main Raspberry Pi 3B computer in the ground station has been configured to connect to any known Wi-Fi networks, or broadcast its own if there is none available. 
-Nearby people can join this broadcasted network to test, program, or otherwise interact with our system. 
+The main Raspberry Pi 3B computer in the ground station has been configured to connect to any known Wi-Fi networks, or broadcast its own if there is none available.
+Nearby people can join this broadcasted network to test, program, or otherwise interact with our system.
 This system should allow our teammates to connect to our web interface to view incoming flight data during the launches as well as any stored data from previous launches after it has been uploaded.
-This was done by editing configuration files on the Pi. 
-This network has been sufficient for testing purposes, but a stress test during one of our weekly meetings revealed some issues that have yet to be addressed. 
-Out of our group of about 25 people, about half of the room had some connectivity issues with our website. 
+This was done by editing configuration files on the Pi.
+This network has been sufficient for testing purposes, but a stress test during one of our weekly meetings revealed some issues that have yet to be addressed.
+Out of our group of about 25 people, about half of the room had some connectivity issues with our website.
 
 Each of the Raspberry Pi Zero computers are networked to the main Pi 3B computer using USB OTG, which allows them to be powered and networked over a single USB cable. The USB on-the-go connection was fairly straightforward to configure, and doesn’t currently have any known issues.
 
@@ -182,30 +182,30 @@ Each of the Raspberry Pi Zero computers are networked to the main Pi 3B computer
 A stress test from earlier in the project showed that we could support about a dozen users from the network hosted by the Raspberry Pi 3 in the ground station.
 Our full team contains 18 students, plus several mentors.
 Ideally the full team would be able to connect to the network at one time.
-None of our requirements dealt with how many users we had to support with our web-based graph display site. 
-However, if time allows, we may explore the possibility of adding a router to our ground station to allow more users to connect to our system. 
+None of our requirements dealt with how many users we had to support with our web-based graph display site.
+However, if time allows, we may explore the possibility of adding a router to our ground station to allow more users to connect to our system.
 This change may improve our team's experience at the competition launch.
 %-------------------------------------------------------------------------------
 \subsection{Web Interface}
 Section by Allison Sladek
 \subsubsection{Overview}
 
-Our goal for the web interface was to place the flight data graphs on a platform where they could be viewed by any of our team members. 
+Our goal for the web interface was to place the flight data graphs on a platform where they could be viewed by any of our team members.
 The flight viewer is meant to be accessible and to simplify the process of reviewing flight data after or during launches.
 
-The entire website is divided up into handlebars partials to ensure that changes made in one section of the site carry over onto related elements without having copy and paste the same code into many different files. 
-JQuery is also used pretty extensively for the purposes of retrieving and parsing JSON objects returned from database queries. 
+The entire website is divided up into handlebars partials to ensure that changes made in one section of the site carry over onto related elements without having copy and paste the same code into many different files.
+JQuery is also used pretty extensively for the purposes of retrieving and parsing JSON objects returned from database queries.
 The majority of elements on any one of the site's pages are populated from the database. Each of the drop downs on the navigation bar and the landing page run a query to add the appropriate flights available to display.
 
 \subsubsection{Current Progress}
 Over the course of the last two terms, the web interface has gone from a sketch on the back of a sheet of notebook paper to a fully functional graph viewing tool. The front end makes queries to the database housed on the same Raspberry Pi that hosts the web server and uses that data to populate graphs that update every second. Flights can be selected using either the drop down menus on the navigation bar or on the landing page. From a selected graph, the user can switch flights or graphs using the navigation bar, which will send a new query once a graph has been selected. This term, the website has gone through an aesthetic redesign, with a new dark theme and a layout that our team members will be familiar with.
 
 \begin{center}
-	\includegraphics[width=0.5\textwidth]{images/smallMap.png}
-    \label{gs-diagram}
+	\includegraphics[width=0.5\textwidth]{images/smallMap.eps}
+    \label{map}
     \captionof{figure}{Screenshot of the Flight Viewer}
 \end{center}
-       
+
 
 %-------------------------------------------------------------------------------
 
@@ -279,24 +279,24 @@ It may be necessary to add some kind of filter on values to reduce noise. We wil
 \subsection{Rocket Avionics}
 Section by Allison Sladek
 \subsubsection{Overview}
-The primary goals of the rocket avionics are to read and record values from the rocket sensors at a reasonable rate, ensure those stored values are recoverable after launch, and detect and record the moment of apogee. 
-Many of these functions are similar to the functions of the payload avionics, so we may reuse code from each section for the other. 
+The primary goals of the rocket avionics are to read and record values from the rocket sensors at a reasonable rate, ensure those stored values are recoverable after launch, and detect and record the moment of apogee.
+Many of these functions are similar to the functions of the payload avionics, so we may reuse code from each section for the other.
 The sensors have to be checked and recorded as quickly as is reasonable with the resources available.
-More frequent samples will give more detailed data of the launch and allow better testing and analysis for post-launch. 
+More frequent samples will give more detailed data of the launch and allow better testing and analysis for post-launch.
 The values of the sensor data will be to be stored on the pi and made available after recovery of the rocket, or else no data will be revered from the launch, hindering our efforts of testing the rocket.
-Apogee detection is very important to the success of the rocket. It normally triggers separation and parachute ejection, and without sensing it correctly, the rocket may deploy its parachute at the wrong time, or not at all. 
+Apogee detection is very important to the success of the rocket. It normally triggers separation and parachute ejection, and without sensing it correctly, the rocket may deploy its parachute at the wrong time, or not at all.
 
 \subsubsection{Current Progress}
-At the beginning of the project, it was stated that our rocket avionics would detect and trigger separation of the rocket, at apogee.  
-Some time over winter, it was decided that the flight computer would not be connected to the separation charges.  
+At the beginning of the project, it was stated that our rocket avionics would detect and trigger separation of the rocket, at apogee.
+Some time over winter, it was decided that the flight computer would not be connected to the separation charges.
 This decision was made by the ECE subteam without communicating with us.  As such, it will be impossible for us to trigger separation.
-Instead, we will continue with our plan to detect apogee.  Instead of triggering separation, we will write a line to the log file.  That's as close as we can get to meeting our original goal of triggering separation.As much of the functions of the payload and rocket avionics overlap, there will likely be reused solutions between the two. 
+Instead, we will continue with our plan to detect apogee.  Instead of triggering separation, we will write a line to the log file.  That's as close as we can get to meeting our original goal of triggering separation.As much of the functions of the payload and rocket avionics overlap, there will likely be reused solutions between the two.
 
-Apogee detection is done through a state machine which performs checks with the flight sensors against threshold values to determine which stage of flight the rocket is in. The apogee event, when detected, transitions the rocket from the monitoring state to the descent state. 
+Apogee detection is done through a state machine which performs checks with the flight sensors against threshold values to determine which stage of flight the rocket is in. The apogee event, when detected, transitions the rocket from the monitoring state to the descent state.
 
 
 \subsubsection{Remaining Tasks}
-The threshold values in the state machine are based on values from others with similar apogee detection implementations, but we don't yet know that our rocket will see similar values while changing states. 
+The threshold values in the state machine are based on values from others with similar apogee detection implementations, but we don't yet know that our rocket will see similar values while changing states.
 Each of our threshold values will have to be reviewed and tweaked after seeing the data from our upcoming first full test launch.
 
 
