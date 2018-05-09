@@ -74,7 +74,10 @@ class MPU9250(object):
             )
         # Set this sensor's address back to 0x68 with the others
         self.disable_sensor()
+
+
     def set_gyro_calibration(self,offsetx,offsety,offsetz):
+        ''' Save gyro calibration values to (temporary) hardware registers '''
         self.enable_sensor()
         data = bytearray()
         data.append((offsetx >> 8) & 0xff)
@@ -90,7 +93,10 @@ class MPU9250(object):
         self.bus.write_byte_data(self.address, 0x17, data[4])
         self.bus.write_byte_data(self.address, 0x18, data[5])
         self.disable_sensor()
+
+
     def set_accel_calibration(self,offsetx,offsety,offsetz):
+        ''' Save accel calibration values to (temporary) hardware registers '''
         self.enable_sensor()
         data = bytearray()
         data.append((offsetx >> 8) & 0xff)
@@ -106,6 +112,7 @@ class MPU9250(object):
         self.disable_sensor()
 
     def set_orientation(self, newOrientation):
+        ''' Change the orientation for this specific sensor '''
         self.orientation = newOrientation
 
     def enable_sensor(self):
@@ -174,13 +181,24 @@ class MPU9250(object):
 
     def read_all(self):
         ''' Return dictionary of acceleration (m/s^2) and gyro (rad/s) '''
-        self.refresh_data()
-        # Convert axis and reverse signs if needed
-        return {
-            self.orientation['gyro_x'][0] : self.gyro_scaled_x * self.orientation['gyro_x'][1],
-            self.orientation['gyro_y'][0] : self.gyro_scaled_y * self.orientation['gyro_y'][1],
-            self.orientation['gyro_z'][0] : self.gyro_scaled_z * self.orientation['gyro_z'][1],
-            self.orientation['acc_x'][0]  : self.accel_scaled_x * self.orientation['acc_x'][1],
-            self.orientation['acc_y'][0]  : self.accel_scaled_y * self.orientation['acc_y'][1],
-            self.orientation['acc_z'][0]  : self.accel_scaled_z * self.orientation['acc_z'][1],
-        }
+        try:
+            self.refresh_data()
+            # Convert axis and reverse signs if needed
+            return {
+                self.orientation['gyro_x'][0] : self.gyro_scaled_x * self.orientation['gyro_x'][1],
+                self.orientation['gyro_y'][0] : self.gyro_scaled_y * self.orientation['gyro_y'][1],
+                self.orientation['gyro_z'][0] : self.gyro_scaled_z * self.orientation['gyro_z'][1],
+                self.orientation['acc_x'][0]  : self.accel_scaled_x * self.orientation['acc_x'][1],
+                self.orientation['acc_y'][0]  : self.accel_scaled_y * self.orientation['acc_y'][1],
+                self.orientation['acc_z'][0]  : self.accel_scaled_z * self.orientation['acc_z'][1]
+            }
+        except:
+            # Catch any errors (intended for I/O but let's be extra safe here)
+            return {
+                'gyro_x' : 0.0,
+                'gyro_y' : 0.0,
+                'gyro_z' : 0.0,
+                'acc_x'  : 0.0,
+                'acc_y'  : 0.0,
+                'acc_z'  : 0.0
+            }

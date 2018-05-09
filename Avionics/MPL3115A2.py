@@ -29,43 +29,37 @@ class MPL3115A2(object):
             CTRL_REG1,
             CTRL_8_REFRESH)
         self.last_alt = 0
+        self.temp = 0
         self.offset = 0
 
     def readTempAlt(self):
-        # Read 5 bits that include 3-bit pressure and 2-bit temperature
-        data = self._bus.read_i2c_block_data(I2C_ADDRESS, PRESSURE_REG, 5)
-        # Instruct MPL to prepare the next sample
-        self._bus.write_byte_data(
-            I2C_ADDRESS,
-            CTRL_REG1,
-            CTRL_8_REFRESH)
+        try:
+            # Read 5 bits that include 3-bit pressure and 2-bit temperature
+            data = self._bus.read_i2c_block_data(I2C_ADDRESS, PRESSURE_REG, 5)
+            # Instruct MPL to prepare the next sample
+            self._bus.write_byte_data(
+                I2C_ADDRESS,
+                CTRL_REG1,
+                CTRL_8_REFRESH)
 
-        # Condense 3 bits of altitude and round to nearest meter
-        # alt = int( ( (data[0] << 16) | (data[1] << 8) | data[2] ) / 65535 )
-        # alt = (((data[0] * 65536) + (data[1] * 256) + (data[2] & 0xF0)) / 16) / 16.0 * 3.28084
-        alt = int(((data[0] * 65536) + (data[1] * 256) + (data[2] & 0xF0)) * 0.01281578125)
-        if alt > 50000 or alt < 0:
-            alt = self.last_alt
-        self.last_alt = alt
-        # Condense 2 bits into temperature in C
-        temp = ((data[3] * 256) + (data[4] & 0xF0)) / 256.0
-        return temp, (alt + self.offset)
+            # Condense 3 bits of altitude and round to nearest meter
+            # alt = int( ( (data[0] << 16) | (data[1] << 8) | data[2] ) / 65535 )
+            # alt = (((data[0] * 65536) + (data[1] * 256) + (data[2] & 0xF0)) / 16) / 16.0 * 3.28084
+            alt = int(((data[0] * 65536) + (data[1] * 256) + (data[2] & 0xF0)) * 0.01281578125)
+            # Ignore altitude values outside some possible range
+            if alt > 50000 or alt < 0:
+                alt = self.last_alt
+            self.last_alt = alt
+            # Condense 2 bits into temperature in C
+            self.temp = ((data[3] * 256) + (data[4] & 0xF0)) / 256.0
+            return self.temp, (self.alt + self.offset)
+        except:
+            # Catch any errors (intended for I/O but let's be extra safe here)
+            # Returning the last known value is the safest way to prevent
+            # accidentally triggering the experiment phase
+            return self.last_alt
+
 
     def setOffset(self, realalt):
         t, a = self.readTempAlt()
         self.offset = realalt - a
-
-# def demo(num):
-#     mpl = MPL3115A2()
-#     last_time = time.time()
-#     now = time.time()
-#     while num:
-#         if num not True: num -= 1
-#
-#         p, t = mpl.readTempAlt()
-#         now = time.time()
-#         print(now - last_time, p, t)
-#         last_time = now
-#
-# if __name__ == "__main__":
-#     demo()

@@ -1,8 +1,12 @@
 import time, pigpio, os
 import MPU9250, MPL3115A2, ESCMotor, PCF8523, payloadState
 
-def avg_three(z1, z2, z3):
-    return ((z1+z2+z3) / 3.0)
+def mean_from_list(list):
+    valid_terms = [x for x in list if x != 0]
+    # Avoid divide by zero
+    if valid_terms:
+        return float(sum(valid_terms)) / len(valid_terms)
+    return 0.0    # No valid numbers in this set
 
 
 def setLinuxClock(newTime):
@@ -124,17 +128,17 @@ class Payload(object):
 
                 data['temp'], data['alt'] = self.mpl.readTempAlt()
 
-                data['acc_x'] = avg_three(
-                    data['17_acc_x'], data['27_acc_x'], data['22_acc_x']
+                data['acc_x'] = mean_from_list(
+                    ( data['17_acc_x'], data['27_acc_x'], data['22_acc_x'] )
                 )
-                data['acc_y'] = avg_three(
-                    data['17_acc_y'], data['27_acc_y'], data['22_acc_y']
+                data['acc_y'] = mean_from_list(
+                    ( data['17_acc_y'], data['27_acc_y'], data['22_acc_y'] )
                 )
-                data['acc_z'] = avg_three(
-                    data['17_acc_z'], data['27_acc_z'], data['22_acc_z']
+                data['acc_z'] = mean_from_list(
+                    ( data['17_acc_z'], data['27_acc_z'], data['22_acc_z'] )
                 )
-                data['gyro_x'] = avg_three(
-                    data['17_gyro_x'], data['27_gyro_x'], data['22_gyro_x']
+                data['gyro_x'] = mean_from_list(
+                    ( data['17_gyro_x'], data['27_gyro_x'], data['22_gyro_x'] )
                 )
 
                 if str(self.currentState) == 'ExperimentPhase':
