@@ -7,7 +7,7 @@ import fileinput
 class Parser:
     ''' A class representing each Parser '''
 
-    def __init__(self, dbConfig='config.yml', log='log.csv', fid=None):
+    def __init__(self, dbConfig='config.yml', log='plog.csv', fid=None):
         self.db = self.connectDB(dbConfig)
         self.callsign = 'UNKNOWN'
         self.logFile = log
@@ -133,7 +133,7 @@ class Parser:
 
 if __name__ == "__main__":
     print("ESRA 30k Telemetry Parser.")
-    elif len(sys.argv) > 1:
+    if len(sys.argv) > 1:
         client = Parser(dbConfig=sys.argv[1])
     else:
         client = Parser()

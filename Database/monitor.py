@@ -9,7 +9,7 @@ def connectToDatabase(stdscr):
     stdscr.addstr(1,33,"[    ]")
     while not db:
         try:
-            db = Mariadb('configTest.yml')
+            db = Mariadb('config.yml')
             stdscr.addstr(1,35,"OK",curses.color_pair(2))
             screen.refresh()
         except Exception as e:

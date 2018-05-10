@@ -1,0 +1,17 @@
+[Unit]
+Description=Run ESRA Parser on boot
+After=multi-user.target
+
+[Service]
+Type=idle
+User=pi
+WorkingDirectory=/home/pi/Database/
+ExecStart=/usr/bin/python3 /home/pi/Database/parser.py
+#StandardOutput=/home/pi/Database/parser_ctl_log
+#StandardError=/home/pi/Database/parser_err_log
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+Alias=esra-parser.service
