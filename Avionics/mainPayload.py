@@ -175,4 +175,4 @@ class Payload(object):
 
 if __name__ == "__main__":
     payload = Payload()
-    payload.runLoop(10)
+    payload.runLoop(True)
