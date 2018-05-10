@@ -23,35 +23,36 @@ class Payload(object):
         self.piggy = pigpio.pi()
 
         # Adjust orientation of certain payload sensors
-        orient_AB = {
+        orient_A = {
             'gyro_x': ('gyro_x', -1),
             'gyro_y': ('gyro_z', -1),
-            'gyro_z': ('gyro_y', 1),
-            'acc_x' : ('acc_x',  -1),
-            'acc_y' : ('acc_z',  -1),
-            'acc_z' : ('acc_y',  1)
-        }
-        orient_C = {
-            'gyro_x': ('gyro_x', -1),
-            'gyro_y': ('gyro_z', 1),
             'gyro_z': ('gyro_y', -1),
             'acc_x' : ('acc_x',  -1),
+            'acc_y' : ('acc_z',  -1),
+            'acc_z' : ('acc_y',  -1)
+        }
+        orient_BC = {
+            'gyro_x': ('gyro_x', 1),
+            'gyro_y': ('gyro_z', 1),
+            'gyro_z': ('gyro_y', -1),
+            'acc_x' : ('acc_x',  1),
             'acc_y' : ('acc_z',  1),
             'acc_z' : ('acc_y',  -1)
         }
 
         # Use the GPIO number, NOT the pin number!
-        self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17, orient=orient_AB)
-        self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27, orient=orient_AB)
-        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22, orient=orient_C)
+        self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17, orient=orient_A)
+        self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27, orient=orient_BC)
+        self.mpuC = MPU9250.MPU9250(pi=self.piggy, gpio=22, orient=orient_BC)
 
         # Get these IMU values from the Calibration/Calibrate.py script
-        accel_17 = [ 4883, 6144, 8468]
-        accel_27 = [-7065, 6068, 9173]
-        accel_22 = [-3779, 7385, 9001]
-        gyro_17  = [   34,  -11,   24]
-        gyro_27  = [  -28,   -2,  -16]
-        gyro_22  = [  -90,  -16,   38]
+        accel_17 = [ 4876, 6161, 8462]
+        accel_27 = [-7058, 6056, 9173]
+        accel_22 = [-3771, 7372, 9001]
+        gyro_17  = [   40,  -13,    9]
+        gyro_27  = [  -22,  -12,  -11]
+        gyro_22  = [  -90,  -21,   46]
+
 
         # Apply calibration offsets into registers on the IMU
         self.mpuA.set_accel_calibration(accel_17[0],accel_17[1],accel_17[2])
@@ -63,9 +64,10 @@ class Payload(object):
 
 
         self.mpl = MPL3115A2.MPL3115A2()
+        self.mpl.setOffset(4639)
         self.clock = PCF8523.PCF8523()
-        # self.currentState = payloadState.PreLaunchPhase()
-        self.currentState = payloadState.ExperimentPhase()
+        self.currentState = payloadState.PreLaunchPhase()
+        #self.currentState = payloadState.ExperimentPhase()
 
         # Configure propeller ESC
         self.motor_propeller = ESCMotor.Motor(
@@ -103,7 +105,7 @@ class Payload(object):
         # Turn on LED on GPIO 4 to indicate program started
         self.piggy.write(self.DEBUG_GPIO, 1)
 
-        with open("av_payload.csv", "a+") as out:
+        with open("/home/pi/Avionics/av_payload.csv", "a+") as out:
             # Write a header line
             print("Running ESRA 30k payload avionics...\n")
             out.write(
@@ -140,7 +142,9 @@ class Payload(object):
                 data['gyro_x'] = mean_from_list(
                     ( data['17_gyro_x'], data['27_gyro_x'], data['22_gyro_x'] )
                 )
-
+                if(data['temp'] > 9000):
+                    #if altimeter shuts down, stop running motor immediately
+                    self.currentState = payloadState.DescentPhase()
                 if str(self.currentState) == 'ExperimentPhase':
                     # Recalculate propeller motor speed using latest acceleration
                     data['acc_pid'], data['acc_pwm'] = self.motor_propeller.update_motor(
@@ -171,4 +175,4 @@ class Payload(object):
 
 if __name__ == "__main__":
     payload = Payload()
-    payload.runLoop(True)
+    payload.runLoop(10)

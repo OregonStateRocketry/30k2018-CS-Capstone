@@ -31,6 +31,7 @@ class MPL3115A2(object):
         self.last_alt = 0
         self.temp = 0
         self.offset = 0
+        self.errortemp = 9999
 
     def readTempAlt(self):
         try:
@@ -52,12 +53,13 @@ class MPL3115A2(object):
             self.last_alt = alt
             # Condense 2 bits into temperature in C
             self.temp = ((data[3] * 256) + (data[4] & 0xF0)) / 256.0
-            return self.temp, (self.alt + self.offset)
+            return self.temp, (alt + self.offset)
         except:
             # Catch any errors (intended for I/O but let's be extra safe here)
             # Returning the last known value is the safest way to prevent
             # accidentally triggering the experiment phase
-            return self.last_alt
+            # return an error temperature to switch to last phase if altimeter is in error
+            return self.errortemp, self.last_alt
 
 
     def setOffset(self, realalt):
