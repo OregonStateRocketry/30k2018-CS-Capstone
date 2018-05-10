@@ -25,12 +25,12 @@ class Rocket(object):
                 'acc_y' : ('acc_y',  1),
                 'acc_z' : ('acc_x',  1)
             }
-        accel_17=[-5216,4379,9095]
-        accel_27=[-5602,-5673,9750]
-        accel_22=[-3821,-4426,8930]
-        gyro_17=[18,-17,11]
-        gyro_27=[1,-18,-2]
-        gyro_22=[-5,-21,4]
+        accel_17 = [-5328, 4957, 9074]
+        accel_27 = [-5528,-5773, 9781]
+        accel_22 = [-3871,-4378, 8871]
+        gyro_17  = [   19,  -19,    8]
+        gyro_27  = [    1,   -8,   -4]
+        gyro_22  = [   12,  -19,   35]
         # Use the GPIO number, NOT the pin number!
         self.mpuA = MPU9250.MPU9250(pi=self.piggy, gpio=17,orient=Orientation)
         self.mpuB = MPU9250.MPU9250(pi=self.piggy, gpio=27,orient=Orientation)
@@ -42,7 +42,7 @@ class Rocket(object):
         self.mpuC.set_accel_calibration(accel_22[0],accel_22[1],accel_22[2])
         self.mpuC.set_gyro_calibration(gyro_22[0],gyro_22[1],gyro_22[2])
         self.mpl = MPL3115A2.MPL3115A2()
-        self.mpl.setOffset(235)
+        self.mpl.setOffset(4639)
         self.clock = PCF8523.PCF8523()
         self.currentState = rocketState.PreLaunchPhase()
 
@@ -67,7 +67,7 @@ class Rocket(object):
         # Turn on LED on GPIO 4 to indicate program started
         self.piggy.write(self.DEBUG_GPIO, 1)
 
-        with open("av_rocket.csv", "a+") as out:
+        with open("/home/pi/Avionics/av_rocket.csv", "a+") as out:
             # Write a header line
             print("Running ESRA 30k rocket avionics...\n")
             out.write(
@@ -114,4 +114,4 @@ class Rocket(object):
 
 if __name__ == "__main__":
     rocket = Rocket()
-    rocket.runLoop(100)
+    rocket.runLoop(True)
