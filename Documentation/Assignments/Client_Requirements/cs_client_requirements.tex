@@ -76,7 +76,7 @@
     
     \begin{abstract}
     	% 6. Fill in your abstract
-        Client requirements for the computer science portion of the Oregon State University's entry into the 30k Spaceport America Cup in 2018.  The software components outlined in this requirements document control the rocket avionics, record and display live telemetry from the rocket, and record and display results from the scientific payload.
+        This document outlines the client requirements for the computer science portion of the Oregon State University's entry into the 30k Spaceport America Cup in 2018.  The software components outlined in this requirements document control the rocket avionics, record and display live telemetry from the rocket, and record and display results from the scientific payload.
 	\end{abstract}
 \end{titlepage}
 \newpage
@@ -96,7 +96,7 @@
         \hline
         J.Novak, A.Sladek, L.Willmeth & 10/26/17 & Initial document draft & 0.1 \\
         \hline
-	    & & & \\
+	    J.Novak, A.Sladek, L.Willmeth & 4/29/18 & Updates to reflect hardware changes & 0.2 \\
         \hline
     \end{tabular*}
 \end{center}
@@ -159,9 +159,9 @@ The Parser program will receive data from a file, or an external source (telemet
 
 The Display program will run on a client computer and graph or otherwise display telemetry or payload data from the database.
 
-The Rocket Avionics program will use onboard sensors to detect and trigger the separation of the rocket near the apogee of flight, as well as deploy the main parachute closer to the ground.  The optimal conditions for separation and deployment will be determined by team discussion and recommendations from experienced mentors.
+The Rocket Avionics program will log data from onboard sensors and attempt to detect apogee.  The optimal conditions for separation and deployment will be guided by team discussion and recommendations from experienced mentors.
 
-The Payload Avionics program will use onboard sensors to signal a propeller to push the payload down in order to create a low gravity environment on the payload. It will also trigger deployment of a parachute before impacting the ground.  The optimal conditions to deploy the parachute will be determined by team discussion.
+The Payload Avionics program will use onboard sensors to signal a propeller to push the payload down in order to create a low gravity environment on the payload.  It will also log sensor values to a CSV file for later analysis.
 
 \subsubsection{System interfaces}
 The Rocket Avionics software will interact with the rocket through the PCB designed by the ECE team.
@@ -173,18 +173,18 @@ The Parser program will interact with an input source and database.
 The Display program will interact with the same network and database as the Parser program.
 
 \subsubsection{User interfaces}
-The Rocket and Payload Avionics software will allow for the use of an LED to indicate status.
+The Rocket and Payload Avionics software may allow for the use of an LED to indicate status.
 
-The Parser program will provide a text interface that can be used for general debugging purposes.
+The Parser program may provide a text interface that could be used for general debugging purposes.
 
 The Display program will provide a graphical user interface allowing users to view information stored in the database. This will allow users to see active flights or view previously recorded flights or test data.  They will also be able to view data recorded on the Rocket or Payload Avionics programs.
 
 \subsubsection{Hardware interfaces}
 The Parser program will interact with a radio device to collect telemetry data.  It may be necessary to run the Parser program on multiple computers to interpret data from multiple audio sources, while avoiding interference between audio sources.
 
-The Rocket Avionics software will interact with the rocket through a PCB designed by the ECE team, which will provide sensors that will probably include at least one accelerometer, gyroscope, and barometer, as well as multiple explosive charges to separate the rocket, and deploy drogue and main parachutes.
+The Rocket Avionics software will interact with the rocket through a PCB designed by the ECE team, which will provide sensors that will probably include at least one accelerometer, gyroscope, and barometer.
 
-The Payload Avionics software will interact with the rocket through a PCB designed by the ECE team, which will provide sensors that will probably include at least one accelerometer, gyroscope, and barometer, a host of sensors for the zero-g experiments conducted on board, and at least one main parachute and a backup. 
+The Payload Avionics software will interact with the rocket through a PCB designed by the ECE team, which will provide sensors that will probably include at least one accelerometer, gyroscope, and barometer. 
 
 \subsubsection{Software interfaces}
 External libraries or software may be used to create graphs from information in the database.
@@ -202,7 +202,7 @@ Avionics software will need to execute on a computer system to be determined by 
 \subsubsection{Operations}
 The Parsing program will offer a Monitor mode to listen for incoming data packets on the audio port.
 
-The Parsing program will offer an Import mode to import formatted data from a file.
+The Parsing program (or another program) will allow us to import formatted data from a file.
 
 The Rocket and Payload Avionics programs may offer different flight modes and behave like state machines, depending on how the project develops and based on advice from industry mentors.
 
@@ -230,14 +230,6 @@ Read data from individual sensors.
 
 Store sensor data on a SD card.
 
-Toggle a GPIO pin to trigger rocket separation.
-
-Toggle a GPIO pin to trigger payload ejection.
-
-Toggle a GPIO pin to deploy drogue parachute (if needed).
-
-Toggle a GPIO pin to deploy main parachute (if needed).
-
 \subsubsection{Payload Avionics functions}
 Read data from individual sensors.
 
@@ -246,9 +238,6 @@ Store sensor data on a SD card.
 Measure current acceleration and calculate expected thrust to reduce acceleration.
 
 Update a GPIO pin to control propeller speed.
-
-Toggle a GPIO pin to deploy main parachute.
-
 
 \subsection{User characteristics}
 The intended users of this software will consist primarily of other team members and mentors. They will have technical knowledge related to operation and construction of the rocket and its sensors. These users are all seniors in college or beyond. The nature of the graphical data will be technical. The software team will also be present at launch to assist in the use of the software.
@@ -275,9 +264,9 @@ The Display program will read from the same database on the same local network.
 Multiple copies of the Display and Parsing programs can run simultaneously on different machines, without interfering with each other.
 
 \subsubsection{Audit functions}
-The Rocket and Payload Avionics programs will include a test suite covering at least 80\% of the CS team’s lines of code.  The CS team cannot guarantee code coverage for software written by other groups.
+The Rocket and Payload Avionics programs will include a test suite covering at least 80\% of the CS team’s lines of code.  The CS team cannot guarantee code coverage for libraries or software written by other groups.
 
-The Parser program will include a test suite covering at least 80\% lines of code written by the CS team.  The test inputs may be in the form of files and/or audio sources.
+The Parser program will include a test suite covering at least 80\% lines of code written by the CS team.  The test inputs may be in the form of files and/or audio sources.  The CS team cannot guarantee code coverage for libraries or software written by other groups.
 
 \subsubsection{Control functions}
 Control functions are limited by the ECE and rocket hardware.
@@ -285,34 +274,32 @@ Control functions are limited by the ECE and rocket hardware.
 \subsubsection{Higher-order language requirements}
 The Parser and Display program may be written in a high level language.
 
-The Rocket and Payload Avionics programs may be written in C or a higher level language. (TBD)
+The Rocket and Payload Avionics programs may be written in C or another high level language.
 
 \subsubsection{Signal handshake protocols (e.g., XON-XOFF, ACK-NACK)}
-The Parser or Display programs may or may not include authentication or signal handshakes. (TBD)
+The Parser or Display programs may or may not include authentication or signal handshakes.
 
 \subsubsection{Reliability requirements}
-The Parser program must reliably receive and store GPS data during flight.
+The Parser program must reliably receive and store GPS data from the telemetry transmitters during flight.
 
 The Display program must reliably compute and display data from the database.
 
-The Rocket Avionics program must perform flight actions reliably and under the correct conditions, which will be determined over the course of the project.  Expected flight actions include recording sensor data throughout the flight, detecting launch, detecting apogee, triggering separation, triggering main parachute deployment, and concluding the flight.
+The Rocket Avionics program must perform flight actions reliably and under the correct conditions, which will be determined over the course of the project.  Expected flight actions include recording sensor data throughout the flight, detecting launch, detecting apogee, and concluding the flight.
 
-The Payload Avionics program must reliably and accurately meet the requirements of the experiment, which are TBD.  Expected requirements include recording sensor data throughout the flight, detecting separation, controlling a propeller to reach a state of neutral gravity, triggering main parachute deployment, and concluding the flight.
+The Payload Avionics program must reliably and accurately meet the requirements of the experiment, which are TBD.  Expected requirements include recording sensor data throughout the flight, detecting separation, controlling a propeller to reach a state of neutral gravity, and concluding the flight.
 
 \subsubsection{Criticality of the application}
-Displaying recent GPS data will be mission critical for recovery of the rocket. Interpretation and display of other data, including telemetry and payload is less critical, but still very important to the success of the launch. Separation at the right time is critical for recovery of the rocket.  Triggering the main parachutes on both the rocket and payload are critical for the project.
+Displaying recent GPS data will be mission critical for recovery of the rocket. Interpretation and display of other data, including telemetry and payload is less critical, but still very important to the success of the launch.
 
 \subsubsection{Safety and security considerations}
-Preventing accidental separation of the rocket is critical for human safety.
-
-Preventing accidental deployment of main parachutes on both the rocket and payload are critical for human safety.
-
-\subsection{Assumptions and dependencies}
 The rocket will launch far enough away from spectators not to pose a safety threat.
 
+\subsection{Assumptions and dependencies}
 The ECE team will provide the computer hardware necessary to run the Rocket and Payload Avionics programs, allowing us to record data for use by all programs.
 
 The ECE team will create radio signals containing accurate and well-formatted telemetry data from both the rocket and payload components, which can be received by the Parser program.
+
+The ECE team will provide the CS team with sufficient time and information to test and debug our software using their final version of the flight hardware.
 
 \section{Specific requirements}
 \subsection{External interface requirements}
@@ -337,7 +324,7 @@ The Display program will interface to a database using WiFi.
 \subsection{System features}
 
 \subsubsection{Display program features}
-The Display program will offer a GUI to display telemetry or recorded data as graphs, tables, maps, or individual fields. At least eight out of every ten intended users able to determine what telemetry information has been received.
+The Display program will offer a GUI to display telemetry or recorded data as graphs, tables, maps, or individual fields. At least eight out of ten intended users able to determine what telemetry information has been received.
 
 The Display program will read information from a database.  The database will be populated by the Parser program.
 
@@ -385,17 +372,13 @@ The Parsing program will run on a Linux base operating system, requiring relativ
 
 None of the programs will require an active internet connection.
 
-The Rocket and Payload Avionics programs will run on a processor to be determined by the ECE team.
+The Rocket and Payload Avionics programs will run on a processor to be jointly decided by the CS and ECE teams.
 
 \subsection{Software system attributes}
 The parsing and payload programs will run on a Linux based operating system.
 
-\newpage
-\begin{figure}
-	\centering
-    Dependencies Flowchart
-	\includegraphics[scale=0.5\textwidth, natwidth=960, natheight=720]{dep_flowchart.png}
-\end{figure}
-
+\centering
+Dependencies Flowchart
+\includegraphics[scale=0.5]{images/Dependancies_flowchart.eps}
 
 \end{document}
