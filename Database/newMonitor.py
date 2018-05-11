@@ -106,4 +106,4 @@ def main(stdscr, dbConfig):
 
 
 if __name__ == "__main__":
-    wrapper(main, dbConfig='config.yml')
+    wrapper(main, dbConfig='configTest.yml')

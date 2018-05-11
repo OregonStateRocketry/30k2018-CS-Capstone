@@ -57,21 +57,21 @@ class DWParser:
         self.count += 1
         return data
 
-# def demo():
-#     print("Connecting to direwolf audio parser...", end='', flush=True)
-#     wolf = None
-#     try:
-#         wolf = DWParser()
-#     except Exception as e:
-#         print(" FAILED")
-#         print("Direwolf failed to start, often solved by rebooting.")
-#         print("Debugging info: ",e)
-#         sys.exit(0)
-#     print(" OK")
-#
-#     while(True):
-#         print("Waiting for a packet..")
-#         print(wolf.checkAudio())
-#
-# if __name__ == '__main__':
-#     demo()
+def demo():
+    print("Connecting to direwolf audio parser...", end='', flush=True)
+    wolf = None
+    try:
+        wolf = DWParser()
+    except Exception as e:
+        print(" FAILED")
+        print("Direwolf failed to start, often solved by rebooting.")
+        print("Debugging info: ",e)
+        sys.exit(0)
+    print(" OK")
+
+    while(True):
+        print("Waiting for a packet..")
+        print(wolf.checkAudio())
+
+if __name__ == '__main__':
+    demo()

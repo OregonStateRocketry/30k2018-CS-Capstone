@@ -30,8 +30,8 @@ def displayStaticElements(stdscr):
     ))
 
     # stdscr.addstr(10,1,"Currently active flights:")
-    stdscr.addstr(11,1,"{:3}{:6}{:7}{:8}{:7}{:6}".format(
-        "F", "Delay", "Lat", "Lon", "Alt", "CS",
+    stdscr.addstr(11,1,"{:6}{:8}{:9}{:7}{:6}".format(
+        "Delay", "Lat", "Lon", "Alt", "CS",
     ))
 
 def updateParserSection(stdscr, db, dbtime):
@@ -62,15 +62,14 @@ def updateLocationSection(stdscr, db, dbtime):
     rows = db.getCurrentPosition()
     for i,r in enumerate(rows):
         delay = int(
-            (dbtime - r['time']).total_seconds()
+            (dbtime - r['latest']).total_seconds()
         )
 
         stdscr.addstr(12+i,1,
-            "{:3}{:6}{:7}{:8}{:7}{:6}".format(
-            str(r['f_id']),
+            "{:6}{:8}{:9}{:7}{:6}".format(
             str(delay) if delay < 600 else '>600',
-            str(r['lat'])[:6],
-            str(r['lon'])[:7],
+            str(r['lat'])[:7],
+            str(r['lon'])[:8],
             str(r['alt'])[:6],
             r['callsign']
         ))
