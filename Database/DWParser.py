@@ -52,6 +52,8 @@ class DWParser:
                     l = l[0]
                     data['lat'] = self.convertDMtoDD(int(l[0]), float(l[1]))
                     data['lon'] = self.convertDMtoDD(int(l[2]), float(l[3]))
+                    if data['lon'] > 0:
+                        data['lon'] *= -1
                     data['alt'] = int(l[4])
                     data['alt units'] = l[5]
         self.count += 1

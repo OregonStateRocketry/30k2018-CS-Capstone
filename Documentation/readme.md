@@ -8,7 +8,7 @@ In Linux:
 2. Insert the SD card into a USB reader, insert into the host and run `df -h` again.
 
    Notice there are new lines indicating your SD card, probably something like `/dev/sdb` or `/dev/sdb1` and `/dev/sdb2`.
-  
+
    It's normal to have two or more lines if the SD card is already partitioned.
 
 3. Copy the entire SD card into a file with `sudo dd if=/dev/sdb of=~/Downloads/sd_card_bu.img`
@@ -20,16 +20,32 @@ In Linux:
 4. Remove the original (source) SD card and insert the new (target) SD card.
 
    Unmount the new SD card before writing to it:
-   
+
    ```
    sudo umount /dev/sdb1
    sudo umount /dev/sdb2
    ```
-   
+
    Write the image onto the target SD card:
-   
+
    `sudo dd bs=4M if=~/Downloads/sd_card_bu.img of=/dev/sdb`
-   
+
    Verify the write is complete:
-   
+
    `sudo sync`
+
+## Set remote time from local time
+
+```
+ssh pi@p1.local sudo date -s @`( date -u +"%s" )`
+```
+
+(Warning, use ssh-copy-id first, or the timestamp will be off by as long as it takes you to enter your ssh password!)
+
+## Clear SD card partitions
+
+Find your drive with:
+`fdisk -l`
+
+Add/remove/change disk partitions:
+`sudo fdisk /dev/mmcblk0`
