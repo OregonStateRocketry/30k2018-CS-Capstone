@@ -70,6 +70,7 @@ def insertCSVRows(file_handler, table, f_id, fullCols, partCols):
 
         if length == 23 and fields[0] != 'state':
             f_id, s_id, time = fields[0:3]
+            s_id = int(s_id)+1
             time = 'FROM_UNIXTIME({})'.format(time)
             gyro_x = get_avg(fields[3], fields[9],  fields[15])
             gyro_y = get_avg(fields[4], fields[10], fields[16])
@@ -86,6 +87,7 @@ def insertCSVRows(file_handler, table, f_id, fullCols, partCols):
 
         elif length == fullLength and fields[0] != 'state':
             f_id, s_id, time = fields[0:3]
+            s_id = int(s_id)+1
             time = 'FROM_UNIXTIME({})'.format(time)
             gyro_x = get_avg(fields[3], fields[9],  fields[15])
             gyro_y = get_avg(fields[4], fields[10], fields[16])
