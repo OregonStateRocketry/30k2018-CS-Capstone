@@ -190,49 +190,19 @@ app.get('/q', function(req, res){
                    SELECT time, alt, 'Rocket'
                    FROM Rocket_Avionics
                    WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT time, height as alt, 'TeleMega'
-                   FROM TeleMega_Voltage
-                   WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
         case 'acc_zVtime':
             // Plots altitude vs time
-            sql = `SELECT time, acc_z, callsign AS Source
-                   FROM BeelineGPS B
-                   JOIN Callsigns C ON C.id = B.c_id
-                   WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT time, alt, 'Payload'
-                   FROM Payload_Avionics
-                   WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT time, alt, 'Rocket'
+            sql = `SELECT time, acc_z, 'Rocket'
                    FROM Rocket_Avionics
-                   WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT time, height as alt, 'TeleMega'
-                   FROM TeleMega_Voltage
                    WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
         case 'tempVtime':
             // Plots altitude vs time
-            sql = `SELECT time, temp, callsign AS Source
-                   FROM BeelineGPS B
-                   JOIN Callsigns C ON C.id = B.c_id
-                   WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT time, alt, 'Payload'
-                   FROM Payload_Avionics
-                   WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT time, alt, 'Rocket'
+            sql = `SELECT time, temp, 'Rocket'
                    FROM Rocket_Avionics
-                   WHERE f_id=${f_id}`+time+`
-                   UNION
-                   SELECT time, height as alt, 'TeleMega'
-                   FROM TeleMega_Voltage
                    WHERE f_id=${f_id}`+time+`
                    ORDER BY time ASC`+limit;
             break;
@@ -273,6 +243,7 @@ app.get('/q', function(req, res){
     }
 
     if(sql){
+        console.log('SQL = '+sql);
         db.query(sql,function(err, results) {
             res.send(JSON.stringify(results));
         });
