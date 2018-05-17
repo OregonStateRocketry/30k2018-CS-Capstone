@@ -46,10 +46,10 @@
 			});
 			waiting = false;
 		});
-		update();
+//		update();
 		function update() {
 			if(waiting) {
-				setTimeout(function(){update()}, 100)
+				setTimeout(function(){update()}, 1000)
 			} else {
 				waiting = true;
 				$.getJSON("/q?get=map&f_id={{fid}}&time=" + lasttime, function(data){
@@ -78,7 +78,7 @@
 						}
 						addPoint(parseFloat(value['lat']),parseFloat(value['lon']),parseInt(value['alt']),sourcenum,value['Source']);
 					});
-					// waiting = false;
+					waiting = false;
 				});
 				update();
 			}
