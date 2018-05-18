@@ -14,7 +14,7 @@
         if (item.f_id == "{{fid}}"){
 
             // Display values
-            //$( "<p>" ).text( "Flight ID:            "+ item.f_id).appendTo( "#summaryBlock" );
+            $( "<p>" ).text( "Callsign:             "+ item.callsign).appendTo( "#summaryBlock" );
             $( "<p>" ).text( "Status:               "+ item.status).appendTo( "#summaryBlock" );
             $( "<p>" ).text( "Start Time:           "+ item.min_time).appendTo( "#summaryBlock" );
             $( "<p>" ).text( "Most Recent Update:   "+ item.max_time).appendTo( "#summaryBlock" );
@@ -27,7 +27,7 @@
              * exist. The purpose of this line is to display only one Source
              * and prevent others from being inserted into the DOM.
              * this should be fixed in next release.*/
-            document.getElementById("summaryBlock").removeAttribute("id");
+            //document.getElementById("summaryBlock").removeAttribute("id");
         }
 
       });
