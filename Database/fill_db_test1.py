@@ -2,18 +2,7 @@ import datetime
 from Mariadb import Mariadb
 from time import sleep
 
-db =  Mariadb()
-
-def insertOne(f_id, t, lat, lon, alt, cs):
-    db.insertRow(
-        table = 'BeelineGPS',
-        cols  = 'f_id, time, lat, lon, alt, callsign',
-        vals  = ["""{f_id}, STR_TO_DATE('{timestamp}', '%Y-%m-%d %H:%i:%s'),
-            {lat}, {lon}, {alt}, '{cs}'""".format(
-                f_id=f_id, timestamp=t, lat=lat, lon=lon, alt=alt, cs=cs
-            )
-        ]
-    )
+db = Mariadb(configFile='configTest.yml')
 
 if __name__ == "__main__":
     print("Running demo...")
@@ -36,7 +25,7 @@ if __name__ == "__main__":
         'alt' : 5
     }
     f_id = 1
-    time = datetime.datetime(2018, 1, 16, 20, 20)
+    # time = datetime.datetime(2018, 1, 16, 20, 20)
     for x in range(5):
         print(x)
         for e in [a,b]:
@@ -44,7 +33,15 @@ if __name__ == "__main__":
             if e['alt'] < 0: e['alt'] = 0
             e['lat'] = round(e['lat']+float('0.00'+str(2*e['alt']**2)), 4)
             e['lon'] = round(e['lon']-float('0.00'+str(4*e['alt']**2)), 4)
-            time += datetime.timedelta(seconds=1)
-            # time = datetime.datetime.now()
-            insertOne(f_id, time, e['lat'], e['lon'], e['alt'], e['cs'])
+
+            db.insertRow(
+                table='BeelineGPS',
+                cols='f_id, lat, lon, alt, p_id, c_id',
+                vals=["""
+                    1, {lat}, {lon}, {alt},
+                    1,
+                    (SELECT id FROM Callsigns WHERE callsign='{cs}')
+                    """.format(**e)
+                ]
+            )
         sleep(1)
