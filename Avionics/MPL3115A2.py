@@ -64,4 +64,6 @@ class MPL3115A2(object):
 
     def setOffset(self, realalt):
         t, a = self.readTempAlt()
+        sleep(0.1)
+        t, a = self.readTempAlt()
         self.offset = realalt - a

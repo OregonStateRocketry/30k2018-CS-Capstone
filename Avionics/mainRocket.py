@@ -42,7 +42,7 @@ class Rocket(object):
         self.mpuC.set_accel_calibration(accel_22[0],accel_22[1],accel_22[2])
         self.mpuC.set_gyro_calibration(gyro_22[0],gyro_22[1],gyro_22[2])
         self.mpl = MPL3115A2.MPL3115A2()
-        self.mpl.setOffset(4639)
+        self.mpl.setOffset(0)
         self.clock = PCF8523.PCF8523()
         self.currentState = rocketState.PreLaunchPhase()
 

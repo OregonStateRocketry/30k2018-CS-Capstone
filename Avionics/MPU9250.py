@@ -45,7 +45,7 @@ class MPU9250(object):
         }
 
     def __init__(self, pi, gpio, orient=ORIENTATION, address=0x69,
-                 gyro_scale=FS_250, accel_scale=AFS_2g, bus=1
+                 gyro_scale=FS_250, accel_scale=AFS_16g, bus=1
                  ):
         self.pi = pi
         self.bus = smbus.SMBus(1)
